@@ -5,6 +5,8 @@ import JSZip from "jszip";
 
 const FIELD_SEPARATOR = "\x1f";
 const ZSTD_MAGIC = [0x28, 0xb5, 0x2f, 0xfd] as const;
+const ANKI_UNICASE_COLLATION = new TextEncoder().encode("COLLATE unicase");
+const SQLITE_BUILT_IN_COLLATION = new TextEncoder().encode("COLLATE NOCASE ");
 
 type JsonMap = Record<string, unknown>;
 
@@ -351,19 +353,47 @@ async function loadMediaManifest(zip: JSZip): Promise<MediaEntry[]> {
 
 async function openDatabase(bytes: Uint8Array): Promise<OpenDatabaseResult> {
   const tempPath = join("/tmp", `manki-${Date.now()}-${Math.random().toString(36).slice(2)}.sqlite`);
-  await Bun.write(tempPath, bytes);
+  await Bun.write(tempPath, normalizeUnsupportedSqliteCollations(bytes));
 
-  const db = new Database(tempPath, { readonly: true });
+  const db = new Database(tempPath, { readwrite: true, create: false });
   return {
     db,
     cleanup: async () => {
-      try {
-        await unlink(tempPath);
-      } catch {
-        // ignore cleanup failures
+      for (const path of [tempPath, `${tempPath}-shm`, `${tempPath}-wal`]) {
+        try {
+          await unlink(path);
+        } catch {
+          // ignore cleanup failures
+        }
       }
     },
   };
+}
+
+function normalizeUnsupportedSqliteCollations(bytes: Uint8Array): Uint8Array {
+  let normalized: Uint8Array | undefined;
+
+  for (let index = 0; index <= bytes.length - ANKI_UNICASE_COLLATION.length; index += 1) {
+    if (!bytesMatch(bytes, ANKI_UNICASE_COLLATION, index)) {
+      continue;
+    }
+
+    normalized ??= bytes.slice();
+    normalized.set(SQLITE_BUILT_IN_COLLATION, index);
+    index += ANKI_UNICASE_COLLATION.length - 1;
+  }
+
+  return normalized ?? bytes;
+}
+
+function bytesMatch(bytes: Uint8Array, target: Uint8Array, offset: number): boolean {
+  for (let index = 0; index < target.length; index += 1) {
+    if (bytes[offset + index] !== target[index]) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function hasTable(db: Database, tableName: string): boolean {
@@ -760,4 +790,3 @@ export async function parseApkg(
     await cleanup();
   }
 }
-
