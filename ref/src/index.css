@@ -1,0 +1,226 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) - 1px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 1px);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 3px);
+  --radius-3xl: calc(var(--radius) + 4px);
+  --radius-4xl: calc(var(--radius) + 5px);
+}
+
+:root {
+  color-scheme: light;
+  font-family: "Avenir Next", "Aptos", "Segoe UI", sans-serif;
+  --radius: 1px;
+  --ease-native: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-fast: 110ms;
+  --motion-medium: 170ms;
+  --motion-slow: 240ms;
+  --background: oklch(97.5% 0.006 82);
+  --foreground: oklch(20% 0.018 75);
+  --card: oklch(97.5% 0.006 82);
+  --card-foreground: var(--foreground);
+  --popover: oklch(99% 0.004 82);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(20% 0.018 75);
+  --primary-foreground: oklch(98.5% 0.004 82);
+  --secondary: oklch(93.5% 0.009 82);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(93.5% 0.009 82);
+  --muted-foreground: oklch(48% 0.02 75);
+  --accent: oklch(92.5% 0.011 82);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(45% 0.15 25);
+  --destructive-foreground: oklch(98.5% 0.004 82);
+  --border: oklch(79% 0.014 82 / 0.55);
+  --input: oklch(79% 0.014 82 / 0.65);
+  --ring: oklch(45% 0.018 75 / 0.55);
+  --chart-1: oklch(44% 0.03 75);
+  --chart-2: oklch(52% 0.025 75);
+  --chart-3: oklch(60% 0.02 75);
+  --chart-4: oklch(68% 0.015 75);
+  --chart-5: oklch(76% 0.012 75);
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+
+  html {
+    min-width: 320px;
+    background: var(--background);
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  input {
+    font: inherit;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+.native-window {
+  animation: native-fade-in var(--motion-slow) var(--ease-native) both;
+  overflow: clip;
+}
+
+.native-window > * {
+  animation: native-fade-in var(--motion-slow) var(--ease-native) both;
+}
+
+.native-window > *:nth-child(2) {
+  animation-delay: 25ms;
+}
+
+.native-window > *:nth-child(3) {
+  animation-delay: 50ms;
+}
+
+.native-window > *:nth-child(4) {
+  animation-delay: 75ms;
+}
+
+.native-window > *:nth-child(5) {
+  animation-delay: 100ms;
+}
+
+[data-slot="button"] {
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--ease-native);
+}
+
+.native-search {
+  transition:
+    background-color var(--motion-medium) var(--ease-native),
+    border-color var(--motion-medium) var(--ease-native);
+}
+
+.native-search kbd {
+  transition:
+    border-color var(--motion-medium) var(--ease-native),
+    color var(--motion-medium) var(--ease-native);
+}
+
+.native-search:focus-within {
+  border-color: color-mix(in oklch, var(--foreground) 28%, var(--input));
+  background: var(--popover);
+}
+
+.native-search:focus-within kbd {
+  border-color: color-mix(in oklch, var(--foreground) 22%, var(--border));
+  color: var(--foreground);
+}
+
+.native-row {
+  cursor: default;
+  transition:
+    background-color var(--motion-medium) var(--ease-native),
+    outline-color var(--motion-medium) var(--ease-native);
+}
+
+.native-row:hover {
+  background: color-mix(in oklch, var(--muted) 64%, transparent);
+}
+
+.native-row[aria-selected="true"] {
+  background: var(--muted);
+}
+
+.native-row:focus-visible {
+  outline: 1px solid color-mix(in oklch, var(--foreground) 24%, transparent);
+  outline-offset: -1px;
+}
+
+.native-row:active {
+  background: color-mix(in oklch, var(--muted) 86%, var(--foreground) 4%);
+}
+
+.native-feedback {
+  animation: native-fade-in 150ms linear both;
+}
+
+@keyframes native-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
