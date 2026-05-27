@@ -1,0 +1,46 @@
+{
+  "name": "ref-expo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fresh Expo reference app for Manki.",
+  "main": "index.ts",
+  "scripts": {
+    "android": "expo run:android",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun run doctor",
+    "doctor": "expo-doctor",
+    "format": "oxfmt . --disable-nested-config --write",
+    "format:check": "oxfmt . --disable-nested-config --check",
+    "ios": "expo run:ios",
+    "lint": "oxlint . --disable-nested-config",
+    "lint:fix": "oxlint . --fix --disable-nested-config",
+    "prebuild": "expo prebuild",
+    "prebuild:clean": "expo prebuild --clean",
+    "start": "expo start --dev-client",
+    "typecheck": "tsgo --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "expo": "~56.0.5",
+    "expo-dev-client": "~56.0.16",
+    "expo-status-bar": "~56.0.4",
+    "expo-system-ui": "~56.0.5",
+    "react": "19.2.3",
+    "react-native": "0.85.3"
+  },
+  "devDependencies": {
+    "@oxlint/plugins": "^1.67.0",
+    "@types/react": "~19.2.2",
+    "@typescript/native-preview": "^7.0.0-dev.20260527.1",
+    "expo-doctor": "^1.19.8",
+    "oxfmt": "^0.52.0",
+    "oxlint": "^1.67.0",
+    "oxlint-tsgolint": "^0.23.0"
+  },
+  "packageManager": "bun@1.4.0",
+  "expo": {
+    "doctor": {
+      "appConfigFieldsNotSyncedCheck": {
+        "enabled": false
+      }
+    }
+  }
+}
