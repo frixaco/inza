@@ -4,7 +4,7 @@
   "private": true,
   "description": "Fresh Electron reference app for Manki.",
   "type": "module",
-  "main": "dist/main/main.js",
+  "main": "dist/main/main.mjs",
   "scripts": {
     "build": "bun run typecheck && bun run build:main && bun run build:renderer",
     "build:main": "rolldown -c rolldown.config.mjs",
