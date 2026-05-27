@@ -1,6 +1,6 @@
 # Manki Electron Reference
 
-Fresh Electron 42 reference app with a Vite renderer, sandboxed preload bridge, and `@typescript/native-preview` for typechecking.
+Fresh Electron 42 reference app with a React 19 + Tailwind CSS v4 Vite renderer and `@typescript/native-preview` for typechecking.
 
 ## Commands
 
@@ -17,6 +17,8 @@ bun run build
 bun run start
 ```
 
-`bun run dev` starts Vite in dev-server mode, watches Electron `main` and `preload`, and restarts Electron when either of those entrypoints changes.
+`bun run dev` starts Vite in dev-server mode, watches Electron `main`, and restarts Electron when it changes.
+
+Tailwind is wired through the official `@tailwindcss/vite` plugin and imported once from `src/renderer/style.css`.
 
 This app intentionally uses `tsgo` from `@typescript/native-preview` instead of depending on the JavaScript TypeScript compiler package.

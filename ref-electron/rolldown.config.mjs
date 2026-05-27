@@ -1,27 +1,12 @@
-const external = ["electron", "electron/main", "electron/renderer"];
-
-/** @type {import("rolldown").RolldownOptions[]} */
-const config = [
-  {
-    external,
-    input: "src/main/main.ts",
-    output: {
-      file: "dist/main/main.mjs",
-      format: "esm",
-      sourcemap: true,
-    },
-    platform: "node",
+/** @type {import("rolldown").RolldownOptions} */
+const config = {
+  external: ["electron"],
+  input: "src/main/main.ts",
+  output: {
+    file: "dist/main/main.mjs",
+    format: "esm",
   },
-  {
-    external,
-    input: "src/main/preload.ts",
-    output: {
-      file: "dist/main/preload.cjs",
-      format: "cjs",
-      sourcemap: true,
-    },
-    platform: "node",
-  },
-];
+  platform: "node",
+};
 
 export default config;

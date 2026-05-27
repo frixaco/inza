@@ -1,36 +1,72 @@
 import { spawn } from "node:child_process";
-import path from "node:path";
+import { createRequire } from "node:module";
 
 import { watch } from "rolldown";
 import { createServer } from "vite";
 
 import rolldownConfig from "../rolldown.config.mjs";
 
-const electronCli = path.join(process.cwd(), "node_modules/.bin/electron");
+const require = createRequire(import.meta.url);
+const electronBinary = String(require("electron"));
+const expectedElectronExits = new WeakSet();
 
 /** @type {import("node:child_process").ChildProcess | undefined} */
 let electronProcess;
 /** @type {NodeJS.Timeout | undefined} */
 let restartTimer;
 let buildFailed = false;
+let isShuttingDown = false;
+
+function stopElectron() {
+  if (
+    !electronProcess ||
+    electronProcess.exitCode !== null ||
+    electronProcess.signalCode !== null
+  ) {
+    return;
+  }
+
+  expectedElectronExits.add(electronProcess);
+
+  if (electronProcess.pid && process.platform !== "win32") {
+    process.kill(-electronProcess.pid, "SIGTERM");
+    return;
+  }
+
+  electronProcess.kill("SIGTERM");
+}
 
 /**
  * @param {string} url
  */
 function startElectron(url) {
-  electronProcess?.kill();
+  stopElectron();
 
-  electronProcess = spawn(electronCli, ["."], {
+  const child = spawn(electronBinary, ["."], {
+    detached: process.platform !== "win32",
     env: {
       ...process.env,
       VITE_DEV_SERVER_URL: url,
     },
-    shell: process.platform === "win32",
-    stdio: "inherit",
+    stdio: ["ignore", "inherit", "pipe"],
+    windowsHide: false,
   });
 
-  electronProcess.on("exit", (code) => {
-    if (code === 0 || code === null) {
+  electronProcess = child;
+
+  child.stderr?.on("data", (chunk) => {
+    if (!expectedElectronExits.has(child)) {
+      process.stderr.write(chunk);
+    }
+  });
+
+  child.on("exit", (code, signal) => {
+    if (expectedElectronExits.has(child) || code === 0) {
+      return;
+    }
+
+    if (signal) {
+      console.error(`Electron exited with signal ${signal}`);
       return;
     }
 
@@ -101,12 +137,22 @@ const watcher = watch(rolldownConfig);
 
 watcher.on("event", handleBundleEvent);
 
-function shutdown() {
+async function shutdown() {
+  if (isShuttingDown) {
+    return;
+  }
+
+  isShuttingDown = true;
   clearTimeout(restartTimer);
-  electronProcess?.kill();
-  void server.close();
+  stopElectron();
+  await Promise.allSettled([watcher.close(), server.close()]);
   process.exit(0);
 }
 
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+process.on("SIGINT", () => {
+  void shutdown();
+});
+
+process.on("SIGTERM", () => {
+  void shutdown();
+});

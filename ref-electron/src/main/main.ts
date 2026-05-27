@@ -1,53 +1,25 @@
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-import { BrowserWindow, app, ipcMain, nativeTheme, session, shell } from "electron";
+import { BrowserWindow, app, session } from "electron";
 
-const devServerUrl = process.env["VITE_DEV_SERVER_URL"];
-const isDev = Boolean(devServerUrl);
-
-let mainWindow: BrowserWindow | null = null;
-
-function showMainWindow() {
-  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
-    mainWindow.show();
-  }
-}
+const localDevHostnames = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
+const devServerUrl = getLocalDevServerUrl(process.env["VITE_DEV_SERVER_URL"]);
+const devServerOrigin = devServerUrl ? new URL(devServerUrl).origin : undefined;
 
 async function createMainWindow() {
-  mainWindow = new BrowserWindow({
+  const mainWindow = new BrowserWindow({
     width: 1120,
     height: 760,
-    minWidth: 860,
-    minHeight: 620,
     title: "Manki",
-    backgroundColor: nativeTheme.shouldUseDarkColors ? "#1b1f23" : "#f5f3ed",
-    show: true,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      preload: path.join(app.getAppPath(), "dist/main/preload.cjs"),
     },
   });
 
-  mainWindow.once("ready-to-show", showMainWindow);
-  mainWindow.webContents.once("did-fail-load", handleRendererLoadFailure);
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith("https://")) {
-      void shell.openExternal(url);
-    }
-
-    return { action: "deny" };
-  });
-
   await loadRenderer(mainWindow);
-  showMainWindow();
-  mainWindow.focus();
-  app.focus({ steal: true });
-
-  if (isDev && process.env["MANKI_OPEN_DEVTOOLS"] === "1") {
-    mainWindow.webContents.openDevTools({ mode: "detach" });
-  }
 }
 
 async function loadRenderer(window: BrowserWindow) {
@@ -59,27 +31,61 @@ async function loadRenderer(window: BrowserWindow) {
   await window.loadFile(path.join(app.getAppPath(), "dist/renderer/index.html"));
 }
 
-function handleRendererLoadFailure(
-  _event: Electron.Event,
-  errorCode: number,
-  errorDescription: string,
-) {
-  console.error(`Renderer failed to load: ${errorCode} ${errorDescription}`);
-  showMainWindow();
+function getLocalDevServerUrl(value: string | undefined) {
+  if (!value) {
+    return undefined;
+  }
+
+  const url = new URL(value);
+
+  if (url.protocol !== "http:" || !localDevHostnames.has(url.hostname)) {
+    throw new Error(`Refusing non-local Vite dev server URL: ${value}`);
+  }
+
+  return url.toString();
+}
+
+function getProductionRendererUrl() {
+  return pathToFileURL(path.join(app.getAppPath(), "dist/renderer/index.html")).toString();
+}
+
+function isTrustedRendererUrl(value: string) {
+  try {
+    const url = new URL(value);
+
+    if (devServerOrigin) {
+      return url.origin === devServerOrigin;
+    }
+
+    const productionRendererUrl = getProductionRendererUrl();
+
+    return url.href === productionRendererUrl || url.href.startsWith(`${productionRendererUrl}#`);
+  } catch {
+    return false;
+  }
+}
+
+function registerWebContentsPolicy() {
+  app.on("web-contents-created", (_event, contents) => {
+    contents.setWindowOpenHandler(() => ({ action: "deny" }));
+
+    contents.on("will-navigate", (event, url) => {
+      if (isTrustedRendererUrl(url)) {
+        return;
+      }
+
+      event.preventDefault();
+    });
+  });
 }
 
 async function startApp() {
   await app.whenReady();
+  registerWebContentsPolicy();
 
   session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
     callback(false);
   });
-
-  ipcMain.handle("app:versions", () => ({
-    chrome: process.versions.chrome,
-    electron: process.versions.electron,
-    node: process.versions.node,
-  }));
 
   await createMainWindow();
 

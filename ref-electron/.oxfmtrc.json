@@ -29,5 +29,8 @@
   "sortPackageJson": {
     "sortScripts": true
   },
+  "sortTailwindcss": {
+    "stylesheet": "./src/renderer/style.css"
+  },
   "ignorePatterns": ["dist/**", "node_modules/**", "bun.lock"]
 }
