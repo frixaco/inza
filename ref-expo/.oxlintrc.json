@@ -1,0 +1,54 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "promise", "node", "react", "react-perf"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "error",
+    "style": "error"
+  },
+  "options": {
+    "denyWarnings": true,
+    "reportUnusedDisableDirectives": "error",
+    "typeAware": true
+  },
+  "env": {
+    "builtin": true
+  },
+  "settings": {
+    "react": {
+      "version": "19.2.3"
+    }
+  },
+  "ignorePatterns": [
+    ".expo/**",
+    "android/**",
+    "ios/**",
+    "node_modules/**",
+    "dist/**",
+    "expo-env.d.ts"
+  ],
+  "rules": {
+    "eslint/func-style": "off",
+    "eslint/init-declarations": "off",
+    "eslint/no-magic-numbers": "off",
+    "eslint/no-ternary": "off",
+    "eslint/sort-imports": "off",
+    "eslint/sort-keys": "off",
+    "import/exports-last": "off",
+    "import/no-named-export": "off",
+    "promise/prefer-await-to-callbacks": "off",
+    "react/jsx-key": "error",
+    "react/jsx-max-depth": "off",
+    "react/no-array-index-key": "error",
+    "react/no-danger": "error",
+    "react/no-unstable-nested-components": "error",
+    "react/react-in-jsx-scope": "off",
+    "react/self-closing-comp": "error",
+    "react/style-prop-object": "off",
+    "typescript/prefer-readonly-parameter-types": "off",
+    "unicorn/filename-case": "off",
+    "unicorn/no-null": "off",
+    "unicorn/require-module-specifiers": "off"
+  }
+}
