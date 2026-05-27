@@ -1,20 +1,12 @@
 import { spawn } from "node:child_process";
-import { createRequire } from "node:module";
+import path from "node:path";
 
 import { watch } from "rolldown";
 import { createServer } from "vite";
 
 import rolldownConfig from "../rolldown.config.mjs";
 
-const require = createRequire(import.meta.url);
-const electronEntryPath = require.resolve("electron");
-const { default: resolvedElectronBinary } = await import(electronEntryPath);
-
-if (typeof resolvedElectronBinary !== "string") {
-  throw new TypeError("Expected Electron package to resolve to a binary path");
-}
-
-const electronBinary = resolvedElectronBinary;
+const electronCli = path.join(process.cwd(), "node_modules/.bin/electron");
 
 /** @type {import("node:child_process").ChildProcess | undefined} */
 let electronProcess;
@@ -28,7 +20,7 @@ let buildFailed = false;
 function startElectron(url) {
   electronProcess?.kill();
 
-  electronProcess = spawn(electronBinary, ["."], {
+  electronProcess = spawn(electronCli, ["."], {
     env: {
       ...process.env,
       VITE_DEV_SERVER_URL: url,
@@ -109,15 +101,11 @@ const watcher = watch(rolldownConfig);
 
 watcher.on("event", handleBundleEvent);
 
-async function shutdown() {
+function shutdown() {
   clearTimeout(restartTimer);
   electronProcess?.kill();
-
-  try {
-    await Promise.all([watcher.close(), server.close()]);
-  } finally {
-    process.exit(0);
-  }
+  void server.close();
+  process.exit(0);
 }
 
 process.on("SIGINT", shutdown);

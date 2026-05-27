@@ -6,7 +6,7 @@ const config = [
     external,
     input: "src/main/main.ts",
     output: {
-      file: "dist/main/main.js",
+      file: "dist/main/main.mjs",
       format: "esm",
       sourcemap: true,
     },
