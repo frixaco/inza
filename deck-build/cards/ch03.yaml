@@ -1,0 +1,13 @@
+chapter: CH-03
+chapter_group: ch03
+status: not_started
+source_files:
+  - rust-book/src/ch03-00-common-programming-concepts.md
+  - rust-book/src/ch03-01-variables-and-mutability.md
+  - rust-book/src/ch03-02-data-types.md
+  - rust-book/src/ch03-03-how-functions-work.md
+  - rust-book/src/ch03-04-comments.md
+  - rust-book/src/ch03-05-control-flow.md
+cards: []
+
+# Add cards using ./deck-build/schema/card.schema.yaml.

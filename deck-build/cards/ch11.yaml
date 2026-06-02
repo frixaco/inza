@@ -1,0 +1,11 @@
+chapter: CH-11
+chapter_group: ch11
+status: not_started
+source_files:
+  - rust-book/src/ch11-00-testing.md
+  - rust-book/src/ch11-01-writing-tests.md
+  - rust-book/src/ch11-02-running-tests.md
+  - rust-book/src/ch11-03-test-organization.md
+cards: []
+
+# Add cards using ./deck-build/schema/card.schema.yaml.

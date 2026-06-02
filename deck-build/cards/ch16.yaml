@@ -1,0 +1,12 @@
+chapter: CH-16
+chapter_group: ch16
+status: not_started
+source_files:
+  - rust-book/src/ch16-00-concurrency.md
+  - rust-book/src/ch16-01-threads.md
+  - rust-book/src/ch16-02-message-passing.md
+  - rust-book/src/ch16-03-shared-state.md
+  - rust-book/src/ch16-04-extensible-concurrency-sync-and-send.md
+cards: []
+
+# Add cards using ./deck-build/schema/card.schema.yaml.

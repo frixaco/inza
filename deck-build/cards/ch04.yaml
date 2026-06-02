@@ -1,0 +1,11 @@
+chapter: CH-04
+chapter_group: ch04
+status: not_started
+source_files:
+  - rust-book/src/ch04-00-understanding-ownership.md
+  - rust-book/src/ch04-01-what-is-ownership.md
+  - rust-book/src/ch04-02-references-and-borrowing.md
+  - rust-book/src/ch04-03-slices.md
+cards: []
+
+# Add cards using ./deck-build/schema/card.schema.yaml.

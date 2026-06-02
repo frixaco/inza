@@ -1,0 +1,13 @@
+chapter: CH-14
+chapter_group: ch14
+status: not_started
+source_files:
+  - rust-book/src/ch14-00-more-about-cargo.md
+  - rust-book/src/ch14-01-release-profiles.md
+  - rust-book/src/ch14-02-publishing-to-crates-io.md
+  - rust-book/src/ch14-03-cargo-workspaces.md
+  - rust-book/src/ch14-04-installing-binaries.md
+  - rust-book/src/ch14-05-extending-cargo.md
+cards: []
+
+# Add cards using ./deck-build/schema/card.schema.yaml.
