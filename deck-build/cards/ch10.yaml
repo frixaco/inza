@@ -1,0 +1,11 @@
+chapter: CH-10
+chapter_group: ch10
+status: not_started
+source_files:
+  - rust-book/src/ch10-00-generics.md
+  - rust-book/src/ch10-01-syntax.md
+  - rust-book/src/ch10-02-traits.md
+  - rust-book/src/ch10-03-lifetime-syntax.md
+cards: []
+
+# Add cards using ./deck-build/schema/card.schema.yaml.

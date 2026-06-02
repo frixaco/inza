@@ -1,0 +1,13 @@
+chapter: CH-20
+chapter_group: ch20
+status: not_started
+source_files:
+  - rust-book/src/ch20-00-advanced-features.md
+  - rust-book/src/ch20-01-unsafe-rust.md
+  - rust-book/src/ch20-02-advanced-traits.md
+  - rust-book/src/ch20-03-advanced-types.md
+  - rust-book/src/ch20-04-advanced-functions-and-closures.md
+  - rust-book/src/ch20-05-macros.md
+cards: []
+
+# Add cards using ./deck-build/schema/card.schema.yaml.

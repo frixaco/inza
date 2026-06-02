@@ -1,0 +1,9 @@
+chapter: Front Matter
+chapter_group: front-matter
+status: not_started
+source_files:
+  - rust-book/src/title-page.md
+  - rust-book/src/foreword.md
+cards: []
+
+# Add cards using ./deck-build/schema/card.schema.yaml.

@@ -1,0 +1,15 @@
+chapter: Appendices
+chapter_group: appendix
+status: not_started
+source_files:
+  - rust-book/src/appendix-00.md
+  - rust-book/src/appendix-01-keywords.md
+  - rust-book/src/appendix-02-operators.md
+  - rust-book/src/appendix-03-derivable-traits.md
+  - rust-book/src/appendix-04-useful-development-tools.md
+  - rust-book/src/appendix-05-editions.md
+  - rust-book/src/appendix-06-translation.md
+  - rust-book/src/appendix-07-nightly-rust.md
+cards: []
+
+# Add cards using ./deck-build/schema/card.schema.yaml.
