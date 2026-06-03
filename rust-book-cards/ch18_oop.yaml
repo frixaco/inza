@@ -1,0 +1,30 @@
+- id: rust-book-ch18-oop-001
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Object Oriented Programming Features"
+  source: "rust-book/src/ch18-00-oop.md"
+  card_type: definition
+  front: |
+    What is the chapter's stance on object-oriented features in Rust?
+  back: |
+    Rust does not mirror class-based OOP, but it supports some object-oriented patterns through structs, enums, traits, and trait objects.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oop
+    - definition
+- id: rust-book-ch18-oop-002
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Object Oriented Programming Features"
+  source: "rust-book/src/ch18-00-oop.md"
+  card_type: comparison
+  front: |
+    Why should Rust designs not force class-based terminology?
+  back: |
+    Rust uses different primitives; matching the domain with structs, enums, traits, and modules often gives clearer designs.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oop
+    - comparison

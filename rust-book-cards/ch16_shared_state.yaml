@@ -1,0 +1,285 @@
+- id: rust-book-ch16-shared-state-001
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: invariant
+  front: |
+    What access rule does `Mutex<T>` enforce around shared data?
+  back: |
+    Mutual exclusion: only one thread at a time can access the protected data through the lock guard.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - invariant
+- id: rust-book-ch16-shared-state-002
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: api_recall
+  front: |
+    What does `lock` return on a `Mutex<T>`?
+  back: |
+    ```rust
+    use std::sync::Mutex;
+
+    let mutex = Mutex::new(0);
+    let mut guard = mutex.lock().unwrap();
+    *guard += 1;
+    ```
+    A `LockResult<MutexGuard<T>>`; the guard provides access and unlocks when dropped.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - api_recall
+- id: rust-book-ch16-shared-state-003
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+
+    ```rust
+    use std::rc::Rc;
+    use std::sync::Mutex;
+    use std::thread;
+
+    fn main() {
+        let counter = Rc::new(Mutex::new(0));
+        let mut handles = vec![];
+
+        for _ in 0..10 {
+            let counter = Rc::clone(&counter);
+            let handle = thread::spawn(move || {
+                let mut num = counter.lock().unwrap();
+                *num += 1;
+            });
+            handles.push(handle);
+        }
+
+        for handle in handles {
+            handle.join().unwrap();
+        }
+    }
+    ```
+  back: |
+    `Rc<T>` is not `Send`; its reference count is not safe to update across threads. Use `Arc<T>`.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - diagnostic
+- id: rust-book-ch16-shared-state-004
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: comparison
+  front: |
+    What is the boundary between `Rc<T>` and `Arc<T>`?
+  back: |
+    Use `Rc<T>` for single-threaded shared ownership. Use `Arc<T>` for atomically reference-counted ownership across threads.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - comparison
+- id: rust-book-ch16-shared-state-005
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: concept_boundary
+  front: |
+    What risk remains when using `Mutex<T>` correctly?
+  back: |
+    Deadlock is still possible if code waits on locks in conflicting orders or never releases a lock.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - concept_boundary
+- id: rust-book-ch16-shared-state-006
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: invariant
+  front: |
+    What two rules does the book emphasize for using a mutex?
+  back: |
+    Acquire the lock before using the guarded data, and release the lock when done so other threads can acquire it.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - invariant
+- id: rust-book-ch16-shared-state-007
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: invariant
+  front: |
+    How does `MutexGuard` help prevent forgetting to unlock a mutex?
+  back: |
+    `MutexGuard` releases the lock automatically when it is dropped at the end of its scope.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - invariant
+- id: rust-book-ch16-shared-state-008
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: diagnostic
+  front: |
+    Why does moving one `Mutex<i32>` into ten spawned closures fail?
+  back: |
+    ```rust
+    use std::sync::Mutex;
+    use std::thread;
+
+    fn main() {
+        let counter = Mutex::new(0);
+
+        for _ in 0..10 {
+            thread::spawn(move || {
+                let mut num = counter.lock().unwrap();
+                *num += 1;
+            });
+        }
+    }
+    ```
+    The first closure takes ownership of the mutex, so later loop iterations no longer own a value to move. Shared ownership requires a smart pointer such as `Arc<T>`.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - diagnostic
+- id: rust-book-ch16-shared-state-009
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: comparison
+  front: |
+    Why isn't every reference-counted pointer an `Arc<T>` by default?
+  back: |
+    Atomic reference counting has a performance cost. `Rc<T>` is faster when sharing is only within one thread.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - comparison
+- id: rust-book-ch16-shared-state-010
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: comparison
+  front: |
+    How are `Mutex<T>` and `RefCell<T>` similar?
+  back: |
+    Both provide interior mutability: they let code mutate an inner value through an outer value that may be shared or immutable.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - comparison
+- id: rust-book-ch16-shared-state-011
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: syntax
+  front: |
+    What is the basic syntax for creating and updating a `Mutex<i32>`?
+  back: |
+    ```rust
+    use std::sync::Mutex;
+
+    fn main() {
+        let m = Mutex::new(5);
+        {
+            let mut num = m.lock().unwrap();
+            *num = 6;
+        }
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - syntax
+- id: rust-book-ch16-shared-state-012
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: diagnostic
+  front: |
+    Why can `lock().unwrap()` fail on a `Mutex<T>`?
+  back: |
+    If another thread panics while holding the lock, the mutex becomes poisoned and `lock` returns an error.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - diagnostic
+- id: rust-book-ch16-shared-state-013
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: syntax
+  front: |
+    What wrapper combination does the book use for shared mutable counter access across threads?
+  back: |
+    ```rust
+    use std::sync::{Arc, Mutex};
+    use std::thread;
+
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let counter = Arc::clone(&counter);
+        handles.push(thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+            *num += 1;
+        }));
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+    ```
+    `Arc<Mutex<i32>>`: `Arc` gives shared ownership across threads, and `Mutex` serializes mutable access to the counter.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - syntax
+- id: rust-book-ch16-shared-state-014
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Shared-State Concurrency"
+  source: "rust-book/src/ch16-03-shared-state.md"
+  card_type: concept_boundary
+  front: |
+    Why might an atomic integer be more appropriate than `Mutex<i32>` for a simple counter?
+  back: |
+    Atomic types can update primitive values without locking a mutex. The book uses `Mutex<i32>` here to teach mutex mechanics, not because it is always the best counter implementation.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - shared-state
+    - concept_boundary

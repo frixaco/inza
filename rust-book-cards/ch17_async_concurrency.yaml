@@ -1,0 +1,182 @@
+- id: rust-book-ch17-async-concurrency-001
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: comparison
+  front: |
+    What is the difference between awaiting futures sequentially and joining them?
+  back: |
+    Sequential awaiting waits for one future before starting or polling the next. Joining polls multiple futures so they can progress concurrently.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - comparison
+- id: rust-book-ch17-async-concurrency-002
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: concept_boundary
+  front: |
+    What does `trpl::join` return in the book examples?
+  back: |
+    A tuple containing the outputs of both futures after both complete.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - concept_boundary
+- id: rust-book-ch17-async-concurrency-003
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: concept_boundary
+  front: |
+    Why can async concurrency run many tasks on fewer threads?
+  back: |
+    Tasks yield at await points instead of blocking an OS thread, so an executor can poll other ready tasks.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - concept_boundary
+- id: rust-book-ch17-async-concurrency-004
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: prediction
+  front: |
+    What happens to a task spawned with `trpl::spawn_task` if the main async block finishes first?
+  back: |
+    The task may be shut down before it completes. The book keeps the returned handle and awaits it when the spawned task must finish.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - prediction
+- id: rust-book-ch17-async-concurrency-005
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: api_recall
+  front: |
+    What does awaiting a spawned task's handle do in the book examples?
+  back: |
+    It waits for the spawned task to finish and returns that task's result, preventing the main future from ending too early.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - api_recall
+- id: rust-book-ch17-async-concurrency-006
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: prediction
+  front: |
+    What happens if send and receive operations are written one after another in the same async block?
+  back: |
+    They are not automatically concurrent. Code inside one async block still runs in source order between await points. The book splits sender and receiver work into separate async blocks or tasks to let them make progress concurrently.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - prediction
+- id: rust-book-ch17-async-concurrency-007
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: concept_boundary
+  front: |
+    Why does receiving from the async channel use `recv().await`?
+  back: |
+    `recv` returns a future because a message may not be available yet. Awaiting it yields until a message arrives or the channel closes.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - concept_boundary
+- id: rust-book-ch17-async-concurrency-008
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: comparison
+  front: |
+    How does `trpl::join` differ from choosing only the first future that completes?
+  back: |
+    `join` waits for all of its futures to complete and returns all outputs. A race-style operation finishes when one branch completes and may cancel or ignore the others.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - comparison
+- id: rust-book-ch17-async-concurrency-009
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: concept_boundary
+  front: |
+    What fairness caveat does the book call out for async joining?
+  back: |
+    An executor or join operation must avoid polling one ready future forever while starving another. The book's `trpl::join` alternates polling so both futures can progress.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - concept_boundary
+- id: rust-book-ch17-async-concurrency-010
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: syntax
+  front: |
+    What does `async move` do to captured variables?
+  back: |
+    ```rust
+    fn main() {
+        let message = String::from("hello");
+        let future = async move {
+            println!("{message}");
+        };
+    }
+    ```
+    `move` transfers captured values into the async block's future, like `move` on closures.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - syntax
+- id: rust-book-ch17-async-concurrency-011
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Applying Concurrency with Async"
+  source: "rust-book/src/ch17-02-concurrency-with-async.md"
+  card_type: prediction
+  front: |
+    What happens if the outer binding is used after an `async move` block captures its `String`?
+  back: |
+    ```rust
+    fn main() {
+        let message = String::from("hello");
+        let future = async move {
+            println!("{message}");
+        };
+        println!("{message}");
+    }
+    ```
+    The `String` was moved into the future created by the async block.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch17
+    - async-concurrency
+    - prediction

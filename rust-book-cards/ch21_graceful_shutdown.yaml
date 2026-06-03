@@ -1,0 +1,224 @@
+- id: rust-book-ch21-graceful-shutdown-001
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: definition
+  front: |
+    What does graceful shutdown mean for the thread pool?
+  back: |
+    Stop accepting new work, signal workers to finish, and join worker threads so cleanup completes predictably.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - definition
+- id: rust-book-ch21-graceful-shutdown-002
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: diagnostic
+  front: |
+    Why can joining worker threads in `Drop` fail if the sender is still alive?
+  back: |
+    Workers may stay blocked waiting for more jobs. Dropping the sender closes the channel so workers can exit their loops.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - diagnostic
+- id: rust-book-ch21-graceful-shutdown-003
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: transformation
+  front: |
+    Why wrap the thread pool sender in `Option<Sender<Job>>`?
+  back: |
+    It allows `Drop` to call `take()` and drop the sender before joining workers, closing the channel exactly once.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - transformation
+- id: rust-book-ch21-graceful-shutdown-004
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: api_recall
+  front: |
+    What does `JoinHandle::join` do during thread pool shutdown?
+  back: |
+    It waits for the worker thread to finish, ensuring the thread has stopped before cleanup continues.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - api_recall
+- id: rust-book-ch21-graceful-shutdown-005
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: project_architecture
+  front: |
+    Why does the final `Worker` store its thread handle in an `Option`?
+  back: |
+    `join` takes ownership of the handle, and `Drop` only has `&mut self`; `Option::take` moves the handle out safely.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - project_architecture
+- id: rust-book-ch21-graceful-shutdown-006
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: invariant
+  front: |
+    What order must `ThreadPool::drop` use for a graceful shutdown?
+  back: |
+    Drop the sender first so the channel closes, then join each worker thread. Joining before closing the channel can leave workers blocked on `recv`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - invariant
+- id: rust-book-ch21-graceful-shutdown-007
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: prediction
+  front: |
+    What does a worker do when `receiver.recv()` returns an error during shutdown?
+  back: |
+    It should break out of its loop because the channel is closed and no more jobs will arrive.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - prediction
+- id: rust-book-ch21-graceful-shutdown-008
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: diagnostic
+  front: |
+    Why does `JoinHandle::join` force the book to move handles out of `Worker` values?
+  back: |
+    `join` takes ownership of the `JoinHandle`. Because `Drop` only has `&mut self`, the handle must be stored in `Option` so `take()` can move it out before joining.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - diagnostic
+- id: rust-book-ch21-graceful-shutdown-009
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: comparison
+  front: |
+    What is the difference between shutting down by dropping the sender and sending explicit shutdown jobs?
+  back: |
+    Dropping the sender makes `recv` return an error for every worker once queued jobs are drained. Explicit shutdown jobs require sending enough stop messages and ensuring they are ordered after any work that should finish.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - comparison
+- id: rust-book-ch21-graceful-shutdown-010
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: syntax
+  front: |
+    What does storing a worker thread handle in `Option` enable?
+  back: |
+    ```rust
+    use std::thread;
+
+    struct Worker {
+        id: usize,
+        thread: Option<thread::JoinHandle<()>>,
+    }
+
+    fn join_worker(worker: &mut Worker) {
+        if let Some(thread) = worker.thread.take() {
+            thread.join().unwrap();
+        }
+    }
+    ```
+    `JoinHandle::join` takes ownership, so `Option::take` moves it out through `&mut Worker`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - syntax
+- id: rust-book-ch21-graceful-shutdown-011
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: syntax
+  front: |
+    What does wrapping the thread pool sender in `Option` enable during `Drop`?
+  back: |
+    ```rust
+    use std::sync::mpsc;
+
+    type Job = Box<dyn FnOnce() + Send + 'static>;
+
+    struct ThreadPool {
+        sender: Option<mpsc::Sender<Job>>,
+    }
+
+    impl Drop for ThreadPool {
+        fn drop(&mut self) {
+            drop(self.sender.take());
+        }
+    }
+    ```
+    Taking and dropping the sender closes the channel before worker threads are joined.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - syntax
+- id: rust-book-ch21-graceful-shutdown-012
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Graceful Shutdown and Cleanup"
+  source: "rust-book/src/ch21-03-graceful-shutdown-and-cleanup.md"
+  card_type: syntax
+  front: |
+    What does the final worker loop do when the channel disconnects?
+  back: |
+    ```rust
+    use std::sync::{mpsc, Arc, Mutex};
+
+    type Job = Box<dyn FnOnce() + Send + 'static>;
+
+    fn worker_loop(receiver: Arc<Mutex<mpsc::Receiver<Job>>>) {
+        loop {
+            let message = receiver.lock().unwrap().recv();
+            match message {
+                Ok(job) => job(),
+                Err(_) => break,
+            }
+        }
+    }
+    ```
+    `Err(_)` means all senders are gone, so the worker exits.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch21
+    - graceful-shutdown
+    - syntax

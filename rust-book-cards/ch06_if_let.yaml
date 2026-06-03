@@ -1,0 +1,170 @@
+- id: rust-book-ch06-if-let-001
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Concise Control Flow with if let and let...else"
+  source: "rust-book/src/ch06-03-if-let.md"
+  card_type: comparison
+  front: |
+    When is `if let` preferable to `match`?
+  back: |
+    Use `if let` when you care about one pattern and want to ignore the rest with less boilerplate.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - if-let
+    - comparison
+- id: rust-book-ch06-if-let-002
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Concise Control Flow with if let and let...else"
+  source: "rust-book/src/ch06-03-if-let.md"
+  card_type: syntax
+  front: |
+    What is the basic `if let` syntax for handling only `Some(max)`?
+  back: |
+    ```rust
+    let config_max = Some(3);
+
+    if let Some(max) = config_max {
+        println!("The maximum is configured to be {max}");
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - if-let
+    - syntax
+- id: rust-book-ch06-if-let-003
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Concise Control Flow with if let and let...else"
+  source: "rust-book/src/ch06-03-if-let.md"
+  card_type: comparison
+  front: |
+    What boundary separates `match`, `if let`, and `let...else`?
+  back: |
+    Use `match` when exhaustiveness matters, `if let` for one interesting branch, and `let...else` when the nonmatching case should exit the current flow early.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - if-let
+    - comparison
+- id: rust-book-ch06-if-let-004
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Concise Control Flow with if let and let...else"
+  source: "rust-book/src/ch06-03-if-let.md"
+  card_type: syntax
+  front: |
+    What does `let PATTERN = expr else { ... };` require of the `else` block?
+  back: |
+    The `else` block must diverge, such as by `return`, `break`, `continue`, or `panic!`, because the following code assumes the pattern matched.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - if-let
+    - syntax
+- id: rust-book-ch06-if-let-005
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Concise Control Flow with if let and let...else"
+  source: "rust-book/src/ch06-03-if-let.md"
+  card_type: misconception
+  front: |
+    What exhaustive-checking tradeoff do you make when using `if let` instead of `match`?
+  back: |
+    `if let` ignores nonmatching cases unless you add `else`, so it does not force you to handle every possible variant the way `match` does.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - if-let
+    - misconception
+- id: rust-book-ch06-if-let-006
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Concise Control Flow with if let and let...else"
+  source: "rust-book/src/ch06-03-if-let.md"
+  card_type: evolution
+  front: |
+    What problem does `let...else` solve compared with nesting work inside an `if let` body?
+  back: |
+    It binds the successful pattern in the outer scope and sends the failure case to an early-exit `else`, keeping the main logic on the happy path.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - if-let
+    - evolution
+- id: rust-book-ch06-if-let-007
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Concise Control Flow with if let and let...else"
+  source: "rust-book/src/ch06-03-if-let.md"
+  card_type: syntax
+  front: |
+    What does `if let` with an `else` branch look like?
+  back: |
+    ```rust
+    fn main() {
+        let config_max = Some(3u8);
+        if let Some(max) = config_max {
+            println!("The maximum is configured to be {max}");
+        } else {
+            println!("No maximum configured");
+        }
+    }
+    ```
+    The `else` branch handles every nonmatching case.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - if-let
+    - syntax
+- id: rust-book-ch06-if-let-008
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Concise Control Flow with if let and let...else"
+  source: "rust-book/src/ch06-03-if-let.md"
+  card_type: syntax
+  front: |
+    What does `let...else` look like when extracting `Some(value)` or returning early?
+  back: |
+    ```rust
+    fn describe(config_max: Option<u8>) -> String {
+        let Some(max) = config_max else {
+            return String::from("No maximum configured");
+        };
+
+        format!("The maximum is configured to be {max}")
+    }
+    ```
+    When the pattern matches, `max` is bound in the outer scope after the statement.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - if-let
+    - syntax
+- id: rust-book-ch06-if-let-009
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Concise Control Flow with if let and let...else"
+  source: "rust-book/src/ch06-03-if-let.md"
+  card_type: diagnostic
+  front: |
+    Why does this `let...else` fail?
+    
+    ```rust
+    fn main() {
+        let value = None::<u8>;
+        let Some(max) = value else {
+            println!("missing");
+        };
+        println!("{max}");
+    }
+    ```
+  back: |
+    The `else` block must diverge. Here it only prints and then would continue, but `max` would not be bound for the code after the `let...else`.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch06
+    - if-let
+    - diagnostic

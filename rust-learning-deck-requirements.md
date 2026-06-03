@@ -1,34 +1,254 @@
-# Rust Learning Deck Requirements
+# Rust Learning Deck Card Requirements
 
-This document is a requirements spec for building our own high-quality Rust learning Anki deck based on the official Rust Book.
+This document defines requirements for the quality of individual Rust learning deck cards. It intentionally excludes deck generation, release process, source auditing, chapter coverage, scheduling, and Anki infrastructure requirements.
 
-Evidence used:
+## 1. Card Scope
 
-- Reviewed deck: `Coding-Flashcards/rust/cards.md`, repo `ad-si/Coding-Flashcards`, tag `v1.2.0`, commit `b652c2a281c199538e275e7e00535a68e27ed515`.
-- Official book source: `rust-book/src/SUMMARY.md`, repo `rust-lang/book`, commit `05d114287b7d6f6c9253d5242540f00fbd6172ab`.
-- Current Rust Book structure: 21 chapters plus appendices, including Rust 2024 edition material and Chapter 17 on async, await, futures, and streams.
+Each card must test one primary recall or reasoning target.
 
-The current reviewed Rust deck is useful as a supplemental deck, but not good enough as the basis for a best-quality Rust Book deck. It has 557 cards and covers many fundamentals, but it misses current-book material and contains syntax/wording/code errors. Our deck must be stricter: every card should be traceable, current, testable, and written to teach one precise thing.
+Acceptable targets:
 
-## 1. General Improvements From Deck Quality Review
+- one bounded definition or fact;
+- one Rust rule;
+- one property or consequence;
+- one syntax form;
+- one API or type relationship;
+- one prediction about code behavior;
+- one diagnostic explanation;
+- one transformation into idiomatic Rust;
+- one evolution from an earlier example to a later example;
+- one contrast between commonly confused concepts;
+- one unsafe contract or invariant;
+- one project-design decision from a Rust Book project.
 
-These requirements come from the quality problems found in the reviewed deck.
+Reject cards that require an unbounded essay answer or combine unrelated topics.
 
-### DQ-01: Every code card must be syntactically correct, unless intentionally marked as broken
+Good:
 
-Bad patterns found in the reviewed deck:
+````text
+Front:
+After this code, can `s1` be used?
 
-- Invalid `match` snippet closed with `];` instead of `};` in `Coding-Flashcards/rust/cards.md:79`.
-- Invalid `let greeting file = ...` in `Coding-Flashcards/rust/cards.md:4849`.
-- Invalid `Re<List>`, `Rc: :new`, `Re::strong_count`, and `Rc:strong_count` in `Coding-Flashcards/rust/cards.md:7931` and nearby lines.
-- Invalid Rust call syntax `abs(input: -3)` in `Coding-Flashcards/rust/cards.md:9919`.
+```rust
+let s1 = String::from("hello");
+let s2 = s1;
+println!("{s1}");
+```
 
-Requirement:
+Back:
+No. Assigning `s1` to `s2` moves the `String` because `String` does not implement `Copy`. `s1` is invalid after the move.
+````
 
-- All normal `rust` examples must compile under the Rust version assumed by the current official book.
-- All intentionally broken examples must be explicitly marked as `compile_fail` or equivalent metadata and must name the exact expected compiler failure.
+Bad:
 
-Good card:
+```text
+Front:
+Explain ownership, borrowing, moving, cloning, slices, and references.
+```
+
+## 2. Prompt Quality
+
+Prompts must be specific enough that a reviewer can tell whether the answer is correct.
+
+Each card must stand alone when reviewed out of order. The front must include enough context to answer without relying on neighboring cards, section headings, the previous example, or vague references such as "this" or "these traits" without an explicit subject.
+
+Prefer prompts shaped as:
+
+- "Given this code, what happens and why?"
+- "Which rule is violated?"
+- "What does X let you do?"
+- "What makes X different from Y?"
+- "What common misconception about X does this correct?"
+- "What exact syntax expresses this?"
+- "Rewrite this with the idiomatic construct."
+- "What changed between these two versions, and why?"
+- "Choose X or Y for this situation and explain the boundary."
+- "What safety condition must the caller or implementer uphold?"
+- "Which API, trait, or type does this?"
+
+Avoid vague prompts such as:
+
+- "What is ownership?"
+- "Explain Rust."
+- "What should you remember from Chapter 4?"
+- "Why is this important?"
+
+Use "what is" prompts only when the expected answer is tightly bounded.
+
+Good:
+
+```text
+Front:
+What does `String::from("hello")` store on the stack, and what does it store on the heap?
+
+Back:
+The stack stores the pointer, length, and capacity. The heap stores the UTF-8 bytes.
+```
+
+Bad:
+
+```text
+Front:
+What is a `String`?
+```
+
+## 3. Answer Quality
+
+Answers must be minimal but complete.
+
+Requirements:
+
+- If the card asks what happens, answer what happens and why.
+- If the card asks how to write something, include the minimal syntax and the important constraint.
+- If the card asks when to use something, include the rule boundary or tradeoff.
+- If the answer is a list, the prompt must state or imply the exact expected set.
+- Long explanations should be split into multiple cards.
+
+A good answer is usually one to five sentences or a small code block plus a reason.
+
+Bad:
+
+```text
+It does not compile.
+```
+
+Good:
+
+```text
+It does not compile because `v` is immutably borrowed by `first` while `push` needs a mutable borrow of `v`. The immutable reference may point into storage that `push` could reallocate.
+```
+
+## 4. Theory and Fact Cards
+
+Theory cards are allowed and important, but they must be bounded.
+
+Long explanatory source paragraphs should become a small cluster of cards, not one large card. Split the paragraph into cards that each test one precise definition, property, mechanism, consequence, contrast, or synthesis.
+
+When decomposing a paragraph, identify each card-worthy claim and either create a bounded card for it or intentionally reject it as low-value, duplicate, or not relevant to Rust fluency. Do not silently drop an important fact just because the paragraph also contains more obvious facts.
+
+Useful theory-card shapes:
+
+- `definition`: "What does X mean or let you reference?"
+- `property`: "What is true about X?"
+- `mechanism`: "Which trait, rule, or feature makes X work?"
+- `consequence`: "What does X allow or prevent?"
+- `contrast`: "What makes X different from Y?"
+- `misconception`: "What does X not mean or not do?"
+- `synthesis`: "How do these two facts fit together?"
+- `evolution`: "What changed from this version to the next, and what problem did it solve?"
+
+Requirements:
+
+- Keep the expected answer short enough to be reviewed from memory.
+- Do not ask the learner to reproduce a paragraph.
+- Preserve the important fact even when shortening the wording.
+- Include the practical boundary or consequence when the fact is easy to memorize without understanding.
+- If a paragraph introduces several terms, create separate cards for each term before creating a synthesis card.
+- Reject or merge facts that do not teach a definition, mechanism, consequence, boundary, or misconception that changes how the learner reads or writes Rust.
+
+Example source paragraph:
+
+```text
+Smart pointers are usually implemented using structs. Unlike an ordinary struct, smart pointers implement the Deref and Drop traits. The Deref trait allows an instance of the smart pointer struct to behave like a reference so that you can write your code to work with either references or smart pointers. The Drop trait allows you to customize the code that's run when an instance of the smart pointer goes out of scope.
+```
+
+Better card cluster:
+
+```text
+Front:
+How are Rust smart pointers usually implemented?
+
+Back:
+They are usually structs that implement pointer-like behavior, commonly through traits such as `Deref` and `Drop`.
+```
+
+```text
+Front:
+What makes a smart pointer different from an ordinary reference?
+
+Back:
+A smart pointer is a data structure that acts like a pointer but also provides extra metadata or capabilities.
+```
+
+```text
+Front:
+Which two traits are central to how Rust smart pointers behave?
+
+Back:
+`Deref` and `Drop`.
+```
+
+```text
+Front:
+What does implementing `Deref` let a smart pointer do?
+
+Back:
+It lets the smart pointer behave like a reference, so code can work with references or smart pointers through dereferencing behavior.
+```
+
+```text
+Front:
+What does implementing `Drop` let a smart pointer do?
+
+Back:
+It lets the type customize what runs when a value goes out of scope.
+```
+
+```text
+Front:
+Why are `Deref` and `Drop` important to smart pointers?
+
+Back:
+`Deref` controls how the smart pointer behaves like a reference, and `Drop` controls cleanup when the smart pointer goes out of scope.
+```
+
+Good bounded fact card:
+
+```text
+Front:
+What does a slice let you reference?
+
+Back:
+A slice lets you reference a contiguous sequence of elements in a collection without owning that sequence.
+```
+
+Good misconception card:
+
+```text
+Front:
+What does a lifetime annotation like `<'a>` not do?
+
+Back:
+It does not extend how long any value lives. It describes relationships between references so the compiler can check that returned or stored references remain valid.
+```
+
+Bad paragraph card:
+
+```text
+Front:
+Explain smart pointers, `Deref`, and `Drop`.
+```
+
+## 5. Code Correctness
+
+Every Rust code sample must be either valid Rust or intentionally invalid Rust used as a diagnostic prompt.
+
+Requirements:
+
+- Complete `rust` snippets that are presented as valid must compile under the Rust version and edition used by the deck.
+- Partial Rust snippets must be explicitly marked as excerpts and must include enough surrounding context in prose to make the tested point clear.
+- Prefer complete snippets for prediction and diagnostic cards; include required imports, type definitions, or harness code when they are necessary to understand or validate the behavior.
+- Intentionally invalid snippets must be marked as expected failures.
+- Invalid snippets must name the violated rule or expected compiler failure.
+- Pseudo-Rust must not appear inside a `rust` code fence.
+- Accidental typos must never be used as examples unless the task is explicitly to find the typo.
+- Source fence attributes must be preserved as card meaning when relevant:
+  - `does_not_compile` and `compile_fail` examples must become expected-failure cards, not ordinary prediction cards.
+  - `no_run` examples may compile but should not be presented as safely runnable in the card.
+  - `ignore` and `noplayground` examples require a short reason if the runnable status matters to the tested point.
+- Hidden doctest lines from the source may be included for validation context, but must not appear as surprising or unexplained code in the final card unless they are part of the learning target.
+
+Good diagnostic card:
 
 ````text
 Front:
@@ -47,33 +267,63 @@ It creates two simultaneous mutable references to `s`. Rust allows either one mu
 Expected: compile failure for multiple mutable borrows.
 ````
 
-Bad card:
+Bad code:
 
-```text
-Front:
-References are important. Explain.
-
-Back:
-Chapter 4 talks about this topic more.
+```rust
+let a = Rc::new(Cons(5, Rc: :new(Cons(10, Rc::new(Nil)))));
 ```
 
-### DQ-02: Use current Rust Book syntax and Rust 2024 edition idioms
+## 6. Non-Rust Snippets
 
-The reviewed deck is outdated in current Rust Book areas:
+Cards may use non-Rust snippets when the learning target depends on commands, output, diagnostics, protocols, HTML, or project files.
 
-- It has zero exact cards for `edition` or `2024`.
-- It has outdated FFI cards using `extern "C"` without `unsafe extern`.
-- It uses `#[no_mangle]` instead of current `#[unsafe(no_mangle)]`.
-- It has zero exact cards for `let...else`.
-- It has no real cards for `async`, `await`, `Future`, `Stream`, `Pin`, or `Unpin`.
+Requirements:
 
-Requirement:
+- Label non-Rust snippets by role, such as shell command, console output, compiler diagnostic, HTTP request, HTTP response, HTML, TOML, or file tree.
+- Keep non-Rust snippets short enough that the learner is tested on the Rust concept, workflow, or boundary rather than on copying incidental output.
+- Do not put shell commands, compiler output, HTTP text, or HTML inside a `rust` fence.
+- If output is platform-, version-, or environment-dependent, include only the stable portion needed for the card.
+- Compiler-output cards should ask for the violated rule or fix, not for verbatim diagnostic wording unless exact wording is the learning target.
 
-- The deck must target the same Rust edition and assumptions as the official Rust Book version being used.
-- Cards must use Rust 2024 forms where the book uses Rust 2024 forms.
-- Old forms can appear only in contrast cards that explicitly say they are old, edition-dependent, or not the current-book syntax.
+Good:
 
-Good card:
+````text
+Front:
+This command reports an error about borrowing `v` as mutable. Which Rust rule is the compiler enforcing?
+
+```console
+error[E0502]: cannot borrow `v` as mutable because it is also borrowed as immutable
+```
+
+Back:
+An immutable borrow of `v` is still active while `push` needs a mutable borrow. Rust does not allow a mutable borrow while an immutable borrow that may be used later is active.
+````
+
+## 7. Current Rust Usage
+
+Cards must teach the current Rust syntax and idioms assumed by the deck.
+
+Requirements:
+
+- Use the current Rust edition syntax where the official learning source uses it.
+- Present old forms only in explicit contrast cards.
+- Do not teach outdated syntax as the default answer.
+- Use precise Rust terminology.
+
+Examples of terminology to use exactly:
+
+- associated function;
+- method;
+- trait object;
+- lifetime parameter;
+- generic type parameter;
+- unsafe block;
+- unsafe function;
+- unsafe trait;
+- FFI;
+- ABI.
+
+Good:
 
 ````text
 Front:
@@ -91,7 +341,7 @@ unsafe extern "C" {
 Calling the function still requires an `unsafe` block unless the item is explicitly marked `safe`.
 ````
 
-Bad card:
+Bad:
 
 ```text
 Front:
@@ -101,883 +351,79 @@ Back:
 Use extern.
 ```
 
-### DQ-03: Missing major Rust Book areas are not acceptable
+## 8. Card Types
 
-The reviewed deck has zero exact cards for:
+Every card must use one deliberate card type.
 
-- `async`
-- `await`
-- `let...else`
-- `macro_rules`
-- procedural macros
-- `edition`
-- `ThreadPool`
-- `TcpListener`
-- `unsafe extern`
+Allowed card types:
 
-Requirement:
+- `definition`: recall a bounded definition, fact, or property;
+- `misconception`: correct a common false belief or overgeneralization;
+- `syntax`: write or identify minimal syntax;
+- `prediction`: predict whether code compiles, runs, panics, moves, borrows, or prints;
+- `diagnostic`: explain a compiler error or violated rule;
+- `transformation`: rewrite code into a more idiomatic or requested form;
+- `evolution`: explain what changed between two related listings and why that change matters;
+- `concept_boundary`: choose between related concepts and explain the boundary;
+- `api_recall`: recall the method, trait, type, command, or return shape;
+- `invariant`: state the rule or safety condition that must hold;
+- `comparison`: compare commonly confused Rust concepts;
+- `project_architecture`: explain a project-flow or design decision.
 
-- A deck based on the official Rust Book must include every current chapter and appendix topic that the book presents as teachable Rust knowledge.
-- No chapter may be skipped because it is advanced, long, project-based, or inconvenient for flashcards.
+The card body should make the selected type obvious even without metadata.
 
-### DQ-04: Cards must be source-mapped
+## 9. Diagnostic and Failure Cards
 
-Requirement:
+Compiler failures are first-class learning objects.
 
-- Every card must include metadata for book chapter, section, and source concept.
-- If the card is based on a listing, include the listing number or local book source file.
-- This enables audits like "show all cards for Chapter 17" or "show cards sourced from Chapter 10 lifetimes".
+Compile-fail cards must include:
 
-Suggested tags:
+- whether the failure is expected;
+- the rule being violated;
+- the smallest change that fixes it, when a small fix exists.
 
-```text
-rust-book::ch10::traits
-rust-book::ch10::lifetimes
-rust-book::ch17::async-await
-rust-book::ch20::unsafe
-rust-book::appendix::editions
-```
+Important failure families to cover when relevant:
 
-### DQ-05: Prompts must be atomic
+- use after move;
+- multiple mutable borrows;
+- mutable plus immutable borrow conflict;
+- dangling reference;
+- missing trait bound;
+- non-exhaustive match;
+- refutable pattern in an irrefutable context;
+- lifetime mismatch;
+- sending non-`Send` values across threads;
+- async future type mismatch or pinning issue;
+- unsafe operation outside an unsafe context.
 
-Requirement:
+## 10. Unsafe Contract Cards
 
-- Each card should test one decision, one concept, one syntax form, one prediction, or one diagnostic.
-- Multi-answer cards are allowed only for bounded enumerations that learners must know exactly.
+Unsafe Rust cards must separate the unsafe operation from the safety argument.
 
-Good card:
+Requirements:
 
-```text
-Front:
-What does `String::from("hello")` store on the stack, and what does it store on the heap?
-
-Back:
-The stack stores the pointer, length, and capacity. The heap stores the UTF-8 bytes.
-```
-
-Bad card:
-
-```text
-Front:
-Explain ownership, borrowing, moving, cloning, slices, and references.
-```
-
-### DQ-06: Prompts must be specific, not vague summaries
-
-Requirement:
-
-- Avoid prompts like "What is ownership?" unless the answer is explicitly bounded.
-- Prefer "Given this code, what happens and why?" or "Which rule is violated?".
-
-Good card:
-
-````text
-Front:
-After this code, can `s1` be used?
-
-```rust
-let s1 = String::from("hello");
-let s2 = s1;
-println!("{s1}");
-```
-
-Back:
-No. `String` does not implement `Copy`; assigning `s1` to `s2` moves ownership. `s1` is invalid after the move.
-````
-
-Bad card:
-
-```text
-Front:
-Chapter 4 talks about ownership. What should you remember?
-```
-
-### DQ-07: Answers must include the reason, not only the result
-
-Requirement:
-
-- If a card asks "what happens?", the answer must include "why".
-- If a card asks "how?", the answer must include the minimal syntax and a constraint.
-- If a card asks "when?", the answer must include the tradeoff or rule boundary.
-
-Bad answer:
-
-```text
-It does not compile.
-```
-
-Good answer:
-
-```text
-It does not compile because `v` is immutably borrowed by `first` while `push` needs a mutable borrow of `v`. The immutable reference may point into storage that `push` could reallocate.
-```
-
-### DQ-08: The deck needs intentional card types
-
-Requirement:
-
-- Use a small set of repeatable card types:
-  - Syntax production: "Write the minimal syntax for..."
-  - Prediction: "What happens when this code runs/compiles?"
-  - Diagnostic: "Why does this compiler error happen?"
-  - Concept boundary: "When should you use X instead of Y?"
-  - Transformation: "Rewrite this with the idiomatic construct."
-  - API recall: "Which method/trait/type does this?"
-  - Invariant: "Which rule must callers uphold?"
-
-The current deck mixes these styles loosely. Our deck should use them deliberately.
-
-### DQ-09: Non-compiling examples are first-class teaching objects
-
-Requirement:
-
-- Include compile-fail cards for borrow checker, ownership moves, exhaustive matches, unsafe contracts, trait bounds, lifetime errors, async pinning, and pattern refutability.
-- Each compile-fail card must state:
-  - whether the failure is expected;
-  - the violated rule;
-  - the smallest change that fixes it.
-
-### DQ-10: Avoid accidental memorization of wrong code
-
-Requirement:
-
-- Do not put typo-filled code on the front unless the task is explicitly "find the typo".
-- Do not use pseudo-Rust inside a `rust` code fence.
-- If abbreviated code is needed, use comments or ellipses outside compile-checked snippets.
-
-Bad:
-
-```rust
-let a = Rc::new(Cons(5, Rc: :new(Cons(10, Rc::new(Nil)))));
-```
-
-Good:
-
-```rust
-let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
-```
-
-### DQ-11: Every code sample must be rendered and validated
-
-Requirement:
-
-- Markdown rendering must be checked in the final deck.
-- Code fences must not break the Anki card layout.
-- Long code must be shortened without losing the tested point.
-- Images must have a clear learning purpose and must not replace the card answer.
-
-### DQ-12: The deck must not over-index on easy syntax while skipping hard concepts
-
-The reviewed deck has many basic cards but misses major current chapters. A best-quality deck should not spend dozens of cards on simple syntax while leaving async, macros, or the final project uncovered.
-
-Requirement:
-
-- Each chapter gets a minimum coverage target.
-- Advanced chapters get enough cards to make their concepts reviewable, not just one summary card.
-- Repeated beginner syntax cards must be merged or deleted if they do not add a new distinction.
-
-### DQ-13: Use precise language
-
-Requirement:
-
-- Fix grammar and terminology before release.
-- Avoid learner-confusing wording such as "What is the `Self` keywords" or "How do create".
-- Use Rust terms exactly: "associated function", "method", "trait object", "lifetime parameter", "generic type parameter", "unsafe block", "unsafe function", "unsafe trait", "FFI", "ABI".
-
-### DQ-14: Include contrast cards where learners commonly confuse concepts
-
-Requirement:
-
-- Include cards that compare similar concepts:
-  - `String` vs `&str`
-  - `iter` vs `into_iter` vs `iter_mut`
-  - `panic!` vs `Result`
-  - `Box<T>` vs `Rc<T>` vs `RefCell<T>` vs `Arc<T>`
-  - `Fn` vs `FnMut` vs `FnOnce`
-  - threads vs async tasks
-  - generics/static dispatch vs trait objects/dynamic dispatch
-  - `match` vs `if let` vs `let...else`
-  - `Copy` vs `Clone`
-  - `&T` vs `*const T`
-
-### DQ-15: Answers should be minimal but complete
-
-Requirement:
-
-- A good answer should usually be 1-5 sentences or a small code block plus a reason.
-- Long textbook paragraphs should be split into multiple cards.
-- If an answer has a list, the front must specify the exact expected number.
+- Identify which operation, function, trait, or implementation is unsafe.
+- State the safety obligation in concrete terms.
+- Name who must uphold the obligation: caller, callee, implementer, wrapper API, or surrounding invariant.
+- If the card shows a safe abstraction around unsafe code, explain why callers can use the safe API without writing `unsafe`.
+- Do not imply that an `unsafe` block disables Rust's safety checks globally; it only permits specific unsafe operations inside the block.
+- Do not present unsafe examples as generally reusable patterns without the required preconditions.
 
 Good:
 
 ```text
 Front:
-Name the two parts returned by `mpsc::channel()`.
+In a safe wrapper around raw-pointer code, what must the card answer explain besides "the code uses `unsafe`"?
 
 Back:
-It returns `(Sender<T>, Receiver<T>)`: the transmitting end and the receiving end.
+It must explain the safety contract: which unsafe operation is being performed, what invariant makes it valid, and whether the caller or wrapper is responsible for upholding that invariant.
 ```
 
-Bad:
+## 11. Contrast Cards
 
-```text
-Front:
-What does channels mean?
+The deck must include explicit comparison cards where learners commonly confuse concepts.
 
-Back:
-Channels are important in Rust and other languages and can be used for concurrency and Chapter 16 explains them.
-```
-
-### DQ-16: Build a review pipeline, not just a markdown file
-
-Requirement:
-
-- Before release, run automated checks:
-  - card parser/import test;
-  - duplicate front detection;
-  - spellcheck or lint for obvious typo patterns;
-  - compile/pass tests for valid snippets;
-  - compile-fail tests for invalid snippets;
-  - Rust edition check;
-  - Anki render/import smoke test.
-
-### DQ-17: Include deck-level scaffolding
-
-Requirement:
-
-- Cards must have stable IDs.
-- Cards must be tagged by chapter, section, difficulty, and card type.
-- Cards must include a source version field.
-- Cards must be reorderable without breaking review history.
-
-### DQ-18: Avoid copying the book verbatim as the main strategy
-
-Requirement:
-
-- The deck should convert book concepts into retrieval prompts, predictions, and transformations.
-- Direct quotes should be rare and short.
-- Each card should make the learner recall or reason, not merely reread.
-
-## 2. Official Rust Book Chapter Requirements
-
-These requirements come from the official Rust Book chapter structure. Each item describes what a best-quality Rust Book deck must cover.
-
-### CH-00: Foreword and Introduction
-
-Must include cards for:
-
-- What Rust optimizes for: safety, speed, concurrency, and reliability.
-- What "systems programming" means in Rust's context.
-- Why the book uses projects and compiler feedback as teaching tools.
-- The difference between learning syntax and learning Rust's ownership model.
-
-Bad requirement:
-
-```text
-Have a card saying the introduction is important.
-```
-
-Good requirement:
-
-```text
-Create a card asking which Rust theme explains compile-time memory safety without a garbage collector, and answer with ownership plus borrowing checked by the compiler.
-```
-
-### CH-01: Getting Started
-
-Must include cards for:
-
-- Installing and updating Rust with `rustup`.
-- Verifying installation with `rustc --version`.
-- Opening local documentation with `rustup doc`.
-- Writing and compiling `main.rs` with `rustc`.
-- The minimal `fn main()` program.
-- `println!` as a macro, not a function.
-- Creating a project with `cargo new`.
-- `Cargo.toml`, package metadata, dependencies, and `edition = "2024"`.
-- `src/main.rs` and Cargo's expected project layout.
-- `cargo build`, `cargo run`, `cargo check`, and why `check` is faster.
-- Debug vs release output directories.
-
-### CH-02: Programming a Guessing Game
-
-Must include cards for:
-
-- Bringing standard library items into scope with `use std::io`.
-- Creating mutable variables with `let mut`.
-- Reading input with `stdin().read_line(&mut guess)`.
-- Why `read_line` appends to a `String`.
-- Handling `Result` from `read_line`.
-- Adding external crates with Cargo, including version selection.
-- Using `rand` to generate a random number in a range.
-- Comparing values with `cmp` and `Ordering`.
-- Using `match` arms for `Less`, `Greater`, and `Equal`.
-- Looping until success and using `break`.
-- Shadowing `guess` after trimming and parsing.
-- Type annotation for `parse`.
-- Handling parse failure with `Err(_) => continue`.
-
-### CH-03: Common Programming Concepts
-
-Must include cards for:
-
-- Immutability by default and `mut`.
-- Constants vs immutable variables.
-- Shadowing vs mutation, including type changes through shadowing.
-- Scalar types: integers, floats, Booleans, chars.
-- Signed vs unsigned integer ranges and overflow behavior.
-- Numeric literal forms and type suffixes.
-- Compound types: tuples and arrays.
-- Tuple destructuring and tuple indexing.
-- Array type syntax, fixed length, repeated values, and out-of-bounds access.
-- Function definitions, parameters, statements, and expressions.
-- Return values, semicolon effects, and expression-bodied functions.
-- Comments and doc-comment boundary only where relevant.
-- `if` expressions and branch type compatibility.
-- `loop`, `while`, and `for`.
-- Returning values from `loop`.
-- Loop labels and `break 'label` if present in the selected book version.
-
-### CH-04: Understanding Ownership
-
-Must include cards for:
-
-- Stack vs heap at the level needed to understand ownership.
-- The three ownership rules.
-- Scope and automatic cleanup.
-- `String` allocation, move, clone, and drop behavior.
-- Why `String` moves but simple scalar types may copy.
-- `Copy` vs `Clone`.
-- Function calls transferring ownership.
-- Returning values to transfer ownership back.
-- References as borrowing.
-- Immutable references and mutable references.
-- The one-mutable-or-many-immutable borrowing rule.
-- Non-lexical lifetime behavior where references stop being used.
-- Dangling reference prevention.
-- String slices and range syntax.
-- Slices as non-owning views.
-- Why string slicing must respect UTF-8 boundaries.
-- Using `&str` in function signatures where possible.
-
-### CH-05: Structs
-
-Must include cards for:
-
-- Struct definition and instantiation.
-- Field init shorthand.
-- Struct update syntax and move behavior.
-- Tuple structs and unit-like structs.
-- Ownership of struct fields.
-- Borrowing fields.
-- Deriving `Debug`.
-- `dbg!` vs `println!("{:?}")`.
-- Defining methods with `impl`.
-- Method receivers: `&self`, `&mut self`, and `self`.
-- Associated functions and `Self`.
-- Multiple `impl` blocks.
-
-### CH-06: Enums and Pattern Matching
-
-Must include cards for:
-
-- Enum variants with and without data.
-- Why variants are namespaced under the enum.
-- Modeling alternatives with enums instead of nullable values.
-- `Option<T>`, `Some`, and `None`.
-- Why `Option<T>` forces explicit handling.
-- `match` expression structure.
-- Exhaustiveness.
-- Binding data in match arms.
-- Catch-all patterns with `_` and named variables.
-- `if let` as concise single-pattern matching.
-- `else` with `if let`.
-- `let...else` for keeping the happy path unindented.
-- Choosing among `match`, `if let`, and `let...else`.
-
-### CH-07: Packages, Crates, and Modules
-
-Must include cards for:
-
-- Package vs crate vs module.
-- Binary crate vs library crate.
-- Crate root files.
-- Module tree mental model.
-- Privacy rules: private by default.
-- `pub mod`, `pub fn`, `pub struct`, public fields, and public enum variants.
-- Absolute and relative paths.
-- `crate`, `self`, and `super`.
-- Bringing paths into scope with `use`.
-- Idiomatic `use` paths for functions vs structs/enums.
-- Aliasing with `as`.
-- Re-exporting with `pub use`.
-- Nested paths and glob imports.
-- Splitting modules across files and directories.
-
-### CH-08: Common Collections
-
-Must include cards for:
-
-- Creating vectors with `Vec::new` and `vec!`.
-- Updating vectors with `push`.
-- Indexing with `[]` vs `get`.
-- Borrowing rules when holding references to vector elements and mutating the vector.
-- Iterating immutably and mutably.
-- Using enums to store different logical variants in one vector.
-- Creating `String` values.
-- Appending to strings with `push_str` and `push`.
-- `format!` without taking ownership.
-- Why Rust strings are UTF-8 and not indexable by integer.
-- Bytes, scalar values, and grapheme clusters as different views of text.
-- String slicing risks.
-- Creating hash maps.
-- Inserting, overwriting, and reading values.
-- Ownership of keys and values in hash maps.
-- `entry` and `or_insert`.
-- Updating values based on old values.
-
-### CH-09: Error Handling
-
-Must include cards for:
-
-- `panic!` and unrecoverable errors.
-- Unwinding vs aborting.
-- Reading panic backtraces.
-- `Result<T, E>` as recoverable error handling.
-- Matching on `Result`.
-- `unwrap` and `expect`, including when not to use them.
-- Propagating errors manually.
-- The `?` operator and early return.
-- `?` with `Result` and `Option` where the book covers it.
-- `Box<dyn Error>` in simple examples.
-- Guidelines for choosing `panic!` vs `Result`.
-- Encoding valid states in types instead of relying on runtime checks.
-
-### CH-10: Generic Types, Traits, and Lifetimes
-
-Must include cards for:
-
-- Removing duplication with generic functions.
-- Generic structs, enums, and methods.
-- Generic type parameter naming conventions.
-- Monomorphization and why generics have no runtime cost in typical cases.
-- Defining traits.
-- Default trait method implementations.
-- Implementing traits for types.
-- Trait bounds.
-- `impl Trait` in parameters and returns.
-- Multiple trait bounds.
-- `where` clauses.
-- Blanket implementations.
-- The orphan rule.
-- Why lifetimes exist.
-- Lifetime annotations as relationships, not duration changes.
-- Lifetime annotations in function signatures.
-- Generic lifetime parameters.
-- Lifetime elision rules.
-- Lifetimes in structs.
-- The static lifetime and when not to overuse it.
-
-Good requirement:
-
-```text
-Create a prediction card asking why `longest(x.as_str(), y.as_str())` can return `&str` only when the returned reference is tied to input lifetimes.
-```
-
-Bad requirement:
-
-```text
-Chapter 10 talks about generics, traits, and lifetimes more.
-```
-
-### CH-11: Writing Automated Tests
-
-Must include cards for:
-
-- `#[test]` functions.
-- `assert!`, `assert_eq!`, and `assert_ne!`.
-- Custom failure messages.
-- `#[should_panic]` and expected panic messages.
-- Returning `Result` from tests.
-- Running tests with `cargo test`.
-- Passing options to the test binary.
-- Running tests in parallel and controlling test threads.
-- Showing output from passing tests.
-- Filtering tests by name.
-- Ignoring tests.
-- Unit tests with `#[cfg(test)]`.
-- Testing private functions where appropriate.
-- Integration tests in the `tests` directory.
-- Why binary crates need library extraction for integration testing.
-
-### CH-12: I/O Project: Command Line Program
-
-Must include cards for:
-
-- Reading command-line arguments.
-- Why collecting args into `Vec<String>` is initially simple but not final design.
-- Separating parsing from execution.
-- `Config::build` style construction.
-- Returning `Result` from configuration parsing.
-- Reading files with `fs::read_to_string`.
-- Improving error messages.
-- Moving logic into `lib.rs`.
-- Test-driven development for search behavior.
-- Case-sensitive and case-insensitive search.
-- Environment variables.
-- Writing errors to stderr with `eprintln!`.
-- Returning process-friendly errors from `main`.
-
-### CH-13: Functional Language Features: Iterators and Closures
-
-Must include cards for:
-
-- Closure syntax and type inference.
-- Capturing by immutable borrow, mutable borrow, and move.
-- `move` closures.
-- `Fn`, `FnMut`, and `FnOnce`.
-- Using closures in APIs such as `unwrap_or_else`.
-- Iterator laziness.
-- `iter`, `iter_mut`, and `into_iter`.
-- Calling `next`.
-- Consuming adaptors such as `sum`.
-- Iterator adaptors such as `map` and `filter`.
-- `collect` and type annotations.
-- Using closures and iterators to improve the I/O project.
-- Performance comparison between loops and iterators.
-
-### CH-14: More About Cargo and Crates.io
-
-Must include cards for:
-
-- Release profiles and optimization levels.
-- Documentation comments with `///`.
-- Markdown sections such as Examples, Panics, Errors, and Safety.
-- Doc tests.
-- Crate-level docs with `//!`.
-- Re-exporting public API with `pub use`.
-- crates.io account/API token basics where the book covers publishing.
-- Publishing metadata in `Cargo.toml`.
-- `cargo publish`.
-- Yanking and unyanking versions.
-- Cargo workspaces, members, and shared `Cargo.lock`.
-- Path dependencies in workspaces.
-- Running packages in a workspace.
-- Installing binaries with `cargo install`.
-- Cargo custom commands.
-
-### CH-15: Smart Pointers
-
-Must include cards for:
-
-- Pointers vs references vs smart pointers.
-- `Box<T>` and heap allocation.
-- Recursive types and why `Box<T>` gives known size.
-- Dereference operator and implementing `Deref`.
-- Deref coercion and where it applies.
-- `DerefMut`.
-- `Drop` and cleanup.
-- Why `Drop::drop` cannot be called directly.
-- `std::mem::drop`.
-- `Rc<T>` for multiple ownership in single-threaded code.
-- `Rc::clone`, strong count, and weak count.
-- `RefCell<T>` and runtime borrow checking.
-- Interior mutability.
-- Combining `Rc<T>` and `RefCell<T>`.
-- Reference cycles and memory leaks.
-- `Weak<T>` and `upgrade`.
-
-### CH-16: Fearless Concurrency
-
-Must include cards for:
-
-- Creating threads with `thread::spawn`.
-- Join handles and `join`.
-- `move` closures with threads.
-- Message passing with `mpsc::channel`.
-- Sender and receiver types.
-- `send`, `recv`, and `try_recv`.
-- Ownership transfer through channels.
-- Multiple producers with cloned senders.
-- Shared-state concurrency.
-- `Mutex<T>`, `lock`, and guard behavior.
-- `Arc<T>` for shared ownership across threads.
-- Why `Rc<T>` is not thread-safe.
-- `Send` and `Sync` marker traits.
-- When not to manually implement `Send` or `Sync`.
-
-### CH-17: Async, Await, Futures, and Streams
-
-This chapter is missing from the reviewed deck and is mandatory for our deck.
-
-Must include cards for:
-
-- Concurrency vs parallelism in the book's async context.
-- CPU-bound vs I/O-bound work.
-- Blocking vs non-blocking operations.
-- What `async` marks on functions and blocks.
-- `async fn` returning a future rather than running immediately to completion.
-- Future laziness: futures do not do work until polled/awaited.
-- `.await` postfix syntax.
-- Why `main` cannot simply be `async` without a runtime or macro.
-- Runtime and executor responsibilities.
-- `block_on` as the bridge from sync to async.
-- Await points and compiler-generated state machines.
-- Running multiple futures with join/select patterns from the book.
-- Spawning tasks where the book introduces tasks.
-- Async channels and async message passing.
-- `async move`.
-- Joining multiple futures known at compile time.
-- Handling an arbitrary number of futures.
-- Streams as asynchronous sequences.
-- `Stream` vs `StreamExt`.
-- `Future::poll`, `Poll::Ready`, and `Poll::Pending`.
-- Why `Pin` and `Unpin` appear with futures.
-- When async and threads solve different problems.
-- When async and threads can be combined.
-
-Good card:
-
-```text
-Front:
-Why does calling an `async fn` not immediately perform the whole operation?
-
-Back:
-An `async fn` returns a future. Futures in Rust are lazy; they make progress only when polled, usually by awaiting them inside a runtime.
-```
-
-Bad card:
-
-```text
-Front:
-What is async?
-Back:
-Async is asynchronous programming.
-```
-
-### CH-18: Object-Oriented Programming Features
-
-Must include cards for:
-
-- Rust's relationship to object-oriented concepts.
-- Encapsulation through modules and `pub`.
-- Trait objects with `dyn Trait`.
-- Static dispatch with generics vs dynamic dispatch with trait objects.
-- Object safety where the book requires it.
-- Why trait objects require pointer-like types such as `&`, `Box<T>`, or `Rc<T>`.
-- Runtime cost of dynamic dispatch.
-- The blog post state-pattern example.
-- Tradeoffs between state pattern and Rust type-state or enum approaches.
-
-### CH-19: Patterns and Matching
-
-Must include cards for:
-
-- Places patterns appear: `match`, `if let`, `while let`, `for`, `let`, function params, closure params.
-- Refutable vs irrefutable patterns.
-- Why `let` requires irrefutable patterns.
-- `let...else` with refutable patterns.
-- Matching literals.
-- Matching named variables and shadowing.
-- Multiple patterns with `|`.
-- Ranges with `..=`.
-- Destructuring structs, enums, tuples, and nested values.
-- Ignoring values with `_`.
-- Ignoring parts with `..`.
-- Match guards.
-- `@` bindings.
-
-### CH-20: Advanced Features
-
-Must include cards for unsafe Rust:
-
-- The five unsafe capabilities.
-- `unsafe` blocks do not turn off the borrow checker.
-- Raw pointer creation vs dereference.
-- `*const T` and `*mut T`.
-- Unsafe functions and methods.
-- Safe abstractions over unsafe code.
-- Why `split_at_mut` needs unsafe internally.
-- `unsafe extern "C"` blocks in current Rust.
-- Marking individual external functions as safe where the book covers it.
-- `#[unsafe(no_mangle)]` for exporting Rust functions.
-- Mutable static variables.
-- Unsafe traits and unsafe impls.
-
-Must include cards for advanced traits:
-
-- Associated types.
-- Default generic type parameters.
-- Operator overloading.
-- Fully qualified syntax.
-- Supertraits.
-- Newtype pattern.
-
-Must include cards for advanced types:
-
-- Type aliases.
-- Never type.
-- Dynamically sized types and `Sized`.
-
-Must include cards for advanced functions and closures:
-
-- Function pointers.
-- Returning closures and trait objects where relevant.
-
-Must include cards for macros:
-
-- What macros are: code that writes code.
-- Macro expansion timing.
-- Why macros differ from functions.
-- Declarative macros with `macro_rules!`.
-- Macro patterns and repetition.
-- `#[macro_export]`.
-- Procedural macros and `TokenStream`.
-- Custom derive macros.
-- Attribute-like macros.
-- Function-like procedural macros.
-
-### CH-21: Final Project: Multithreaded Web Server
-
-Must include cards for:
-
-- TCP vs HTTP at the level used by the project.
-- Binding a `TcpListener`.
-- Iterating over incoming `TcpStream`s.
-- Reading from a stream.
-- HTTP request structure.
-- HTTP response status line, headers, and body.
-- `Content-Length`.
-- Routing basic paths.
-- Why the single-threaded server blocks.
-- Spawning one thread per request and why that is limited.
-- Thread pool purpose.
-- Desired `ThreadPool::new` and `execute` API.
-- Compiler-driven development of `ThreadPool`.
-- `Worker` struct role.
-- Job representation as boxed closure.
-- Sharing receiver with `Arc<Mutex<_>>`.
-- Closure bounds for jobs: `FnOnce`, `Send`, and `'static`.
-- Receiving and executing jobs.
-- Implementing graceful shutdown.
-- Using `Drop`, `Option::take`, dropping sender, and joining worker threads.
-- Why the project is educational and not a production web framework.
-
-### Appendices
-
-Must include cards for:
-
-- Strict keywords, reserved keywords, and raw identifiers where useful.
-- Operators and symbols, especially ones that are easy to confuse: `::`, `->`, `=>`, `..`, `..=`, `?`, `!`, `_`, `&`, `*`, turbofish `::<T>`.
-- Derivable traits and what each derive means at a practical level.
-- Rustfmt and `cargo fmt`.
-- Clippy and `cargo clippy`.
-- Rustfix / `cargo fix` where the book includes it.
-- Rust-analyzer and editor support where the book includes it.
-- Editions, especially Rust 2015, 2018, 2021, 2024, and `edition = "2024"`.
-- Nightly Rust, release channels, and why unstable features are not assumed in the book.
-
-## 3. Merged Complete Requirements
-
-This is the canonical merged list. It combines the deck-quality requirements and Rust Book coverage requirements into one set of requirements for our future deck.
-
-### MR-01: Source and version requirement
-
-The deck must declare:
-
-- official Rust Book source version or URL snapshot;
-- Rust version assumed by that book;
-- Rust edition;
-- deck generation date;
-- validation toolchain version.
-
-Acceptance test:
-
-- A reviewer can tell exactly which book version every card was built from.
-
-### MR-02: Complete book coverage requirement
-
-The deck must cover every current official Rust Book chapter and appendix listed in Section 2.
-
-Acceptance test:
-
-- There is at least one tag namespace for every chapter: `ch01` through `ch21`, plus appendices.
-- No chapter has only a vague summary card.
-- Chapter 17, Chapter 20 macros, Chapter 21, `let...else`, Rust 2024 editions, and current unsafe FFI are explicitly present.
-
-### MR-03: Section-level learning objective requirement
-
-Every book section must be converted into concrete learning objectives before cards are written.
-
-Bad objective:
-
-```text
-Chapter 10 talks about this topic more.
-```
-
-Good objective:
-
-```text
-Learner can explain why a returned reference from `longest` needs a lifetime relationship to input references and can identify when `<'a>` does not extend any value's lifetime.
-```
-
-### MR-04: Card atomicity requirement
-
-Every card must test exactly one primary recall or reasoning target.
-
-Acceptance test:
-
-- If a card answer contains more than one independent concept, split it unless it is a bounded enumeration.
-
-### MR-05: Card type requirement
-
-Every card must have one of these card types:
-
-- syntax;
-- prediction;
-- diagnostic;
-- transformation;
-- concept boundary;
-- API recall;
-- invariant;
-- comparison;
-- project architecture.
-
-Acceptance test:
-
-- Card metadata includes `card_type`.
-
-### MR-06: Current Rust syntax requirement
-
-Cards must use current Rust Book syntax and Rust 2024 idioms unless intentionally teaching an older form.
-
-Acceptance test:
-
-- Current unsafe FFI uses `unsafe extern`.
-- Exported unmangled functions use `#[unsafe(no_mangle)]` where the current book does.
-- Cargo examples include `edition = "2024"` where relevant.
-
-### MR-07: Compile validation requirement
-
-All complete Rust code examples must be validated.
-
-Acceptance test:
-
-- Passing snippets compile.
-- Failing snippets are marked as expected failures and have matching expected diagnostics.
-- Pseudo-code never appears in a `rust` code fence.
-
-### MR-08: Explanation requirement
-
-Answers must include the rule or reason behind the result.
-
-Acceptance test:
-
-- Cards that answer only "yes", "no", "it compiles", or "it fails" are rejected unless the reason is already included in a separate required field.
-
-### MR-09: Contrast requirement
-
-The deck must include explicit comparison cards for commonly confused Rust concepts:
+Useful contrasts:
 
 - `String` vs `&str`;
 - move vs copy vs clone;
@@ -988,164 +434,173 @@ The deck must include explicit comparison cards for commonly confused Rust conce
 - `Box<T>` vs `Rc<T>` vs `RefCell<T>` vs `Arc<T>`;
 - threads vs async tasks;
 - safe abstraction vs unsafe implementation;
-- declarative macros vs procedural macros.
+- declarative macros vs procedural macros;
+- `Fn` vs `FnMut` vs `FnOnce`;
+- `&T` vs `*const T`.
 
-### MR-10: Failure-mode requirement
+Each contrast card must name the practical boundary, not just define both sides.
 
-The deck must teach important compiler errors as learning targets.
+Good:
 
-Required failure-mode families:
+```text
+Front:
+When should a function parameter be `&str` instead of `String`?
 
-- use after move;
-- multiple mutable borrows;
-- mutable plus immutable borrow conflict;
-- dangling reference;
-- missing trait bound;
-- non-exhaustive match;
-- refutable pattern in an irrefutable context;
-- lifetime mismatch;
-- trying to send non-`Send` values across threads;
-- async future type mismatch or pinning issue where the book covers it;
-- unsafe operation outside unsafe context.
+Back:
+Use `&str` when the function only needs to read string data and does not need ownership. This accepts both string slices and borrowed `String` values without forcing allocation or ownership transfer.
+```
 
-### MR-11: Project cards requirement
+## 12. Source Grounding
 
-Project chapters must produce project-architecture cards, not only syntax cards.
+Card content must be traceable to the selected learning source, but the source reference must serve the card quality.
 
-Applies to:
+Requirements:
 
-- guessing game;
-- command-line I/O project;
-- async examples;
-- multithreaded web server.
+- A card must not rely on "the book says so" as its answer.
+- Source wording should be converted into retrieval, prediction, diagnostic, or transformation prompts.
+- Direct quotes should be rare, short, and used only when exact wording matters.
+- If a card is based on a specific listing, the code must preserve the intended teaching point.
+- If the source uses a teaching simplification, preserve the caveat that prevents the card from becoming false or overgeneralized.
+- Do not turn intentionally beginner-friendly project code, such as temporary `unwrap` usage, into recommended production practice unless the card explicitly asks about that tradeoff.
 
-Acceptance test:
+Bad:
 
-- The learner can reconstruct the project flow from cards: inputs, state, error handling, module boundaries, and why the design changes.
+```text
+Front:
+Chapter 10 talks about traits. What should you remember?
 
-### MR-12: Tagging requirement
+Back:
+Traits are important.
+```
 
-Every card must include:
+Good:
 
-- `rust-book`;
-- chapter tag;
-- section tag;
-- difficulty tag;
-- card type tag;
-- compile status tag: `compiles`, `compile_fail`, `concept_only`, or `shell`.
+```text
+Front:
+Why can `longest(x.as_str(), y.as_str())` return `&str` only when the returned reference is tied to the input lifetimes?
 
-### MR-13: Rendering requirement
+Back:
+The returned reference must be known to live no longer than the input reference it came from. A lifetime parameter expresses that relationship; it does not extend either input's lifetime.
+```
 
-The final Anki deck must be visually checked.
+## 13. Source Expansion and Listing Handling
 
-Acceptance test:
+Cards based on mdBook source must use the rendered learning example, not raw source artifacts.
 
-- Code is readable.
-- Tables do not overflow.
-- Images render.
-- Long answers are split or formatted.
-- No Markdown artifacts such as stray headings appear in card bodies.
+Requirements:
 
-### MR-14: Duplicate and low-value card requirement
+- Resolve source directives such as `{{#include ...}}` and `{{#rustdoc_include ...}}` before judging the card's code or wording.
+- Preserve listing captions, filenames, and before/after context when they are needed to understand the teaching point.
+- Do not treat hidden doctest setup lines, raw mdBook directives, figure markup, or image references as ordinary prose headings or card content.
+- If a source listing evolves across a chapter, an `evolution` card may compare two short excerpts, but it must identify the exact changed behavior or design pressure.
+- If a diagram or image carries the teaching point, either convert the point into a text/card prompt or include the image only when it remains readable and necessary in the final card.
 
-The deck must reject duplicate or near-duplicate cards unless the distinction is intentional.
+Good evolution card:
+
+````text
+Front:
+What problem does this later version solve compared with the earlier one?
+
+Earlier:
+```rust
+let response = String::new();
+```
+
+Later:
+```rust
+let response = String::from("HTTP/1.1 200 OK\r\n\r\n");
+```
+
+Back:
+The later version sends a real HTTP status line instead of an empty response, so the browser can interpret the server's reply.
+````
+
+Bad:
+
+```text
+Front:
+What does `{{#rustdoc_include ../listings/ch17-01.rs}}` teach?
+```
+
+## 14. Rendering and Readability
+
+Cards must be readable in their final review form.
+
+Requirements:
+
+- Code fences must not break the card layout.
+- Code should be short enough to fit the tested point.
+- Long code should be reduced without hiding the relevant ownership, lifetime, trait, or control-flow behavior.
+- Tables should be avoided unless they remain readable on the target card layout.
+- Images must have a clear learning purpose and must not replace the answer.
+- Markdown artifacts such as stray headings must not appear in card bodies.
+
+## 15. Duplicate and Low-Value Rejection
+
+Reject duplicate or near-duplicate cards unless the distinction is intentional and visible.
 
 Bad duplicate:
 
 ```text
-Front: What is `cargo run`?
-Front: Which command runs a package?
+Front:
+What is `cargo run`?
+
+Front:
+Which command runs a package?
 ```
 
 Good distinction:
 
 ```text
-Front: What does `cargo check` do that makes it faster than `cargo build`?
-Front: When would you prefer `cargo build --release` over `cargo build`?
+Front:
+What does `cargo check` do that makes it faster than `cargo build`?
+
+Front:
+When would you prefer `cargo build --release` over `cargo build`?
 ```
-
-### MR-15: Difficulty progression requirement
-
-Cards must be ordered and tagged so learners can study progressively:
-
-- foundations: chapters 1-6;
-- project/module/error basics: chapters 7-12;
-- idioms and abstractions: chapters 13-16;
-- async and advanced Rust: chapters 17-20;
-- final integration project: chapter 21;
-- appendices as reference reinforcement.
-
-### MR-16: Maintenance requirement
-
-When the official Rust Book changes, the deck must be auditable.
-
-Acceptance test:
-
-- A script or checklist can compare current book `SUMMARY.md` to deck chapter tags.
-- Missing new sections are reported.
-- Cards with outdated syntax are flagged.
-
-### MR-17: Release QA requirement
-
-Before a deck release:
-
-- Run card parser tests.
-- Run Rust snippet compile tests.
-- Run compile-fail tests.
-- Run duplicate-front detection.
-- Run spellcheck/typo scan.
-- Render/import the Anki deck.
-- Sample at least one card from every chapter tag.
-- Confirm no required chapter has zero cards.
-
-### MR-18: Minimum coverage requirement
-
-The first production deck should not target a tiny card count. A realistic minimum for full Rust Book coverage is:
-
-- Chapters 1-6: enough cards to make ownership, structs, enums, and matching automatic.
-- Chapters 7-12: enough cards to teach module structure, error handling, tests, and project organization.
-- Chapters 13-16: enough cards to distinguish Rust abstractions and concurrency primitives.
-- Chapter 17: enough cards to teach async as a real model, not a vocabulary term.
-- Chapter 20: enough cards to teach unsafe boundaries, advanced traits/types/functions, and macros.
-- Chapter 21: enough cards to reconstruct the project architecture.
-
-The exact count should come after drafting, but "one card per section" is too shallow for a best-quality deck.
-
-### MR-19: Bad-card rejection requirement
 
 Reject cards with these patterns:
 
-- "Chapter X talks about this more."
-- "Explain Rust."
-- "What is ownership?" with an unbounded essay answer.
-- Answers that only quote the book without requiring recall.
-- Code with accidental typos.
-- Old syntax presented as current syntax.
-- Cards where the learner can answer by reading the front rather than recalling anything.
+- vague chapter references;
+- unbounded essay prompts;
+- answers that only quote the source;
+- typo-filled code;
+- outdated syntax presented as current syntax;
+- prompts answerable by reading the front instead of recalling or reasoning;
+- answer-only trivia that does not support Rust fluency.
 
-### MR-20: Good-card acceptance requirement
+## 16. Good Card Acceptance Checklist
 
-Prefer cards with these patterns:
+A card is acceptable when all of the following are true:
 
-- "Given this code, what happens and why?"
-- "Which rule is violated?"
-- "Rewrite this with the idiomatic construct."
-- "Choose X or Y for this situation and explain the boundary."
-- "What trait bound is missing?"
-- "What ownership transfer happens here?"
-- "Which API returns this type?"
-- "What exact syntax expresses this concept?"
+- It tests one primary target.
+- The prompt is specific and answerable.
+- The answer includes the reason or boundary.
+- Theory paragraphs are split into bounded cards instead of copied into one answer.
+- Important claims from source paragraphs are either carded or intentionally rejected as low-value, duplicate, or not relevant.
+- The card stands alone when reviewed out of order.
+- Rust terminology is precise.
+- Code is valid or intentionally marked as invalid.
+- Source fence attributes are respected when they change compile, run, or playground expectations.
+- Partial code is explicitly marked as an excerpt and has enough context.
+- Non-Rust snippets are labeled by role and kept focused.
+- Unsafe cards state the safety obligation and who upholds it.
+- Teaching simplifications preserve the caveat that makes the card accurate.
+- mdBook includes, hidden lines, listings, and images are handled as source structure, not accidental card text.
+- The card teaches current Rust unless explicitly contrasting older syntax.
+- The expected answer is short enough for review.
+- The card requires recall or reasoning, not passive rereading.
+- Similar existing cards do not already test the same distinction.
 
-## 4. Working Definition of a Best-Quality Rust Book Deck
+Prefer cards that ask the learner to:
 
-A best-quality deck is not just "many cards about Rust." It is a current, source-mapped, compile-validated learning system that turns every important Rust Book concept into precise retrieval practice.
-
-The deck is complete only when:
-
-- every official book chapter and appendix is represented;
-- current Rust 2024 syntax is used;
-- all code examples are validated or intentionally marked as failing;
-- every card has a clear learning objective;
-- vague and typo-prone cards are rejected;
-- missing current-book topics such as async, macros, `let...else`, editions, web server project, and current unsafe FFI are covered;
-- the deck can be audited against the book after future book updates.
+- recall a bounded definition or important fact;
+- correct a common misconception;
+- predict compile or runtime behavior;
+- identify a violated rule;
+- rewrite code idiomatically;
+- explain the reason an example evolved from one listing to the next;
+- choose between related Rust concepts;
+- recall exact syntax for a focused purpose;
+- explain an ownership, borrowing, lifetime, trait, async, or unsafe boundary;
+- state a safety contract or invariant that makes unsafe code sound.

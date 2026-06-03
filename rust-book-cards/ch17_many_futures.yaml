@@ -1,0 +1,230 @@
+- id: rust-book-ch17-many-futures-001
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: diagnostic
+  front: |
+    What type rule makes a `Vec` of different `async` blocks fail even if each returns `()`?
+  back: |
+    Each `async` block has a distinct anonymous future type. A `Vec` needs one element type unless the futures are boxed as trait objects.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - diagnostic
+- id: rust-book-ch17-many-futures-002
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: transformation
+  front: |
+    How can different future types be stored in one collection?
+  back: |
+    Use trait objects such as `Pin<Box<dyn Future<Output = ()>>>`, or a helper that boxes futures into a common type.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - transformation
+- id: rust-book-ch17-many-futures-003
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: invariant
+  front: |
+    Why does polling many futures often require pinning?
+  back: |
+    Self-referential or address-sensitive futures must not be moved after polling; `Pin` encodes that stability requirement.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - invariant
+- id: rust-book-ch17-many-futures-004
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: comparison
+  front: |
+    What is the difference between `join_all`-style waiting and racing futures?
+  back: |
+    Joining waits for all futures to finish. Racing returns when one future completes first and may cancel or ignore the rest depending on the API.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - comparison
+- id: rust-book-ch17-many-futures-005
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: comparison
+  front: |
+    Why does `thread::sleep` inside async work block differently from `trpl::sleep(...).await`?
+  back: |
+    `thread::sleep` blocks the current OS thread. `trpl::sleep(...).await` returns a future that can yield to the runtime while waiting.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - comparison
+- id: rust-book-ch17-many-futures-006
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: definition
+  front: |
+    What is cooperative multitasking in the async context?
+  back: |
+    Futures voluntarily yield control at await points so the runtime can make progress on other tasks.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - definition
+- id: rust-book-ch17-many-futures-007
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: diagnostic
+  front: |
+    Why can a long compute loop inside an async task starve other async work?
+  back: |
+    If the loop has no await points, the task does not yield control back to the runtime. Other tasks may not be polled until the loop finishes.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - diagnostic
+- id: rust-book-ch17-many-futures-008
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: api_recall
+  front: |
+    What does `trpl::yield_now().await` do in the book's async examples?
+  back: |
+    It creates an explicit await point so the current task can hand control back to the runtime and let other tasks run.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - api_recall
+- id: rust-book-ch17-many-futures-009
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: comparison
+  front: |
+    What tradeoff can explicit yielding introduce in compute-heavy async code?
+  back: |
+    Yielding improves responsiveness and fairness, but too many yield points can add overhead and make compute-bound work slower.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - comparison
+- id: rust-book-ch17-many-futures-010
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: definition
+  front: |
+    What does the book's `timeout` helper return when the wrapped future finishes before the duration?
+  back: |
+    It returns `Ok(value)`, where `value` is the output of the wrapped future.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - definition
+- id: rust-book-ch17-many-futures-011
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: prediction
+  front: |
+    What does the book's `timeout` helper return if the timer completes before the wrapped future?
+  back: |
+    It returns `Err(duration)`, using the timeout duration as the error value in the example.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - prediction
+- id: rust-book-ch17-many-futures-012
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: transformation
+  front: |
+    How does the book build `timeout` from existing async tools?
+  back: |
+    It races the target future against a sleep future with `select`, returning success if the target completes first and an error if the sleep completes first.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - transformation
+- id: rust-book-ch17-many-futures-013
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: diagnostic
+  front: |
+    Why does this vector of async blocks fail even though both futures output `()`?
+    
+    ```rust
+    fn main() {
+        let futures = vec![
+            async {},
+            async {},
+        ];
+    }
+    ```
+  back: |
+    Each async block has a unique anonymous type. `Vec<T>` needs all elements to have one concrete type, so the futures need a common wrapper such as a pinned boxed trait object.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - diagnostic
+- id: rust-book-ch17-many-futures-014
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Working With Any Number of Futures"
+  source: "rust-book/src/ch17-03-more-futures.md"
+  card_type: syntax
+  front: |
+    What standard-library type shape can store heterogeneous async-block futures in one vector?
+  back: |
+    ```rust
+    use std::future::Future;
+    use std::pin::Pin;
+
+    fn main() {
+        let futures: Vec<Pin<Box<dyn Future<Output = ()>>>> = vec![
+            Box::pin(async {}),
+            Box::pin(async {}),
+        ];
+    }
+    ```
+    `Pin<Box<dyn Future<Output = ()>>>` gives the vector a single concrete element type.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch17
+    - many-futures
+    - syntax

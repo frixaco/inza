@@ -1,0 +1,247 @@
+- id: rust-book-ch14-publishing-crates-001
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: definition
+  front: |
+    What is crate documentation generated from by `cargo doc`?
+  back: |
+    Public API documentation comments and item metadata from the crate.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - definition
+- id: rust-book-ch14-publishing-crates-002
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: syntax
+  front: |
+    What comment style documents the item that follows it?
+  back: |
+    ```rust
+    /// Adds one to the number given.
+    pub fn add_one(x: i32) -> i32 {
+        x + 1
+    }
+    ```
+    `///` documentation comments go before the item they document.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - syntax
+- id: rust-book-ch14-publishing-crates-003
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: syntax
+  front: |
+    What comment style documents the enclosing item, such as a crate or module?
+  back: |
+    ```rust
+    //! # My Crate
+    //!
+    //! Documentation for the enclosing crate or module.
+    ```
+    `//!` inner documentation comments document the item that contains them.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - syntax
+- id: rust-book-ch14-publishing-crates-004
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: api_recall
+  front: |
+    Which Cargo command publishes a crate to Crates.io?
+  back: |
+    `cargo publish`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - api_recall
+- id: rust-book-ch14-publishing-crates-005
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: invariant
+  front: |
+    Why should a published crate version not be casually deleted or changed?
+  back: |
+    Other packages may depend on it. SemVer and yanking are used to manage compatibility without breaking the ecosystem.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - invariant
+- id: rust-book-ch14-publishing-crates-006
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: api_recall
+  front: |
+    Which command builds documentation and opens it in a browser?
+  back: |
+    `cargo doc --open`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - api_recall
+- id: rust-book-ch14-publishing-crates-007
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: concept_boundary
+  front: |
+    When should documentation include `Panics`, `Errors`, or `Safety` sections?
+  back: |
+    ```rust
+    /// Divides two numbers.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `rhs` is zero.
+    pub fn divide(lhs: i32, rhs: i32) -> i32 {
+        lhs / rhs
+    }
+    ```
+    Use `Panics` for panic conditions, `Errors` for `Result` failure cases, and `Safety` for unsafe functions whose callers must uphold invariants.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - concept_boundary
+- id: rust-book-ch14-publishing-crates-008
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: definition
+  front: |
+    What extra check does `cargo test` perform for documentation examples?
+  back: |
+    It compiles and runs code examples in documentation comments as doc tests, helping keep examples and code in sync.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - definition
+- id: rust-book-ch14-publishing-crates-009
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: project_architecture
+  front: |
+    Why can `pub use` improve a published crate's public API?
+  back: |
+    ```rust
+    mod kinds {
+        pub enum PrimaryColor {
+            Red,
+            Yellow,
+            Blue,
+        }
+    }
+
+    pub use kinds::PrimaryColor;
+    ```
+    It can re-export important items at paths that are easier for users to find, without forcing the internal module hierarchy to match the public API.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - project_architecture
+- id: rust-book-ch14-publishing-crates-010
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: api_recall
+  front: |
+    What credential does `cargo login` store locally?
+  back: |
+    A crates.io API token in Cargo's local credentials file. The token is secret and should not be shared.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - api_recall
+- id: rust-book-ch14-publishing-crates-011
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: invariant
+  front: |
+    Which metadata fields does the book call out as required before publishing to crates.io?
+  back: |
+    ```toml
+    [package]
+    description = "A short explanation of the crate"
+    license = "MIT OR Apache-2.0"
+    ```
+    `description` and either `license` or `license-file` are required so users know what the crate does and under what terms they can use it.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - invariant
+- id: rust-book-ch14-publishing-crates-012
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: concept_boundary
+  front: |
+    Can a published crates.io version be overwritten?
+  back: |
+    No. Once a crate version is published, that version is permanent to preserve reproducible builds for dependents.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - concept_boundary
+- id: rust-book-ch14-publishing-crates-013
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: api_recall
+  front: |
+    What does `cargo yank --vers 1.0.1` do?
+  back: |
+    It prevents new projects from depending on version `1.0.1`, but existing projects with a lockfile can still use it.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - api_recall
+- id: rust-book-ch14-publishing-crates-014
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Publishing a Crate to Crates.io"
+  source: "rust-book/src/ch14-02-publishing-to-crates-io.md"
+  card_type: api_recall
+  front: |
+    How do you undo a yank for a published crate version?
+  back: |
+    `cargo yank --vers 1.0.1 --undo`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - publishing-crates
+    - api_recall

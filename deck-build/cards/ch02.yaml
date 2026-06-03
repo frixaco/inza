@@ -1,8 +1,0 @@
-chapter: CH-02
-chapter_group: ch02
-status: not_started
-source_files:
-  - rust-book/src/ch02-00-guessing-game-tutorial.md
-cards: []
-
-# Add cards using ./deck-build/schema/card.schema.yaml.
