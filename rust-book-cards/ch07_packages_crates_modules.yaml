@@ -1,0 +1,30 @@
+- id: rust-book-ch07-packages-crates-modules-001
+  chapter: "Chapter 7: Packages, Crates, and Modules"
+  section: "Packages, Crates, and Modules"
+  source: "rust-book/src/ch07-00-managing-growing-projects-with-packages-crates-and-modules.md"
+  card_type: definition
+  front: |
+    What do packages, crates, and modules help manage?
+  back: |
+    They organize code, control scope and privacy, and make paths to items predictable as a project grows.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch07
+    - packages-crates-modules
+    - definition
+- id: rust-book-ch07-packages-crates-modules-002
+  chapter: "Chapter 7: Packages, Crates, and Modules"
+  section: "Packages, Crates, and Modules"
+  source: "rust-book/src/ch07-00-managing-growing-projects-with-packages-crates-and-modules.md"
+  card_type: comparison
+  front: |
+    What is the broad relationship between a package, a crate, and modules?
+  back: |
+    A package contains one or more crates; a crate is a compilation unit; modules organize items inside a crate.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch07
+    - packages-crates-modules
+    - comparison

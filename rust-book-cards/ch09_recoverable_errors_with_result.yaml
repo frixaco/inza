@@ -1,0 +1,328 @@
+- id: rust-book-ch09-recoverable-errors-with-result-001
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: definition
+  front: |
+    What success-or-failure shape does `Result<T, E>` represent?
+  back: |
+    ```rust
+    enum ResultShape<T, E> {
+        Ok(T),
+        Err(E),
+    }
+    ```
+    Either `Ok(T)` for success with a value or `Err(E)` for failure with error information.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - definition
+- id: rust-book-ch09-recoverable-errors-with-result-002
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: comparison
+  front: |
+    What is the practical difference between `unwrap` and `expect`?
+  back: |
+    Both return the `Ok` value or panic on `Err`; `expect` lets you supply a panic message explaining the assumption.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - comparison
+- id: rust-book-ch09-recoverable-errors-with-result-003
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: transformation
+  front: |
+    How does the `?` operator simplify propagating an error?
+  back: |
+    It returns the inner success value on `Ok`, or returns the error from the current function on `Err` after applying the needed conversion.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - transformation
+- id: rust-book-ch09-recoverable-errors-with-result-004
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: invariant
+  front: |
+    What must be true for a function body to use `?` on a `Result`?
+  back: |
+    The enclosing function must return `Result` or another type compatible with `?`, so the error can be returned to the caller.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - invariant
+- id: rust-book-ch09-recoverable-errors-with-result-005
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: comparison
+  front: |
+    What is the boundary between `File::open(...).unwrap()` and matching on `File::open(...)`?
+  back: |
+    `unwrap` is concise but panics on failure. Matching lets code handle different errors, such as creating the file when it was not found.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - comparison
+- id: rust-book-ch09-recoverable-errors-with-result-006
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: api_recall
+  front: |
+    What does `read_to_string` need in the file-reading examples?
+  back: |
+    It needs a mutable `String` buffer and returns `Result<usize, io::Error>` for bytes read or an error.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - api_recall
+- id: rust-book-ch09-recoverable-errors-with-result-007
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: api_recall
+  front: |
+    What are the success and error types in `File::open("hello.txt")`?
+  back: |
+    The success value is `std::fs::File`, and the error value is `std::io::Error`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - api_recall
+- id: rust-book-ch09-recoverable-errors-with-result-008
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: api_recall
+  front: |
+    Which API lets code distinguish a missing file from other `io::Error` values?
+  back: |
+    Call `error.kind()` and compare it with variants such as `ErrorKind::NotFound`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - api_recall
+- id: rust-book-ch09-recoverable-errors-with-result-009
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: transformation
+  front: |
+    What does `unwrap_or_else` add compared with plain `unwrap` when handling `Result`?
+  back: |
+    ```rust
+    let value = "42".parse::<i32>().unwrap_or_else(|error| {
+        panic!("could not parse integer: {error}");
+    });
+    ```
+    It returns the `Ok` value, or lazily runs a closure with the error value so code can choose custom handling for the `Err` case.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - transformation
+- id: rust-book-ch09-recoverable-errors-with-result-010
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: definition
+  front: |
+    What caller relationship does propagating an error create?
+  back: |
+    A function returns the error to its caller instead of handling it locally, letting the caller decide how to recover or fail.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - definition
+- id: rust-book-ch09-recoverable-errors-with-result-011
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: definition
+  front: |
+    What extra conversion step can the `?` operator perform on an error?
+  back: |
+    It calls `From::from` to convert the error into the error type declared by the current function's return type.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - definition
+- id: rust-book-ch09-recoverable-errors-with-result-012
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: diagnostic
+  front: |
+    Why can't `?` on a `Result` be used in a function returning `()`?
+    
+    ```rust
+    use std::fs::File;
+    
+    fn main() {
+        let greeting_file = File::open("hello.txt")?;
+    }
+    ```
+  back: |
+    `?` may return an `Err` early, so the enclosing function must return `Result` or another compatible type such as one implementing `FromResidual`.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - diagnostic
+- id: rust-book-ch09-recoverable-errors-with-result-013
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: comparison
+  front: |
+    How does `?` behave differently on `Option<T>` than on `Result<T, E>`?
+  back: |
+    ```rust
+    fn last_char_of_first_line(text: &str) -> Option<char> {
+        text.lines().next()?.chars().last()
+    }
+    ```
+    It returns the inner value for `Some`, or returns `None` early from the enclosing function if the value is `None`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - comparison
+- id: rust-book-ch09-recoverable-errors-with-result-014
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: concept_boundary
+  front: |
+    Can `?` automatically convert between `Result` and `Option`?
+  back: |
+    No. Use explicit conversion methods such as `Result::ok` or `Option::ok_or` when you need to convert between them.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - concept_boundary
+- id: rust-book-ch09-recoverable-errors-with-result-015
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: transformation
+  front: |
+    How can opening a file and then reading it be shortened with method chaining and `?`?
+  back: |
+    ```rust
+    use std::fs::File;
+    use std::io::{self, Read};
+
+    fn read_username_from_file() -> Result<String, io::Error> {
+        let mut username = String::new();
+        File::open("hello.txt")?.read_to_string(&mut username)?;
+        Ok(username)
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - transformation
+- id: rust-book-ch09-recoverable-errors-with-result-016
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: api_recall
+  front: |
+    Which standard-library helper reads an entire file into a `String` in one call?
+  back: |
+    ```rust
+    let contents = std::fs::read_to_string("hello.txt");
+    ```
+    `std::fs::read_to_string` returns `Result<String, io::Error>`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - api_recall
+- id: rust-book-ch09-recoverable-errors-with-result-017
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: syntax
+  front: |
+    What `main` signature lets the book use `?` on `Result` values?
+  back: |
+    ```rust
+    use std::error::Error;
+
+    fn main() -> Result<(), Box<dyn Error>> {
+        Ok(())
+    }
+    ```
+    In the book, `Box<dyn Error>` means “any kind of error” at this stage.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - syntax
+- id: rust-book-ch09-recoverable-errors-with-result-018
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: prediction
+  front: |
+    What exit status does Rust produce when `main() -> Result<(), E>` returns `Ok(())` or `Err`?
+  back: |
+    Returning `Ok(())` exits with status 0. Returning `Err` exits with a nonzero status.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - prediction
+- id: rust-book-ch09-recoverable-errors-with-result-019
+  chapter: "Chapter 9: Error Handling"
+  section: "Recoverable Errors with Result"
+  source: "rust-book/src/ch09-02-recoverable-errors-with-result.md"
+  card_type: definition
+  front: |
+    What does the `Termination` trait have to do with `main` return types?
+  back: |
+    `main` may return types that implement `std::process::Termination`, which lets Rust convert the return value into an executable exit status.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch09
+    - recoverable-errors-with-result
+    - definition

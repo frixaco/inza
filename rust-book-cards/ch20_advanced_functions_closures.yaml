@@ -1,0 +1,153 @@
+- id: rust-book-ch20-advanced-functions-closures-001
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Functions and Closures"
+  source: "rust-book/src/ch20-04-advanced-functions-and-closures.md"
+  card_type: definition
+  front: |
+    What is the type of a function item coerced to a function pointer?
+  back: |
+    `fn`, as in `fn(i32) -> i32`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-functions-closures
+    - definition
+- id: rust-book-ch20-advanced-functions-closures-002
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Functions and Closures"
+  source: "rust-book/src/ch20-04-advanced-functions-and-closures.md"
+  card_type: comparison
+  front: |
+    How do function pointers differ from closures?
+  back: |
+    Function pointers can point to functions and implement all three closure traits, but they cannot capture environment values.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-functions-closures
+    - comparison
+- id: rust-book-ch20-advanced-functions-closures-003
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Functions and Closures"
+  source: "rust-book/src/ch20-04-advanced-functions-and-closures.md"
+  card_type: concept_boundary
+  front: |
+    When should a parameter use `fn` instead of a generic `Fn` bound?
+  back: |
+    Use `fn` when you specifically need a function pointer, often for C interop. Use `Fn` bounds to accept closures and functions.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-functions-closures
+    - concept_boundary
+- id: rust-book-ch20-advanced-functions-closures-004
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Functions and Closures"
+  source: "rust-book/src/ch20-04-advanced-functions-and-closures.md"
+  card_type: concept_boundary
+  front: |
+    Why can enum variant constructors be passed to iterator adapters like functions?
+  back: |
+    Tuple struct and enum variant constructors are function-like values, so they can be used as mapping functions.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-functions-closures
+    - concept_boundary
+- id: rust-book-ch20-advanced-functions-closures-005
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Functions and Closures"
+  source: "rust-book/src/ch20-04-advanced-functions-and-closures.md"
+  card_type: syntax
+  front: |
+    How can a function return a closure?
+  back: |
+    ```rust
+    fn returns_closure() -> Box<dyn Fn(i32) -> i32> {
+        Box::new(|x| x + 1)
+    }
+    ```
+    Return a trait object such as `Box<dyn Fn(...) -> ...>`, or use `impl Fn(...) -> ...` when returning one concrete closure type.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-functions-closures
+    - syntax
+- id: rust-book-ch20-advanced-functions-closures-006
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Functions and Closures"
+  source: "rust-book/src/ch20-04-advanced-functions-and-closures.md"
+  card_type: syntax
+  front: |
+    What does a parameter of function pointer type look like?
+  back: |
+    ```rust
+    fn add_one(x: i32) -> i32 {
+        x + 1
+    }
+
+    fn do_twice(f: fn(i32) -> i32, arg: i32) -> i32 {
+        f(arg) + f(arg)
+    }
+
+    fn main() {
+        assert_eq!(do_twice(add_one, 5), 12);
+    }
+    ```
+    `fn(i32) -> i32` is a function pointer type.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-functions-closures
+    - syntax
+- id: rust-book-ch20-advanced-functions-closures-007
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Functions and Closures"
+  source: "rust-book/src/ch20-04-advanced-functions-and-closures.md"
+  card_type: syntax
+  front: |
+    What does using an enum variant constructor as a mapping function look like?
+  back: |
+    ```rust
+    enum Status {
+        Value(u32),
+    }
+
+    fn main() {
+        let list: Vec<Status> = (0u32..3).map(Status::Value).collect();
+        assert_eq!(list.len(), 3);
+    }
+    ```
+    Tuple-like enum variant constructors can be used like function items.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-functions-closures
+    - syntax
+- id: rust-book-ch20-advanced-functions-closures-008
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Functions and Closures"
+  source: "rust-book/src/ch20-04-advanced-functions-and-closures.md"
+  card_type: syntax
+  front: |
+    What is the simple syntax for returning one concrete closure type?
+  back: |
+    ```rust
+    fn returns_closure() -> impl Fn(i32) -> i32 {
+        |x| x + 1
+    }
+    ```
+    `impl Fn` works when the function returns one concrete closure type.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-functions-closures
+    - syntax

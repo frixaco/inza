@@ -1,0 +1,45 @@
+- id: rust-book-ch14-cargo-install-001
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Installing Binaries with cargo install"
+  source: "rust-book/src/ch14-04-installing-binaries.md"
+  card_type: api_recall
+  front: |
+    What target does `cargo install` install from a Rust package?
+  back: |
+    Binary crates from Crates.io or another source, placing executables in Cargo's bin directory.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - cargo-install
+    - api_recall
+- id: rust-book-ch14-cargo-install-002
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Installing Binaries with cargo install"
+  source: "rust-book/src/ch14-04-installing-binaries.md"
+  card_type: concept_boundary
+  front: |
+    Can `cargo install` install a library crate for use as a dependency?
+  back: |
+    No. It installs executable binaries; library dependencies are added to `Cargo.toml`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch14
+    - cargo-install
+    - concept_boundary
+- id: rust-book-ch14-cargo-install-003
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Installing Binaries with cargo install"
+  source: "rust-book/src/ch14-04-installing-binaries.md"
+  card_type: invariant
+  front: |
+    What must be true for an installed command to run from the shell?
+  back: |
+    Cargo's bin directory, commonly `$HOME/.cargo/bin`, must be on the `PATH`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - cargo-install
+    - invariant

@@ -1,0 +1,120 @@
+- id: rust-book-ch16-send-sync-001
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Extensible Concurrency with Send and Sync"
+  source: "rust-book/src/ch16-04-extensible-concurrency-sync-and-send.md"
+  card_type: concept_boundary
+  front: |
+    What does the `Send` marker trait mean?
+  back: |
+    Ownership of values of that type can be transferred safely between threads.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - send-sync
+    - concept_boundary
+- id: rust-book-ch16-send-sync-002
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Extensible Concurrency with Send and Sync"
+  source: "rust-book/src/ch16-04-extensible-concurrency-sync-and-send.md"
+  card_type: definition
+  front: |
+    What does the `Sync` marker trait mean?
+  back: |
+    A type is `Sync` if references to it can be shared safely between threads; `T` is `Sync` when `&T` is `Send`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - send-sync
+    - definition
+- id: rust-book-ch16-send-sync-003
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Extensible Concurrency with Send and Sync"
+  source: "rust-book/src/ch16-04-extensible-concurrency-sync-and-send.md"
+  card_type: comparison
+  front: |
+    Why is `Rc<T>` not `Send` or `Sync` while `Arc<T>` is?
+  back: |
+    `Rc<T>` uses non-atomic reference counts. `Arc<T>` uses atomic operations suitable for sharing across threads.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - send-sync
+    - comparison
+- id: rust-book-ch16-send-sync-004
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Extensible Concurrency with Send and Sync"
+  source: "rust-book/src/ch16-04-extensible-concurrency-sync-and-send.md"
+  card_type: invariant
+  front: |
+    Why is implementing `Send` or `Sync` manually unsafe?
+  back: |
+    Other unsafe code may rely on the promise that the type is thread-safe, so the implementer must uphold the concurrency invariants.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - send-sync
+    - invariant
+- id: rust-book-ch16-send-sync-005
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Extensible Concurrency with Send and Sync"
+  source: "rust-book/src/ch16-04-extensible-concurrency-sync-and-send.md"
+  card_type: invariant
+  front: |
+    When does a type automatically implement `Send`?
+  back: |
+    A type composed entirely of `Send` types is automatically `Send`, with exceptions such as raw pointers and types that deliberately opt out.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - send-sync
+    - invariant
+- id: rust-book-ch16-send-sync-006
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Extensible Concurrency with Send and Sync"
+  source: "rust-book/src/ch16-04-extensible-concurrency-sync-and-send.md"
+  card_type: invariant
+  front: |
+    When does a type automatically implement `Sync`?
+  back: |
+    A type composed entirely of `Sync` types is automatically `Sync`; `T` is `Sync` when `&T` can be sent safely between threads.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - send-sync
+    - invariant
+- id: rust-book-ch16-send-sync-007
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Extensible Concurrency with Send and Sync"
+  source: "rust-book/src/ch16-04-extensible-concurrency-sync-and-send.md"
+  card_type: comparison
+  front: |
+    Why is `RefCell<T>` not `Sync` while `Mutex<T>` is?
+  back: |
+    `RefCell<T>` enforces borrowing rules at runtime with non-thread-safe bookkeeping. `Mutex<T>` is designed to synchronize access across threads.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - send-sync
+    - comparison
+- id: rust-book-ch16-send-sync-008
+  chapter: "Chapter 16: Fearless Concurrency"
+  section: "Extensible Concurrency with Send and Sync"
+  source: "rust-book/src/ch16-04-extensible-concurrency-sync-and-send.md"
+  card_type: concept_boundary
+  front: |
+    Why are `Send` and `Sync` called marker traits?
+  back: |
+    They have no methods to implement; their purpose is to mark types as satisfying thread-safety guarantees.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch16
+    - send-sync
+    - concept_boundary

@@ -1,0 +1,541 @@
+- id: rust-book-ch19-pattern-syntax-001
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does `1 | 2` mean in a pattern?
+  back: |
+    ```rust
+    let x = 1;
+    match x {
+        1 | 2 => println!("one or two"),
+        _ => println!("something else"),
+    }
+    ```
+    It matches either `1` or `2`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-002
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does `1..=5` mean in a pattern?
+  back: |
+    ```rust
+    let x = 3;
+    match x {
+        1..=5 => println!("one through five"),
+        _ => println!("something else"),
+    }
+    ```
+    It matches any value in the inclusive range from 1 through 5.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-003
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does `_` mean in a pattern?
+  back: |
+    ```rust
+    let value = Some(5);
+    match value {
+        Some(_) => println!("got some value"),
+        None => println!("got nothing"),
+    }
+    ```
+    It matches any value without binding it.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-004
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: comparison
+  front: |
+    What is the difference between `_` and a variable name starting with `_`, such as `_s`?
+  back: |
+    `_` does not bind at all. `_s` binds the value but suppresses unused-variable warnings, so it can still move ownership.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - comparison
+- id: rust-book-ch19-pattern-syntax-005
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does `..` do in a destructuring pattern?
+  back: |
+    ```rust
+    struct Point {
+        x: i32,
+        y: i32,
+        z: i32,
+    }
+
+    let origin = Point { x: 0, y: 0, z: 0 };
+    let Point { x, .. } = origin;
+    ```
+    It ignores the remaining fields or elements not named explicitly.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-006
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What binding-and-test behavior does `@` add to a pattern?
+  back: |
+    ```rust
+    let id = 5;
+    match id {
+        value @ 3..=7 => println!("id in range: {value}"),
+        _ => println!("id out of range"),
+    }
+    ```
+    It binds a name to a value while also testing that value against a subpattern, such as `id @ 3..=7`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-007
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What extra condition can a match guard add to an arm?
+  back: |
+    ```rust
+    let num = Some(4);
+    match num {
+        Some(x) if x % 2 == 0 => println!("even"),
+        Some(_) => println!("odd"),
+        None => {}
+    }
+    ```
+    An extra `if condition` on a match arm that must be true for the arm to match.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-008
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: misconception
+  front: |
+    In `match x { Some(y) => ... }`, does `y` refer to an outer variable named `y`?
+  back: |
+    No. `y` in the pattern is a new binding that shadows any outer `y`. Use a match guard if you need to compare against an outer variable.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - misconception
+- id: rust-book-ch19-pattern-syntax-009
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: transformation
+  front: |
+    How can a match arm compare an inner value to an outer variable instead of shadowing it?
+  back: |
+    ```rust
+    let y = 10;
+    let x = Some(10);
+
+    match x {
+        Some(n) if n == y => println!("matched outer y"),
+        _ => println!("no match"),
+    }
+    ```
+    Use a match guard, such as `Some(n) if n == y => ...`. The pattern binds `n`, and the guard expression can refer to the outer `y`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - transformation
+- id: rust-book-ch19-pattern-syntax-010
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: concept_boundary
+  front: |
+    Which value kinds can use inclusive range patterns like `1..=5`?
+  back: |
+    Numeric values and `char` values. The compiler can check at compile time that those ranges are not empty.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - concept_boundary
+- id: rust-book-ch19-pattern-syntax-011
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    How do you destructure a struct while renaming its fields?
+  back: |
+    ```rust
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    fn main() {
+        let p = Point { x: 0, y: 7 };
+        let Point { x: a, y: b } = p;
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-012
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does `Point { x, y }` mean in a pattern?
+  back: |
+    ```rust
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    let p = Point { x: 3, y: 5 };
+    let Point { x, y } = p;
+    ```
+    It is shorthand for binding fields with the same names as the struct fields, equivalent to `Point { x: x, y: y }`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-013
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: diagnostic
+  front: |
+    Why must an enum pattern match the data shape of the variant?
+  back: |
+    Each variant has its own fields. A tuple-like variant must be matched with the right number of subpatterns, while struct-like variants are matched by field names.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - diagnostic
+- id: rust-book-ch19-pattern-syntax-014
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does a nested destructuring pattern let you do?
+  back: |
+    It matches through multiple layers of data at once, such as destructuring an enum variant that contains a struct or tuple.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-015
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: concept_boundary
+  front: |
+    Do match guards participate in exhaustiveness checking?
+  back: |
+    No. The compiler does not use guard conditions to prove that all cases are covered, so guarded matches may still need a catch-all arm.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - concept_boundary
+- id: rust-book-ch19-pattern-syntax-016
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does matching multiple literal patterns with `|` look like?
+  back: |
+    ```rust
+    fn main() {
+        let x = 1;
+        match x {
+            1 | 2 => println!("one or two"),
+            3 => println!("three"),
+            _ => println!("anything"),
+        }
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-017
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does a character range pattern look like?
+  back: |
+    ```rust
+    fn main() {
+        let x = 'c';
+        match x {
+            'a'..='j' => println!("early ASCII letter"),
+            'k'..='z' => println!("late ASCII letter"),
+            _ => println!("something else"),
+        }
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-018
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does destructuring a struct with literal field patterns look like?
+  back: |
+    ```rust
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    fn main() {
+        let p = Point { x: 0, y: 7 };
+        match p {
+            Point { x, y: 0 } => println!("On the x axis at {x}"),
+            Point { x: 0, y } => println!("On the y axis at {y}"),
+            Point { x, y } => println!("On neither axis: ({x}, {y})"),
+        }
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-019
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does nested enum destructuring look like?
+  back: |
+    ```rust
+    enum Color {
+        Rgb(i32, i32, i32),
+        Hsv(i32, i32, i32),
+    }
+
+    enum Message {
+        ChangeColor(Color),
+    }
+
+    fn main() {
+        let msg = Message::ChangeColor(Color::Hsv(0, 160, 255));
+        match msg {
+            Message::ChangeColor(Color::Rgb(r, g, b)) => println!("rgb {r} {g} {b}"),
+            Message::ChangeColor(Color::Hsv(h, s, v)) => println!("hsv {h} {s} {v}"),
+        }
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-020
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: diagnostic
+  front: |
+    Why can `_s` move a `String` while `_` does not?
+  back: |
+    ```rust
+    fn main() {
+        let s = Some(String::from("hello"));
+        if let Some(_s) = s {
+            println!("found a string");
+        }
+        println!("{s:?}");
+    }
+    ```
+    `_s` is a binding, so it moves the inner `String`; `_` does not bind and would leave `s` usable.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - diagnostic
+- id: rust-book-ch19-pattern-syntax-021
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does ignoring remaining struct fields with `..` look like?
+  back: |
+    ```rust
+    struct Point {
+        x: i32,
+        y: i32,
+        z: i32,
+    }
+
+    fn main() {
+        let origin = Point { x: 0, y: 0, z: 0 };
+        match origin {
+            Point { x, .. } => println!("x is {x}"),
+        }
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-022
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: diagnostic
+  front: |
+    Why is this use of `..` ambiguous?
+    
+    ```rust
+    fn main() {
+        let numbers = (2, 4, 8, 16, 32);
+        match numbers {
+            (first, .., second, ..) => {
+                println!("{first}, {second}");
+            }
+        }
+    }
+    ```
+  back: |
+    Rust cannot know how many tuple elements the first `..` should ignore versus the second `..`; `..` must be unambiguous in a pattern.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - diagnostic
+- id: rust-book-ch19-pattern-syntax-023
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does a match guard using a value bound in the pattern look like?
+  back: |
+    ```rust
+    fn main() {
+        let num = Some(4);
+        match num {
+            Some(x) if x % 2 == 0 => println!("The number {x} is even"),
+            Some(x) => println!("The number {x} is odd"),
+            None => (),
+        }
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax
+- id: rust-book-ch19-pattern-syntax-024
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Pattern Syntax"
+  source: "rust-book/src/ch19-03-pattern-syntax.md"
+  card_type: syntax
+  front: |
+    What does an `@` binding with a range pattern look like?
+  back: |
+    ```rust
+    enum Message {
+        Hello { id: i32 },
+    }
+
+    fn main() {
+        let msg = Message::Hello { id: 5 };
+        match msg {
+            Message::Hello { id: id_variable @ 3..=7 } => {
+                println!("Found an id in range: {id_variable}");
+            }
+            Message::Hello { id: 10..=12 } => println!("Found an id in another range"),
+            Message::Hello { id } => println!("Found some other id: {id}"),
+        }
+    }
+    ```
+    `id_variable @ 3..=7` both tests the range and binds the matched value.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-syntax
+    - syntax

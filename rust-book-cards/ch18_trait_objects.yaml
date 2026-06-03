@@ -1,0 +1,270 @@
+- id: rust-book-ch18-trait-objects-001
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: definition
+  front: |
+    What runtime representation does a Rust trait object provide?
+  back: |
+    A value such as `Box<dyn Draw>` that stores a concrete value plus dynamic dispatch metadata for a trait.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - definition
+- id: rust-book-ch18-trait-objects-002
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: comparison
+  front: |
+    What is the boundary between generics and trait objects?
+  back: |
+    Generics use static dispatch and one concrete type per instantiation. Trait objects use dynamic dispatch and can hold different concrete types behind the same trait.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - comparison
+- id: rust-book-ch18-trait-objects-003
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: syntax
+  front: |
+    What syntax means a boxed trait object implementing `Draw`?
+  back: |
+    ```rust
+    trait Draw {
+        fn draw(&self);
+    }
+
+    struct Button;
+    impl Draw for Button {
+        fn draw(&self) {}
+    }
+
+    let component: Box<dyn Draw> = Box::new(Button);
+    ```
+    `Box<dyn Draw>`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - syntax
+- id: rust-book-ch18-trait-objects-004
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: diagnostic
+  front: |
+    Why can adding a `String` to `Vec<Box<dyn Draw>>` fail?
+  back: |
+    `String` does not implement the required `Draw` trait, so it cannot be used as that trait object.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - diagnostic
+- id: rust-book-ch18-trait-objects-005
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: concept_boundary
+  front: |
+    What object-safety rule controls whether a trait can become a trait object?
+  back: |
+    Only traits whose methods can be called through a trait object can be made into trait objects; methods involving generic parameters or returning `Self` often violate this.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - concept_boundary
+- id: rust-book-ch18-trait-objects-006
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: syntax
+  front: |
+    What are the two visible parts of trait object syntax such as `Box<dyn Draw>`?
+  back: |
+    ```rust
+    trait Draw {}
+
+    fn takes_ref(_: &dyn Draw) {}
+    fn takes_box(_: Box<dyn Draw>) {}
+    ```
+    It uses a pointer type such as `Box`, `&`, or `Rc`, and the `dyn Trait` marker for dynamic dispatch through that trait.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - syntax
+- id: rust-book-ch18-trait-objects-007
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: project_architecture
+  front: |
+    Why can a GUI `Screen` with `Vec<Box<dyn Draw>>` contain both `Button` and `SelectBox` values?
+  back: |
+    The vector stores boxed trait objects, so each element may have a different concrete type as long as that type implements `Draw`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - project_architecture
+- id: rust-book-ch18-trait-objects-008
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: comparison
+  front: |
+    How is a generic `Screen<T: Draw>` more restrictive than `Screen { components: Vec<Box<dyn Draw>> }`?
+  back: |
+    The generic version has one concrete `T` per `Screen`, so all components in that instance must be the same type. The trait-object version permits mixed concrete component types.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - comparison
+- id: rust-book-ch18-trait-objects-009
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: definition
+  front: |
+    What does dynamic dispatch choose at runtime?
+  back: |
+    Method selection happens at runtime using metadata in the trait object, because the compiler does not know the concrete type being called at compile time.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - definition
+- id: rust-book-ch18-trait-objects-010
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: comparison
+  front: |
+    What tradeoff does dynamic dispatch introduce compared with static dispatch?
+  back: |
+    Dynamic dispatch adds a runtime lookup and prevents some compiler optimizations, but it allows heterogeneous values behind one trait-object type.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - comparison
+- id: rust-book-ch18-trait-objects-011
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: concept_boundary
+  front: |
+    Are trait objects the same as objects in class-based languages?
+  back: |
+    No. Trait objects abstract over shared behavior, but they cannot add data fields the way class objects can.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - concept_boundary
+- id: rust-book-ch18-trait-objects-012
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: syntax
+  front: |
+    What does a `Screen` storing heterogeneous drawable components look like?
+  back: |
+    ```rust
+    trait Draw {
+        fn draw(&self);
+    }
+
+    struct Screen {
+        components: Vec<Box<dyn Draw>>,
+    }
+
+    impl Screen {
+        fn run(&self) {
+            for component in self.components.iter() {
+                component.draw();
+            }
+        }
+    }
+    ```
+    `Box<dyn Draw>` lets each component have a different concrete type that implements `Draw`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - syntax
+- id: rust-book-ch18-trait-objects-013
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+    
+    ```rust
+    trait Draw {
+        fn draw(&self);
+    }
+
+    struct Screen {
+        components: Vec<Box<dyn Draw>>,
+    }
+
+    fn main() {
+        let screen = Screen {
+            components: vec![Box::new(String::from("button"))],
+        };
+    }
+    ```
+  back: |
+    `String` does not implement `Draw`, so `Box<String>` cannot be coerced to `Box<dyn Draw>`.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - diagnostic
+- id: rust-book-ch18-trait-objects-014
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Using Trait Objects to Abstract over Shared Behavior"
+  source: "rust-book/src/ch18-02-trait-objects.md"
+  card_type: comparison
+  front: |
+    What does the generic `Screen<T: Draw>` version force that `Vec<Box<dyn Draw>>` does not?
+  back: |
+    ```rust
+    trait Draw {
+        fn draw(&self);
+    }
+
+    struct Screen<T: Draw> {
+        components: Vec<T>,
+    }
+    ```
+    Each `Screen<T>` has one concrete component type `T`; it cannot mix `Button` and `SelectBox` in the same vector.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch18
+    - trait-objects
+    - comparison

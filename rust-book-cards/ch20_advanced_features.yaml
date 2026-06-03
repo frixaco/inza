@@ -1,0 +1,30 @@
+- id: rust-book-ch20-advanced-features-001
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Features"
+  source: "rust-book/src/ch20-00-advanced-features.md"
+  card_type: definition
+  front: |
+    What advanced topics does Chapter 20 collect?
+  back: |
+    Unsafe Rust, advanced traits, advanced types, advanced functions and closures, and macros.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-features
+    - definition
+- id: rust-book-ch20-advanced-features-002
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Features"
+  source: "rust-book/src/ch20-00-advanced-features.md"
+  card_type: misconception
+  front: |
+    Does advanced Rust mean abandoning Rust's safety model?
+  back: |
+    No. Even unsafe Rust is intended to be wrapped in safe abstractions with clear invariants.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-features
+    - misconception

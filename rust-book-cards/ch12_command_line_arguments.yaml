@@ -1,0 +1,96 @@
+- id: rust-book-ch12-command-line-arguments-001
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Accepting Command Line Arguments"
+  source: "rust-book/src/ch12-01-accepting-command-line-arguments.md"
+  card_type: api_recall
+  front: |
+    Which standard-library function returns an iterator over command-line arguments?
+  back: |
+    ```rust
+    let args: Vec<String> = std::env::args().collect();
+    ```
+    `std::env::args()`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch12
+    - command-line-arguments
+    - api_recall
+- id: rust-book-ch12-command-line-arguments-002
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Accepting Command Line Arguments"
+  source: "rust-book/src/ch12-01-accepting-command-line-arguments.md"
+  card_type: concept_boundary
+  front: |
+    Why does `env::args().collect()` need a type annotation in the book example?
+  back: |
+    ```rust
+    let args: Vec<String> = std::env::args().collect();
+    ```
+    `collect` can build many collection types, so `let args: Vec<String>` tells Rust which collection to produce.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch12
+    - command-line-arguments
+    - concept_boundary
+- id: rust-book-ch12-command-line-arguments-003
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Accepting Command Line Arguments"
+  source: "rust-book/src/ch12-01-accepting-command-line-arguments.md"
+  card_type: prediction
+  front: |
+    What does the minigrep prototype read from `args[1]` and `args[2]`?
+  back: |
+    They are the query string and file path. `args[0]` is the program name.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - command-line-arguments
+    - prediction
+- id: rust-book-ch12-command-line-arguments-004
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Accepting Command Line Arguments"
+  source: "rust-book/src/ch12-01-accepting-command-line-arguments.md"
+  card_type: diagnostic
+  front: |
+    Why is direct indexing into `args` fragile for CLI parsing?
+  back: |
+    If too few arguments are provided, indexing panics. Later code validates argument count and reports an error instead.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - command-line-arguments
+    - diagnostic
+- id: rust-book-ch12-command-line-arguments-005
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Accepting Command Line Arguments"
+  source: "rust-book/src/ch12-01-accepting-command-line-arguments.md"
+  card_type: concept_boundary
+  front: |
+    What caveat does the book give about `std::env::args()` and invalid Unicode?
+  back: |
+    `env::args()` will panic if any argument contains invalid Unicode. Use `std::env::args_os()` when the program needs to accept non-Unicode arguments.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - command-line-arguments
+    - concept_boundary
+- id: rust-book-ch12-command-line-arguments-006
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Accepting Command Line Arguments"
+  source: "rust-book/src/ch12-01-accepting-command-line-arguments.md"
+  card_type: syntax
+  front: |
+    What does `cargo run -- searchstring example-filename.txt` mean?
+  back: |
+    Arguments after `--` are passed to the program being run, not consumed as Cargo options.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch12
+    - command-line-arguments
+    - syntax

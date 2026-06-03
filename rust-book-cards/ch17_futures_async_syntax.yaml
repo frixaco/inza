@@ -1,0 +1,216 @@
+- id: rust-book-ch17-futures-async-syntax-001
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: definition
+  front: |
+    What does a Rust future represent before it completes?
+  back: |
+    A value representing computation that may not have completed yet and can be polled to make progress.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - definition
+- id: rust-book-ch17-futures-async-syntax-002
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: syntax
+  front: |
+    What does an `async fn` return when called?
+  back: |
+    It returns a future. The function body does not run to completion until the future is awaited or otherwise driven by an executor.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - syntax
+- id: rust-book-ch17-futures-async-syntax-003
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: api_recall
+  front: |
+    What does `.await` do while a future is pending?
+  back: |
+    It waits asynchronously for a future to complete, yielding control while the future is pending.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - api_recall
+- id: rust-book-ch17-futures-async-syntax-004
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: misconception
+  front: |
+    Does calling an `async fn` immediately run all its code?
+  back: |
+    No. Calling it creates a future; progress happens when the future is polled, commonly via `.await`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - misconception
+- id: rust-book-ch17-futures-async-syntax-005
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: comparison
+  front: |
+    How is creating a future different from spawning a thread?
+  back: |
+    Creating a future is lazy: no work is guaranteed to happen until the future is polled. Spawning a thread starts work immediately on an OS thread.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - comparison
+- id: rust-book-ch17-futures-async-syntax-006
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: syntax
+  front: |
+    Where does `.await` appear syntactically in Rust?
+  back: |
+    `.await` is postfix syntax: it is written after the future expression, such as `page_title(url).await`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - syntax
+- id: rust-book-ch17-futures-async-syntax-007
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: transformation
+  front: |
+    Conceptually, what does `async fn page_title(...) -> Option<String>` return?
+  back: |
+    It returns a type implementing `Future<Output = Option<String>>`. The written return type is the output produced when the future completes, not the immediate return value of calling the function.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - transformation
+- id: rust-book-ch17-futures-async-syntax-008
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: concept_boundary
+  front: |
+    Why does the book use `trpl::run` or `trpl::block_on` around async code?
+  back: |
+    Async code needs a runtime or executor to poll futures. `block_on` drives one future to completion while blocking the current thread.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - concept_boundary
+- id: rust-book-ch17-futures-async-syntax-009
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: misconception
+  front: |
+    Does `.await` always block the current OS thread until the future finishes?
+  back: |
+    No. `.await` marks a point where the future can yield control to the runtime while pending, allowing other work to run.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - misconception
+- id: rust-book-ch17-futures-async-syntax-010
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: definition
+  front: |
+    What does the compiler build from an async block or async function body?
+  back: |
+    It builds a state machine that can pause at await points and resume later when the future is polled again.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - definition
+- id: rust-book-ch17-futures-async-syntax-011
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: syntax
+  front: |
+    What is the standard-library-only shape of `async fn` returning a future?
+  back: |
+    ```rust
+    use std::future::Future;
+
+    async fn answer() -> i32 {
+        42
+    }
+
+    fn answer_expanded() -> impl Future<Output = i32> {
+        async { 42 }
+    }
+    ```
+    Calling either function produces a future whose output is `i32`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - syntax
+- id: rust-book-ch17-futures-async-syntax-012
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+    
+    ```rust
+    fn main() {
+        let value = async { 5 }.await;
+    }
+    ```
+  back: |
+    `.await` is only allowed inside an async block or async function. A normal `fn main` must pass async work to a runtime instead.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - diagnostic
+- id: rust-book-ch17-futures-async-syntax-013
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "Futures and the Async Syntax"
+  source: "rust-book/src/ch17-01-futures-and-syntax.md"
+  card_type: diagnostic
+  front: |
+    Why does plain `async fn main()` fail in the book?
+    
+    ```rust
+    async fn main() {}
+    ```
+  back: |
+    The special `main` function cannot be async by itself because something must set up a runtime and poll the returned future. Some runtimes provide macros that rewrite async main into a normal main.
+  compile_status: excerpt
+  tags:
+    - rust-book
+    - ch17
+    - futures-async-syntax
+    - diagnostic

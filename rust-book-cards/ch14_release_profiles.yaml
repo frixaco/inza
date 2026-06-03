@@ -1,0 +1,48 @@
+- id: rust-book-ch14-release-profiles-001
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Customizing Builds with Release Profiles"
+  source: "rust-book/src/ch14-01-release-profiles.md"
+  card_type: definition
+  front: |
+    What build settings does a Cargo release profile collect?
+  back: |
+    A named set of compiler settings that controls how Cargo builds code, such as `dev` and `release`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch14
+    - release-profiles
+    - definition
+- id: rust-book-ch14-release-profiles-002
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Customizing Builds with Release Profiles"
+  source: "rust-book/src/ch14-01-release-profiles.md"
+  card_type: comparison
+  front: |
+    What is the default optimization tradeoff between `dev` and `release` profiles?
+  back: |
+    `dev` favors fast compilation with little optimization. `release` favors optimized runtime performance with slower compilation.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch14
+    - release-profiles
+    - comparison
+- id: rust-book-ch14-release-profiles-003
+  chapter: "Chapter 14: More about Cargo and Crates.io"
+  section: "Customizing Builds with Release Profiles"
+  source: "rust-book/src/ch14-01-release-profiles.md"
+  card_type: syntax
+  front: |
+    How do you override the optimization level for the release profile?
+  back: |
+    ```toml
+    [profile.release]
+    opt-level = 3
+    ```
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch14
+    - release-profiles
+    - syntax

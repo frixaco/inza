@@ -1,0 +1,30 @@
+- id: rust-book-ch06-enums-001
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Enums and Pattern Matching"
+  source: "rust-book/src/ch06-00-enums.md"
+  card_type: definition
+  front: |
+    What does an enum model in Rust?
+  back: |
+    An enum models a value that is exactly one of several possible variants.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - enums
+    - definition
+- id: rust-book-ch06-enums-002
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Enums and Pattern Matching"
+  source: "rust-book/src/ch06-00-enums.md"
+  card_type: concept_boundary
+  front: |
+    When are enums more appropriate than structs?
+  back: |
+    Use an enum when values belong to one closed set of alternatives and each value is only one variant at a time.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - enums
+    - concept_boundary

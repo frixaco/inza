@@ -1,0 +1,250 @@
+- id: rust-book-ch05-methods-001
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: syntax
+  front: |
+    What syntax defines a method on `Rectangle` that borrows `self`?
+  back: |
+    ```rust
+    struct Rectangle {
+        width: u32,
+        height: u32,
+    }
+
+    impl Rectangle {
+        fn area(&self) -> u32 {
+            self.width * self.height
+        }
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - syntax
+- id: rust-book-ch05-methods-002
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: comparison
+  front: |
+    What is the difference between a method and an associated function?
+  back: |
+    A method has a `self` parameter and is called on an instance. An associated function is defined in an `impl` block but has no `self`, such as `String::from`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - comparison
+- id: rust-book-ch05-methods-003
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: concept_boundary
+  front: |
+    When should a method take `self`, `&self`, or `&mut self`?
+  back: |
+    Use `self` to consume the value, `&self` to read it, and `&mut self` to mutate it without taking ownership.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - concept_boundary
+- id: rust-book-ch05-methods-004
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: api_recall
+  front: |
+    What does Rust automatically do for method calls like `p1.distance(&p2)`?
+  back: |
+    Rust automatically borrows, mutably borrows, or dereferences the receiver as needed to match the method's `self` parameter.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - api_recall
+- id: rust-book-ch05-methods-005
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: definition
+  front: |
+    Inside `impl Rectangle`, what does `Self` mean?
+  back: |
+    `Self` is an alias for the type named in the `impl` block, so here it means `Rectangle`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - definition
+- id: rust-book-ch05-methods-006
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: syntax
+  front: |
+    What is `&self` short for in a method parameter?
+  back: |
+    `&self` is short for `self: &Self`, where `Self` is the type being implemented.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - syntax
+- id: rust-book-ch05-methods-007
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: syntax
+  front: |
+    What is the method syntax for checking whether one `Rectangle` can hold another?
+  back: |
+    ```rust
+    struct Rectangle {
+        width: u32,
+        height: u32,
+    }
+
+    impl Rectangle {
+        fn can_hold(&self, other: &Rectangle) -> bool {
+            self.width > other.width && self.height > other.height
+        }
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - syntax
+- id: rust-book-ch05-methods-008
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: concept_boundary
+  front: |
+    Can a method have the same name as a struct field?
+  back: |
+    Yes. `rect.width` accesses the field, while `rect.width()` calls the method. Getter methods often use the same name as the private field they expose.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - concept_boundary
+- id: rust-book-ch05-methods-009
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: concept_boundary
+  front: |
+    Why is `Rectangle::square(3)` an associated function rather than a method?
+  back: |
+    It creates a new `Rectangle` without needing an existing instance, so it has no `self` parameter and is called with `::`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - concept_boundary
+- id: rust-book-ch05-methods-010
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: syntax
+  front: |
+    What syntax calls an associated function that is not a method?
+  back: |
+    Use `::` with the type name, such as `Rectangle::square(3)`. Dot syntax is for methods called on an instance.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - syntax
+- id: rust-book-ch05-methods-011
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: concept_boundary
+  front: |
+    Can a type have multiple `impl` blocks?
+  back: |
+    Yes. Multiple `impl Rectangle` blocks are valid; methods can be split across them even when there is no reason to do so for a small example.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - concept_boundary
+- id: rust-book-ch05-methods-012
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: syntax
+  front: |
+    What does a complete associated function returning `Self` look like for `Rectangle::square`?
+  back: |
+    ```rust
+    struct Rectangle {
+        width: u32,
+        height: u32,
+    }
+
+    impl Rectangle {
+        fn square(size: u32) -> Self {
+            Self {
+                width: size,
+                height: size,
+            }
+        }
+    }
+
+    fn main() {
+        let square = Rectangle::square(3);
+        println!("{}", square.width);
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - syntax
+- id: rust-book-ch05-methods-013
+  chapter: "Chapter 5: Using Structs to Structure Related Data"
+  section: "Methods"
+  source: "rust-book/src/ch05-03-method-syntax.md"
+  card_type: syntax
+  front: |
+    How do you call a method versus an associated function on the same type?
+  back: |
+    Use dot syntax for a method with `self`, and `::` for an associated function without `self`:
+    ```rust
+    struct Rectangle { width: u32, height: u32 }
+
+    impl Rectangle {
+        fn area(&self) -> u32 { self.width * self.height }
+        fn square(size: u32) -> Self { Self { width: size, height: size } }
+    }
+
+    fn main() {
+        let rect = Rectangle::square(3);
+        let area = rect.area();
+        println!("{area}");
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch05
+    - methods
+    - syntax

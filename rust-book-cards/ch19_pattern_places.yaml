@@ -1,0 +1,176 @@
+- id: rust-book-ch19-pattern-places-001
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "All the Places Patterns Can Be Used"
+  source: "rust-book/src/ch19-01-all-the-places-for-patterns.md"
+  card_type: syntax
+  front: |
+    What kind of pattern is required in a plain `let` binding?
+  back: |
+    An irrefutable pattern: one that must match every possible value of the expression.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-places
+    - syntax
+- id: rust-book-ch19-pattern-places-002
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "All the Places Patterns Can Be Used"
+  source: "rust-book/src/ch19-01-all-the-places-for-patterns.md"
+  card_type: syntax
+  front: |
+    What does `while let Some(x) = stack.pop()` express?
+  back: |
+    Keep looping while `pop()` returns `Some(x)`, and stop when it returns `None`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-places
+    - syntax
+- id: rust-book-ch19-pattern-places-003
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "All the Places Patterns Can Be Used"
+  source: "rust-book/src/ch19-01-all-the-places-for-patterns.md"
+  card_type: concept_boundary
+  front: |
+    Why is `enumerate` useful with patterns in a `for` loop?
+  back: |
+    It produces `(index, value)` pairs that can be destructured directly in the loop pattern.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-places
+    - concept_boundary
+- id: rust-book-ch19-pattern-places-004
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "All the Places Patterns Can Be Used"
+  source: "rust-book/src/ch19-01-all-the-places-for-patterns.md"
+  card_type: syntax
+  front: |
+    How can function parameters destructure a tuple?
+  back: |
+    Use a parameter pattern such as `fn print_coordinates(&(x, y): &(i32, i32))` to destructure the referenced tuple.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - pattern-places
+    - syntax
+- id: rust-book-ch19-pattern-places-005
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "All the Places Patterns Can Be Used"
+  source: "rust-book/src/ch19-01-all-the-places-for-patterns.md"
+  card_type: syntax
+  front: |
+    What does tuple destructuring in a `let` statement look like?
+  back: |
+    ```rust
+    fn main() {
+        let (x, y, z) = (1, 2, 3);
+        println!("{x}, {y}, {z}");
+    }
+    ```
+    The tuple pattern must match the tuple value's shape.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-places
+    - syntax
+- id: rust-book-ch19-pattern-places-006
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "All the Places Patterns Can Be Used"
+  source: "rust-book/src/ch19-01-all-the-places-for-patterns.md"
+  card_type: diagnostic
+  front: |
+    Why does this tuple destructuring fail?
+    
+    ```rust
+    fn main() {
+        let (x, y) = (1, 2, 3);
+    }
+    ```
+  back: |
+    The pattern has two elements but the value has three. Tuple destructuring patterns must match the number of elements unless ignored with `_` or `..`.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch19
+    - pattern-places
+    - diagnostic
+- id: rust-book-ch19-pattern-places-007
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "All the Places Patterns Can Be Used"
+  source: "rust-book/src/ch19-01-all-the-places-for-patterns.md"
+  card_type: syntax
+  front: |
+    What does a `while let` loop over a stack look like?
+  back: |
+    ```rust
+    fn main() {
+        let mut stack = Vec::new();
+        stack.push(1);
+        stack.push(2);
+        stack.push(3);
+
+        while let Some(top) = stack.pop() {
+            println!("{top}");
+        }
+    }
+    ```
+    The loop continues while the pattern matches.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-places
+    - syntax
+- id: rust-book-ch19-pattern-places-008
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "All the Places Patterns Can Be Used"
+  source: "rust-book/src/ch19-01-all-the-places-for-patterns.md"
+  card_type: syntax
+  front: |
+    How does a `for` loop destructure `(index, value)` pairs from `enumerate()`?
+  back: |
+    ```rust
+    fn main() {
+        let v = vec!['a', 'b', 'c'];
+        for (index, value) in v.iter().enumerate() {
+            println!("{value} is at index {index}");
+        }
+    }
+    ```
+    The loop variable position is a pattern.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-places
+    - syntax
+- id: rust-book-ch19-pattern-places-009
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "All the Places Patterns Can Be Used"
+  source: "rust-book/src/ch19-01-all-the-places-for-patterns.md"
+  card_type: syntax
+  front: |
+    What does a function parameter pattern destructuring a referenced tuple look like?
+  back: |
+    ```rust
+    fn print_coordinates(&(x, y): &(i32, i32)) {
+        println!("Current location: ({x}, {y})");
+    }
+
+    fn main() {
+        let point = (3, 5);
+        print_coordinates(&point);
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch19
+    - pattern-places
+    - syntax

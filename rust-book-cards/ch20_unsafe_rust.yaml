@@ -1,0 +1,360 @@
+- id: rust-book-ch20-unsafe-rust-001
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: definition
+  front: |
+    What operations make up Rust's five unsafe superpowers?
+  back: |
+    Dereference raw pointers, call unsafe functions or methods, access or modify mutable statics, implement unsafe traits, and access union fields.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - definition
+- id: rust-book-ch20-unsafe-rust-002
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: misconception
+  front: |
+    Does an `unsafe` block turn off the borrow checker?
+  back: |
+    No. It only permits specific unsafe operations; ordinary Rust safety checks still apply.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - misconception
+- id: rust-book-ch20-unsafe-rust-003
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: comparison
+  front: |
+    What is the boundary between `&T` and `*const T`?
+  back: |
+    `&T` is a safe reference guaranteed by Rust rules. `*const T` is a raw pointer that may be null, dangling, or unaligned and requires unsafe dereferencing.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - comparison
+- id: rust-book-ch20-unsafe-rust-004
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: invariant
+  front: |
+    What safety obligation exists when dereferencing a raw pointer?
+  back: |
+    The code doing the dereference must ensure the pointer is valid, properly aligned, points to initialized data, and obeys aliasing rules for the access.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - invariant
+- id: rust-book-ch20-unsafe-rust-005
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: invariant
+  front: |
+    Who must uphold the contract of an `unsafe fn`?
+  back: |
+    The caller must satisfy the function's documented safety preconditions before calling it in an unsafe block.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - invariant
+- id: rust-book-ch20-unsafe-rust-006
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: syntax
+  front: |
+    How do you declare an external C function in current Rust syntax?
+  back: |
+    ```rust
+    unsafe extern "C" {
+        fn abs(input: i32) -> i32;
+    }
+    ```
+    Calling it is unsafe unless the item is explicitly safe.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - syntax
+- id: rust-book-ch20-unsafe-rust-007
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: invariant
+  front: |
+    Who must uphold an `unsafe trait` implementation?
+  back: |
+    The implementer must ensure the type satisfies the trait's extra invariants that other unsafe code may rely on.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - invariant
+- id: rust-book-ch20-unsafe-rust-008
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: concept_boundary
+  front: |
+    Why can a safe function contain an unsafe block?
+  back: |
+    The function can expose a safe API if its implementation upholds the unsafe operation's invariants for all safe callers.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - concept_boundary
+- id: rust-book-ch20-unsafe-rust-009
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: syntax
+  front: |
+    What syntax creates raw pointers from references without creating new references?
+  back: |
+    Use raw borrow operators: `&raw const place` for `*const T` and `&raw mut place` for `*mut T`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - syntax
+- id: rust-book-ch20-unsafe-rust-010
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: concept_boundary
+  front: |
+    Is creating a raw pointer unsafe, or is dereferencing it unsafe?
+  back: |
+    Creating raw pointers is allowed in safe Rust. Dereferencing a raw pointer is unsafe because the compiler cannot guarantee the pointer is valid for the access.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - concept_boundary
+- id: rust-book-ch20-unsafe-rust-011
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: comparison
+  front: |
+    What guarantees do raw pointers lack compared with references?
+  back: |
+    Raw pointers may be null, dangling, unaligned, or point to uninitialized data, and they may alias mutable and immutable access in ways references cannot.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - comparison
+- id: rust-book-ch20-unsafe-rust-012
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: invariant
+  front: |
+    In Rust 2024, does an `unsafe fn` body automatically allow unsafe operations?
+  back: |
+    No. The caller must uphold the function's safety contract, but unsafe operations inside the body still require explicit `unsafe` blocks.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - invariant
+- id: rust-book-ch20-unsafe-rust-013
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: invariant
+  front: |
+    In the book's `split_at_mut` safe abstraction, what unsafe operation is performed and what obligation must the wrapper uphold?
+  back: |
+    It creates two mutable slices from raw pointers with `slice::from_raw_parts_mut`. The wrapper must ensure the slices are within the original slice and do not overlap; the safe API enforces this with `mid <= len` and pointer arithmetic.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - invariant
+- id: rust-book-ch20-unsafe-rust-014
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: diagnostic
+  front: |
+    Why is creating a slice from an arbitrary memory address unsafe?
+  back: |
+    The code must prove the pointer is valid for the requested length, properly aligned, initialized, and that the memory lives long enough. Without those facts, using the slice can cause undefined behavior.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - diagnostic
+- id: rust-book-ch20-unsafe-rust-015
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: definition
+  front: |
+    What does the `"C"` ABI mean in `unsafe extern "C"`?
+  back: |
+    It says the declared functions use the C application binary interface, so Rust knows how to call them at the machine-code boundary.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - definition
+- id: rust-book-ch20-unsafe-rust-016
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: invariant
+  front: |
+    Why is accessing or modifying a mutable static unsafe?
+  back: |
+    Mutable statics are global mutable state, so concurrent access can create data races. Code that touches them must uphold synchronization and aliasing requirements.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - invariant
+- id: rust-book-ch20-unsafe-rust-017
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: syntax
+  front: |
+    What does creating and dereferencing raw pointers look like?
+  back: |
+    ```rust
+    fn main() {
+        let mut num = 5;
+        let r1 = &raw const num;
+        let r2 = &raw mut num;
+
+        unsafe {
+            println!("r1 is: {}", *r1);
+            println!("r2 is: {}", *r2);
+        }
+    }
+    ```
+    Creating raw pointers is safe; dereferencing them is the unsafe operation. The unsafe block must uphold pointer validity and aliasing requirements.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - syntax
+- id: rust-book-ch20-unsafe-rust-018
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: diagnostic
+  front: |
+    Why does this call fail?
+    
+    ```rust
+    unsafe fn dangerous() {}
+
+    fn main() {
+        dangerous();
+    }
+    ```
+  back: |
+    Calling an `unsafe fn` is an unsafe operation. The caller must use an `unsafe` block and uphold the function's documented safety preconditions.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - diagnostic
+- id: rust-book-ch20-unsafe-rust-019
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: syntax
+  front: |
+    What is the syntax for defining and implementing an unsafe trait?
+  back: |
+    ```rust
+    unsafe trait Foo {
+        // methods would go here
+    }
+
+    unsafe impl Foo for i32 {}
+    ```
+    The implementer of `unsafe impl` must uphold the trait's extra invariants.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - syntax
+- id: rust-book-ch20-unsafe-rust-020
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: syntax
+  front: |
+    What does accessing a union field look like?
+  back: |
+    ```rust
+    union IntOrFloat {
+        i: i32,
+        f: f32,
+    }
+
+    fn main() {
+        let value = IntOrFloat { i: 3 };
+        unsafe {
+            println!("{}", value.i);
+        }
+    }
+    ```
+    Accessing a union field is unsafe because the code must know which field's type is currently valid.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - syntax
+- id: rust-book-ch20-unsafe-rust-021
+  chapter: "Chapter 20: Advanced Features"
+  section: "Unsafe Rust"
+  source: "rust-book/src/ch20-01-unsafe-rust.md"
+  card_type: api_recall
+  front: |
+    What command does the book give for running Miri on a project?
+  back: |
+    `cargo +nightly miri run` runs the project under Miri. Miri is dynamic analysis: finding a problem is strong evidence of a bug, but not finding one does not prove unsafe code is sound.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch20
+    - unsafe-rust
+    - api_recall

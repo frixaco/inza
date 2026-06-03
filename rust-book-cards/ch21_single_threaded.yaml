@@ -1,0 +1,241 @@
+- id: rust-book-ch21-single-threaded-001
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: api_recall
+  front: |
+    Which standard-library type listens for incoming TCP connections?
+  back: |
+    `std::net::TcpListener`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - api_recall
+- id: rust-book-ch21-single-threaded-002
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: api_recall
+  front: |
+    What kind of values does `listener.incoming()` produce?
+  back: |
+    An iterator over connection attempts, each represented as a `Result<TcpStream, io::Error>`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - api_recall
+- id: rust-book-ch21-single-threaded-003
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: api_recall
+  front: |
+    Which type represents an open TCP connection to a client?
+  back: |
+    `std::net::TcpStream`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - api_recall
+- id: rust-book-ch21-single-threaded-004
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: project_architecture
+  front: |
+    Why does the book initially inspect only the start of the HTTP request?
+  back: |
+    The teaching server only needs to distinguish a small set of routes, so a full HTTP parser would distract from the concurrency project.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - project_architecture
+- id: rust-book-ch21-single-threaded-005
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: evolution
+  front: |
+    What changes when the response includes `Content-Length`?
+  back: |
+    The response tells the browser how many bytes are in the body, making the HTTP response more complete and reliable.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - evolution
+- id: rust-book-ch21-single-threaded-006
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: api_recall
+  front: |
+    What address does the book's server bind to?
+  back: |
+    `127.0.0.1:7878`, the localhost loopback address on port 7878.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - api_recall
+- id: rust-book-ch21-single-threaded-007
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: api_recall
+  front: |
+    Which request line does the book match for the root page?
+  back: |
+    `GET / HTTP/1.1`
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - api_recall
+- id: rust-book-ch21-single-threaded-008
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: concept_boundary
+  front: |
+    Why does the book use `unwrap` in the early web server code?
+  back: |
+    It keeps the project focused on the server mechanics being taught. In production, the I/O errors should be handled instead of assuming every bind, read, and write succeeds.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - concept_boundary
+- id: rust-book-ch21-single-threaded-009
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: api_recall
+  front: |
+    What does `fs::read_to_string("hello.html")` produce in the book server?
+  back: |
+    It reads the HTML file into a `String`, which is then used as the HTTP response body.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - api_recall
+- id: rust-book-ch21-single-threaded-010
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: syntax
+  front: |
+    What separates the HTTP response headers from the body?
+  back: |
+    A blank line, represented in the book response string as `\r\n\r\n`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - syntax
+- id: rust-book-ch21-single-threaded-011
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: transformation
+  front: |
+    How does the book refactor route handling for `/` and missing pages?
+  back: |
+    It chooses a status line and filename based on the request, then reads the selected file and formats one response. This removes duplicate response-writing code.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - transformation
+- id: rust-book-ch21-single-threaded-012
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: syntax
+  front: |
+    What is the basic `TcpListener` loop shape in the book server?
+  back: |
+    ```rust
+    use std::net::TcpListener;
+
+    fn main() {
+        let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+
+        for stream in listener.incoming() {
+            let stream = stream.unwrap();
+            println!("Connection established!");
+        }
+    }
+    ```
+    `bind` returns a `Result`, and `incoming` yields connection attempts.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - syntax
+- id: rust-book-ch21-single-threaded-013
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: syntax
+  front: |
+    How does the book collect HTTP request lines until the blank line?
+  back: |
+    ```rust
+    use std::io::{BufRead, BufReader};
+    use std::net::TcpStream;
+
+    fn handle_connection(stream: TcpStream) {
+        let buf_reader = BufReader::new(&stream);
+        let http_request: Vec<_> = buf_reader
+            .lines()
+            .map(|result| result.unwrap())
+            .take_while(|line| !line.is_empty())
+            .collect();
+    }
+    ```
+    The blank line marks the end of the HTTP request headers.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - syntax
+- id: rust-book-ch21-single-threaded-014
+  chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+  section: "Building a Single-Threaded Web Server"
+  source: "rust-book/src/ch21-01-single-threaded.md"
+  card_type: syntax
+  front: |
+    What does the book's response formatting shape look like?
+  back: |
+    ```rust
+    fn response(status_line: &str, contents: &str) -> String {
+        let length = contents.len();
+        format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}")
+    }
+    ```
+    The `\r\n\r\n` separates headers from the body.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch21
+    - single-threaded
+    - syntax

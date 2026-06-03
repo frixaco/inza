@@ -1,0 +1,313 @@
+- id: rust-book-ch18-oo-design-patterns-001
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: project_architecture
+  front: |
+    What does the blog post state pattern encode with trait objects?
+  back: |
+    It stores the current state as a trait object and delegates transitions and behavior to state-specific implementations.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - project_architecture
+- id: rust-book-ch18-oo-design-patterns-002
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: evolution
+  front: |
+    What problem does the type-state rewrite solve compared with the trait-object state pattern?
+  back: |
+    It makes invalid states and transitions unrepresentable at compile time instead of checking them at runtime.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - evolution
+- id: rust-book-ch18-oo-design-patterns-003
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: comparison
+  front: |
+    What is the tradeoff between the dynamic state pattern and the Rust type-state approach?
+  back: |
+    The dynamic pattern is flexible and uniform at runtime. Type-state uses separate types to enforce workflow rules statically.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - comparison
+- id: rust-book-ch18-oo-design-patterns-004
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: project_architecture
+  front: |
+    Why is `content` hidden behind methods in the blog example?
+  back: |
+    Encapsulation prevents outside code from mutating content or observing drafts in ways that violate the post workflow.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - project_architecture
+- id: rust-book-ch18-oo-design-patterns-005
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: invariant
+  front: |
+    In the blog post example, what should `content()` return before a post is published?
+  back: |
+    It should return an empty string slice for draft and pending-review posts. Only the published state exposes the stored content.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - invariant
+- id: rust-book-ch18-oo-design-patterns-006
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: diagnostic
+  front: |
+    Why does the trait-object state pattern store `state` as `Option<Box<dyn State>>`?
+  back: |
+    State transition methods consume the old boxed state and return a new one. `Option::take` lets `Post` move the current state out of `&mut self` temporarily, leaving `None` until the replacement is stored.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - diagnostic
+- id: rust-book-ch18-oo-design-patterns-007
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: prediction
+  front: |
+    In the traditional state-pattern version, what happens if `approve` is called on a draft post?
+  back: |
+    It has no effect: the draft state's `approve` implementation returns itself rather than transitioning to published.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - prediction
+- id: rust-book-ch18-oo-design-patterns-008
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: prediction
+  front: |
+    What does `request_review` do to a draft post in the traditional state-pattern version?
+  back: |
+    It consumes the draft state and replaces it with the pending-review state.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - prediction
+- id: rust-book-ch18-oo-design-patterns-009
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: diagnostic
+  front: |
+    Why can't the `State` trait methods return bare `Self` when used as trait objects?
+  back: |
+    A trait object erases the concrete state type, and `Self` would not have a known size or concrete return type at compile time. The book uses boxed trait objects instead.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - diagnostic
+- id: rust-book-ch18-oo-design-patterns-010
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: transformation
+  front: |
+    How does the type-state rewrite represent the workflow from draft to published?
+  back: |
+    `Post::new` returns `DraftPost`; `DraftPost::request_review` consumes it and returns `PendingReviewPost`; `PendingReviewPost::approve` consumes it and returns published `Post`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - transformation
+- id: rust-book-ch18-oo-design-patterns-011
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: diagnostic
+  front: |
+    Why does trying to read draft content fail in the type-state rewrite?
+  back: |
+    `DraftPost` and `PendingReviewPost` do not define a `content` method. Only published `Post` has `content`, so invalid reads are compile-time errors.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - diagnostic
+- id: rust-book-ch18-oo-design-patterns-012
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: comparison
+  front: |
+    What does the type-state rewrite give up compared with the traditional state pattern?
+  back: |
+    It no longer has one uniform `Post` value whose internal state changes dynamically. Instead, state changes are represented by moving through different concrete types.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - comparison
+- id: rust-book-ch18-oo-design-patterns-013
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: syntax
+  front: |
+    What is the key `Post` field type in the trait-object state-pattern version?
+  back: |
+    ```rust
+    trait State {}
+
+    pub struct Post {
+        state: Option<Box<dyn State>>,
+        content: String,
+    }
+    ```
+    `Option` lets methods temporarily take ownership of the boxed state during transitions.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - syntax
+- id: rust-book-ch18-oo-design-patterns-014
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: syntax
+  front: |
+    What does a state transition method that consumes the boxed state look like?
+  back: |
+    ```rust
+    trait State {
+        fn request_review(self: Box<Self>) -> Box<dyn State>;
+    }
+
+    struct Draft;
+    struct PendingReview;
+
+    impl State for Draft {
+        fn request_review(self: Box<Self>) -> Box<dyn State> {
+            Box::new(PendingReview)
+        }
+    }
+
+    impl State for PendingReview {
+        fn request_review(self: Box<Self>) -> Box<dyn State> {
+            self
+        }
+    }
+    ```
+    `self: Box<Self>` allows the old state object to be consumed and replaced.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - syntax
+- id: rust-book-ch18-oo-design-patterns-015
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: syntax
+  front: |
+    What is the type-state workflow shape for publishing a post?
+  back: |
+    ```rust
+    pub struct Post { content: String }
+    pub struct DraftPost { content: String }
+    pub struct PendingReviewPost { content: String }
+
+    impl Post {
+        pub fn new() -> DraftPost {
+            DraftPost { content: String::new() }
+        }
+        pub fn content(&self) -> &str {
+            &self.content
+        }
+    }
+
+    impl DraftPost {
+        pub fn request_review(self) -> PendingReviewPost {
+            PendingReviewPost { content: self.content }
+        }
+    }
+
+    impl PendingReviewPost {
+        pub fn approve(self) -> Post {
+            Post { content: self.content }
+        }
+    }
+    ```
+    The transition methods consume one state type and return the next state type.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - syntax
+- id: rust-book-ch18-oo-design-patterns-016
+  chapter: "Chapter 18: Object Oriented Programming Features"
+  section: "Implementing an Object-Oriented Design Pattern"
+  source: "rust-book/src/ch18-03-oo-design-patterns.md"
+  card_type: diagnostic
+  front: |
+    Why does trying to call `content` on `DraftPost` fail in the type-state rewrite?
+    
+    ```rust
+    pub struct Post { content: String }
+    pub struct DraftPost { content: String }
+
+    impl Post {
+        pub fn new() -> DraftPost {
+            DraftPost { content: String::new() }
+        }
+        pub fn content(&self) -> &str {
+            &self.content
+        }
+    }
+
+    fn main() {
+        let post = Post::new();
+        post.content();
+    }
+    ```
+  back: |
+    `Post::new` returns `DraftPost`, and `DraftPost` has no `content` method. The type system prevents reading draft content.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch18
+    - oo-design-patterns
+    - diagnostic

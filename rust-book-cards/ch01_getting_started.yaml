@@ -1,0 +1,30 @@
+- id: rust-book-ch01-getting-started-001
+  chapter: "Chapter 1: Getting Started"
+  section: "Getting Started"
+  source: "rust-book/src/ch01-00-getting-started.md"
+  card_type: definition
+  front: |
+    What is the main practical goal of Chapter 1 of the Rust Book?
+  back: |
+    Install Rust, write a small program, and learn the basic Cargo workflow used by later chapters.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch01
+    - getting-started
+    - definition
+- id: rust-book-ch01-getting-started-002
+  chapter: "Chapter 1: Getting Started"
+  section: "Getting Started"
+  source: "rust-book/src/ch01-00-getting-started.md"
+  card_type: comparison
+  front: |
+    What is the practical boundary between `rustc` and Cargo for beginners?
+  back: |
+    Use `rustc` to compile a single file directly. Use Cargo for real projects because it manages packages, builds, dependencies, and common commands.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch01
+    - getting-started
+    - comparison

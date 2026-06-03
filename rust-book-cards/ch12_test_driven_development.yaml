@@ -1,0 +1,134 @@
+- id: rust-book-ch12-test-driven-development-001
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Adding Functionality with Test Driven Development"
+  source: "rust-book/src/ch12-04-testing-the-librarys-functionality.md"
+  card_type: project_architecture
+  front: |
+    What is the TDD cycle used in the minigrep chapter?
+  back: |
+    Write a failing test, write enough code to pass it, then refactor while keeping the test passing.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - test-driven-development
+    - project_architecture
+- id: rust-book-ch12-test-driven-development-002
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Adding Functionality with Test Driven Development"
+  source: "rust-book/src/ch12-04-testing-the-librarys-functionality.md"
+  card_type: api_recall
+  front: |
+    Which string method does the simple `search` implementation use to test for a substring?
+  back: |
+    ```rust
+    let query = "duct";
+    let line = "safe, fast, productive.";
+    let mut results = Vec::new();
+
+    if line.contains(query) {
+        results.push(line);
+    }
+    ```
+    `line.contains(query)`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch12
+    - test-driven-development
+    - api_recall
+- id: rust-book-ch12-test-driven-development-003
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Adding Functionality with Test Driven Development"
+  source: "rust-book/src/ch12-04-testing-the-librarys-functionality.md"
+  card_type: transformation
+  front: |
+    How does `search` collect matching lines without owning the file contents?
+  back: |
+    It returns `Vec<&str>` with string slices borrowed from `contents`, tying the result lifetime to the input.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - test-driven-development
+    - transformation
+- id: rust-book-ch12-test-driven-development-004
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Adding Functionality with Test Driven Development"
+  source: "rust-book/src/ch12-04-testing-the-librarys-functionality.md"
+  card_type: invariant
+  front: |
+    Why can `search` return `Vec<&str>` safely?
+  back: |
+    The returned slices point into the `contents` parameter, so callers must keep `contents` alive while using the results.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - test-driven-development
+    - invariant
+- id: rust-book-ch12-test-driven-development-005
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Adding Functionality with Test Driven Development"
+  source: "rust-book/src/ch12-04-testing-the-librarys-functionality.md"
+  card_type: syntax
+  front: |
+    What lifetime shape does the book use for `search` returning borrowed lines?
+  back: |
+    ```rust
+    pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+        let mut results = Vec::new();
+
+        for line in contents.lines() {
+            if line.contains(query) {
+                results.push(line);
+            }
+        }
+
+        results
+    }
+    ```
+    The returned line slices are tied to `contents`, not to `query`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch12
+    - test-driven-development
+    - syntax
+- id: rust-book-ch12-test-driven-development-006
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Adding Functionality with Test Driven Development"
+  source: "rust-book/src/ch12-04-testing-the-librarys-functionality.md"
+  card_type: api_recall
+  front: |
+    Which method iterates over lines in the minigrep search implementation?
+  back: |
+    ```rust
+    let contents = "Rust:\nsafe, fast, productive.\nPick three.";
+
+    for line in contents.lines() {
+        println!("{line}");
+    }
+    ```
+    `contents.lines()` returns an iterator over the lines of the string slice.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch12
+    - test-driven-development
+    - api_recall
+- id: rust-book-ch12-test-driven-development-007
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Adding Functionality with Test Driven Development"
+  source: "rust-book/src/ch12-04-testing-the-librarys-functionality.md"
+  card_type: transformation
+  front: |
+    What behavior does the first minigrep test specify for `search("duct", contents)`?
+  back: |
+    It should return only the line containing the query, `safe, fast, productive.`, from the sample text.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - test-driven-development
+    - transformation

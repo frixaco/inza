@@ -1,0 +1,60 @@
+- id: rust-book-ch03-comments-001
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Comments"
+  source: "rust-book/src/ch03-04-comments.md"
+  card_type: syntax
+  front: |
+    What syntax starts a normal Rust line comment?
+  back: |
+    `//` starts a comment that continues to the end of the line.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - comments
+    - syntax
+- id: rust-book-ch03-comments-002
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Comments"
+  source: "rust-book/src/ch03-04-comments.md"
+  card_type: concept_boundary
+  front: |
+    Where should a comment go when it explains why a line exists?
+  back: |
+    Usually immediately before the line it explains, so the reason is visible before the code being justified.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - comments
+    - concept_boundary
+- id: rust-book-ch03-comments-003
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Comments"
+  source: "rust-book/src/ch03-04-comments.md"
+  card_type: syntax
+  front: |
+    How does the book write a multi-line normal comment?
+  back: |
+    Put `//` at the start of each commented line. The `//` comment form runs only to the end of its line.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - comments
+    - syntax
+- id: rust-book-ch03-comments-004
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Comments"
+  source: "rust-book/src/ch03-04-comments.md"
+  card_type: concept_boundary
+  front: |
+    Does the comments section cover documentation comments in detail?
+  back: |
+    No. It only mentions that Rust has documentation comments and defers them to Chapter 14.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - comments
+    - concept_boundary

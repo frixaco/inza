@@ -1,0 +1,181 @@
+- id: rust-book-ch20-advanced-types-001
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Types"
+  source: "rust-book/src/ch20-03-advanced-types.md"
+  card_type: definition
+  front: |
+    What does a Rust type alias create?
+  back: |
+    ```rust
+    type Kilometers = i32;
+
+    let x: i32 = 5;
+    let y: Kilometers = 5;
+    assert_eq!(x + y, 10);
+    ```
+    A new name for an existing type, declared with `type`, that does not create a distinct type.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-types
+    - definition
+- id: rust-book-ch20-advanced-types-002
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Types"
+  source: "rust-book/src/ch20-03-advanced-types.md"
+  card_type: comparison
+  front: |
+    What is the difference between a type alias and a newtype?
+  back: |
+    A type alias is just another name for the same type. A newtype wraps a value in a distinct tuple struct type.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-types
+    - comparison
+- id: rust-book-ch20-advanced-types-003
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Types"
+  source: "rust-book/src/ch20-03-advanced-types.md"
+  card_type: definition
+  front: |
+    What expression behavior does the never type `!` represent?
+  back: |
+    ```rust
+    fn never_returns() -> ! {
+        panic!("this function never returns a value");
+    }
+    ```
+    A type for expressions that never produce a value, such as `panic!`, `continue`, or an infinite loop.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-types
+    - definition
+- id: rust-book-ch20-advanced-types-004
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Types"
+  source: "rust-book/src/ch20-03-advanced-types.md"
+  card_type: concept_boundary
+  front: |
+    Why can `continue` fit into a `match` arm where another arm returns a value?
+  back: |
+    ```rust
+    let values = ["1", "two", "3"];
+    let mut numbers = Vec::new();
+
+    for value in values {
+        let number: i32 = match value.parse() {
+            Ok(number) => number,
+            Err(_) => continue,
+        };
+        numbers.push(number);
+    }
+    ```
+    `continue` has type `!`, which can coerce to any other type because it never produces a value.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-types
+    - concept_boundary
+- id: rust-book-ch20-advanced-types-005
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Types"
+  source: "rust-book/src/ch20-03-advanced-types.md"
+  card_type: definition
+  front: |
+    What compile-time size property defines a dynamically sized type?
+  back: |
+    A type whose size is known only at runtime, such as `str` or `[T]`, and which must usually be used behind a pointer like `&str` or `Box<str>`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-types
+    - definition
+- id: rust-book-ch20-advanced-types-006
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Types"
+  source: "rust-book/src/ch20-03-advanced-types.md"
+  card_type: invariant
+  front: |
+    Why do generic functions usually have an implicit `Sized` bound?
+  back: |
+    Rust needs to know parameter sizes at compile time. `T: ?Sized` relaxes the bound when the value is used behind a pointer.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-types
+    - invariant
+- id: rust-book-ch20-advanced-types-007
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Types"
+  source: "rust-book/src/ch20-03-advanced-types.md"
+  card_type: diagnostic
+  front: |
+    Why is a newtype not interchangeable with its inner type?
+  back: |
+    ```rust
+    struct Millimeters(u32);
+
+    fn takes_u32(value: u32) {}
+
+    fn main() {
+        let distance = Millimeters(10);
+        takes_u32(distance);
+    }
+    ```
+    A tuple struct creates a distinct type; callers must explicitly extract or convert the inner value.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch20
+    - advanced-types
+    - diagnostic
+- id: rust-book-ch20-advanced-types-008
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Types"
+  source: "rust-book/src/ch20-03-advanced-types.md"
+  card_type: syntax
+  front: |
+    What does a type alias for a long closure trait object look like?
+  back: |
+    ```rust
+    type Thunk = Box<dyn Fn() + Send + 'static>;
+
+    fn takes_long_type(f: Thunk) {
+        f();
+    }
+    ```
+    `Thunk` is just another name for the boxed trait-object type, not a new distinct type.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-types
+    - syntax
+- id: rust-book-ch20-advanced-types-009
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Types"
+  source: "rust-book/src/ch20-03-advanced-types.md"
+  card_type: syntax
+  front: |
+    How do you relax the implicit `Sized` bound on a generic function?
+  back: |
+    ```rust
+    fn generic<T: ?Sized>(t: &T) {
+        let _ = t;
+    }
+    ```
+    `?Sized` means `T` may or may not be `Sized`, so the value must be used behind a pointer such as `&T`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-types
+    - syntax

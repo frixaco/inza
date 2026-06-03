@@ -1,0 +1,180 @@
+- id: rust-book-ch11-running-tests-001
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: concept_boundary
+  front: |
+    How do you pass options to the test binary after Cargo options?
+  back: |
+    Put them after `--`, as in `cargo test -- --show-output`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - concept_boundary
+- id: rust-book-ch11-running-tests-002
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: api_recall
+  front: |
+    How do you run one named test or a set of tests whose names contain a string?
+  back: |
+    Pass the name filter to `cargo test`, such as `cargo test one_hundred`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - api_recall
+- id: rust-book-ch11-running-tests-003
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: syntax
+  front: |
+    What attribute marks an expensive test to skip by default?
+  back: |
+    `#[ignore]`; run ignored tests with `cargo test -- --ignored`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - syntax
+- id: rust-book-ch11-running-tests-004
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: concept_boundary
+  front: |
+    Why might test output not appear for passing tests by default?
+  back: |
+    Rust captures stdout from passing tests to keep results concise; `--show-output` displays it.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - concept_boundary
+- id: rust-book-ch11-running-tests-005
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: api_recall
+  front: |
+    How do you run tests with one test thread?
+  back: |
+    `cargo test -- --test-threads=1`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - api_recall
+- id: rust-book-ch11-running-tests-006
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: diagnostic
+  front: |
+    Why can tests that pass alone fail when run in parallel?
+  back: |
+    Tests run in parallel by default and can interfere if they share mutable external state such as files, environment variables, or the current working directory.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - diagnostic
+- id: rust-book-ch11-running-tests-007
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: api_recall
+  front: |
+    How do you run tests whose names contain `add`?
+  back: |
+    `cargo test add`. The string is a name filter, so matching tests run and nonmatching tests are filtered out.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - api_recall
+- id: rust-book-ch11-running-tests-008
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: api_recall
+  front: |
+    How do you run all tests, including ignored tests?
+  back: |
+    `cargo test -- --include-ignored`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - api_recall
+- id: rust-book-ch11-running-tests-009
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: comparison
+  front: |
+    What is the difference between `cargo test --help` and `cargo test -- --help`?
+  back: |
+    `cargo test --help` shows Cargo's test command options. `cargo test -- --help` shows options for the compiled test binary.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - comparison
+- id: rust-book-ch11-running-tests-010
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: concept_boundary
+  front: |
+    Can `cargo test` take multiple independent test-name filters?
+  back: |
+    No. Only the first filter string is used. To run multiple tests, choose a substring shared by the desired test names.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - concept_boundary
+- id: rust-book-ch11-running-tests-011
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: api_recall
+  front: |
+    How do you run only ignored tests?
+  back: |
+    `cargo test -- --ignored`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - api_recall
+- id: rust-book-ch11-running-tests-012
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Controlling How Tests Are Run"
+  source: "rust-book/src/ch11-02-running-tests.md"
+  card_type: prediction
+  front: |
+    What does `cargo test add` match beyond test function names?
+  back: |
+    It matches part of the full test name, so module path components can cause tests to match.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - running-tests
+    - prediction

@@ -1,0 +1,156 @@
+- id: rust-book-ch03-variables-and-mutability-001
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Variables and Mutability"
+  source: "rust-book/src/ch03-01-variables-and-mutability.md"
+  card_type: prediction
+  front: |
+    Does this compile, and why?
+    
+    ```rust
+    fn main() {
+        let x = 5;
+        x = 6;
+    }
+    ```
+  back: |
+    No. Variables are immutable by default; assigning a new value requires `let mut x = 5;`.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch03
+    - variables-and-mutability
+    - prediction
+- id: rust-book-ch03-variables-and-mutability-002
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Variables and Mutability"
+  source: "rust-book/src/ch03-01-variables-and-mutability.md"
+  card_type: comparison
+  front: |
+    What is the practical difference between `let mut x = 5; x = 6;` and `let x = 5; let x = 6;`?
+  back: |
+    `mut` changes the value of the same binding and keeps the same type. Shadowing creates a new binding and can also change the type.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - variables-and-mutability
+    - comparison
+- id: rust-book-ch03-variables-and-mutability-003
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Variables and Mutability"
+  source: "rust-book/src/ch03-01-variables-and-mutability.md"
+  card_type: definition
+  front: |
+    What is a constant in Rust, and how is it declared?
+  back: |
+    A constant is an always-immutable named value declared with `const`, an explicit type, and a compile-time constant expression, such as `const THREE_HOURS_IN_SECONDS: u32 = 60 * 60 * 3;`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - variables-and-mutability
+    - definition
+- id: rust-book-ch03-variables-and-mutability-004
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Variables and Mutability"
+  source: "rust-book/src/ch03-01-variables-and-mutability.md"
+  card_type: prediction
+  front: |
+    Does this compile, and why?
+    
+    ```rust
+    fn main() {
+        let spaces = "   ";
+        let spaces = spaces.len();
+    }
+    ```
+  back: |
+    Yes. The second `let` shadows the first binding, so the new `spaces` can have type `usize` instead of `&str`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch03
+    - variables-and-mutability
+    - prediction
+- id: rust-book-ch03-variables-and-mutability-005
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Variables and Mutability"
+  source: "rust-book/src/ch03-01-variables-and-mutability.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+    
+    ```rust
+    fn main() {
+        let mut spaces = "   ";
+        spaces = spaces.len();
+    }
+    ```
+  back: |
+    A mutable binding can change value but not type. `spaces` was inferred as `&str`, so assigning a `usize` from `len()` violates the type rule.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch03
+    - variables-and-mutability
+    - diagnostic
+- id: rust-book-ch03-variables-and-mutability-006
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Variables and Mutability"
+  source: "rust-book/src/ch03-01-variables-and-mutability.md"
+  card_type: invariant
+  front: |
+    What are the extra rules for constants compared with immutable variables?
+  back: |
+    Constants cannot use `mut`, must have an explicit type annotation, can be declared in any scope including global scope, and must be set to a constant expression.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - variables-and-mutability
+    - invariant
+- id: rust-book-ch03-variables-and-mutability-007
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Variables and Mutability"
+  source: "rust-book/src/ch03-01-variables-and-mutability.md"
+  card_type: syntax
+  front: |
+    What naming convention does the book use for constants?
+  back: |
+    All uppercase with underscores between words, such as `THREE_HOURS_IN_SECONDS`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - variables-and-mutability
+    - syntax
+- id: rust-book-ch03-variables-and-mutability-008
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Variables and Mutability"
+  source: "rust-book/src/ch03-01-variables-and-mutability.md"
+  card_type: prediction
+  front: |
+    What happens to an outer binding after an inner scope shadows it?
+  back: |
+    The inner binding controls the name until the inner scope ends. After that, the name refers to the outer binding again.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - variables-and-mutability
+    - prediction
+- id: rust-book-ch03-variables-and-mutability-009
+  chapter: "Chapter 3: Common Programming Concepts"
+  section: "Variables and Mutability"
+  source: "rust-book/src/ch03-01-variables-and-mutability.md"
+  card_type: concept_boundary
+  front: |
+    Why can shadowing be useful even when the final value should be immutable?
+  back: |
+    Shadowing lets you transform a value through new bindings and then leave the final binding immutable, avoiding an ongoing mutable variable.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch03
+    - variables-and-mutability
+    - concept_boundary

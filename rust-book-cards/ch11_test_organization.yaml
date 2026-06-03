@@ -1,0 +1,159 @@
+- id: rust-book-ch11-test-organization-001
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Test Organization"
+  source: "rust-book/src/ch11-03-test-organization.md"
+  card_type: comparison
+  front: |
+    What is the difference between unit tests and integration tests in Rust?
+  back: |
+    Unit tests live near the code and can test private items. Integration tests live in `tests/` and use the library as an external crate.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch11
+    - test-organization
+    - comparison
+- id: rust-book-ch11-test-organization-002
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Test Organization"
+  source: "rust-book/src/ch11-03-test-organization.md"
+  card_type: syntax
+  front: |
+    Where do unit tests conventionally live in a source file?
+  back: |
+    ```rust
+    #[cfg(test)]
+    mod tests {
+        #[test]
+        fn it_works() {
+            assert_eq!(2 + 2, 4);
+        }
+    }
+    ```
+    Inside a `#[cfg(test)] mod tests { ... }` module.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch11
+    - test-organization
+    - syntax
+- id: rust-book-ch11-test-organization-003
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Test Organization"
+  source: "rust-book/src/ch11-03-test-organization.md"
+  card_type: definition
+  front: |
+    What does `#[cfg(test)]` restrict to test builds?
+  back: |
+    It compiles the annotated test module only when running tests, not during normal builds.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch11
+    - test-organization
+    - definition
+- id: rust-book-ch11-test-organization-004
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Test Organization"
+  source: "rust-book/src/ch11-03-test-organization.md"
+  card_type: project_architecture
+  front: |
+    Why put shared integration-test helper code in `tests/common/mod.rs` instead of `tests/common.rs`?
+  back: |
+    A file directly under `tests/` is treated as an integration test crate. A module file under a directory can be imported by tests without being run as its own test crate.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch11
+    - test-organization
+    - project_architecture
+- id: rust-book-ch11-test-organization-005
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Test Organization"
+  source: "rust-book/src/ch11-03-test-organization.md"
+  card_type: concept_boundary
+  front: |
+    Why can unit tests test private functions?
+  back: |
+    ```rust
+    fn internal_adder(left: u64, right: u64) -> u64 {
+        left + right
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn internal() {
+            assert_eq!(4, internal_adder(2, 2));
+        }
+    }
+    ```
+    The `tests` module is a child module of the code being tested, and child modules can access items in their ancestor modules.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch11
+    - test-organization
+    - concept_boundary
+- id: rust-book-ch11-test-organization-006
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Test Organization"
+  source: "rust-book/src/ch11-03-test-organization.md"
+  card_type: invariant
+  front: |
+    How does Cargo treat each file directly inside `tests/`?
+  back: |
+    Each file directly in `tests/` is compiled as a separate integration test crate.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - test-organization
+    - invariant
+- id: rust-book-ch11-test-organization-007
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Test Organization"
+  source: "rust-book/src/ch11-03-test-organization.md"
+  card_type: api_recall
+  front: |
+    How do you run all tests in a specific integration test file?
+  back: |
+    Use Cargo's `--test` option with the file stem, such as `cargo test --test integration_test`.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch11
+    - test-organization
+    - api_recall
+- id: rust-book-ch11-test-organization-008
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Test Organization"
+  source: "rust-book/src/ch11-03-test-organization.md"
+  card_type: concept_boundary
+  front: |
+    Do integration tests need `#[cfg(test)]`?
+  back: |
+    No. Cargo treats the `tests/` directory specially and compiles integration tests only when running `cargo test`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch11
+    - test-organization
+    - concept_boundary
+- id: rust-book-ch11-test-organization-009
+  chapter: "Chapter 11: Writing Automated Tests"
+  section: "Test Organization"
+  source: "rust-book/src/ch11-03-test-organization.md"
+  card_type: project_architecture
+  front: |
+    Why are integration tests mainly for library crates?
+  back: |
+    Integration tests import the crate under test as an external crate. Binary-only crates do not expose functions for integration tests to import, which is why projects often keep reusable logic in `src/lib.rs`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch11
+    - test-organization
+    - project_architecture

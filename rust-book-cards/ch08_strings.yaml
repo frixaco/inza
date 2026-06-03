@@ -1,0 +1,308 @@
+- id: rust-book-ch08-strings-001
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: comparison
+  front: |
+    What is the practical boundary between `String` and `&str`?
+  back: |
+    `String` owns growable UTF-8 text. `&str` borrows UTF-8 text and is often the right parameter type when ownership is not needed.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - comparison
+- id: rust-book-ch08-strings-002
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: api_recall
+  front: |
+    Which methods append text to a `String` without taking ownership of the whole string?
+  back: |
+    `push_str(&str)` appends a string slice; `push(char)` appends one character.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - api_recall
+- id: rust-book-ch08-strings-003
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: prediction
+  front: |
+    What happens to `s1` after `let s3 = s1 + &s2;`?
+  back: |
+    `s1` is moved into the `+` operation and cannot be used afterward. The operator takes ownership of the left-hand `String`; it borrows the right-hand string slice.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - prediction
+- id: rust-book-ch08-strings-004
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: misconception
+  front: |
+    Why does Rust not allow direct indexing into a `String` by integer?
+  back: |
+    A `String` is UTF-8 bytes, and an integer index may not correspond to a character boundary. Indexing would be ambiguous or unsafe.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - misconception
+- id: rust-book-ch08-strings-005
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: comparison
+  front: |
+    What is the difference between bytes, scalar values, and grapheme clusters in Rust string discussion?
+  back: |
+    Bytes are UTF-8 storage units, scalar values are Rust `char` values, and grapheme clusters are user-perceived characters that may contain multiple scalar values.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - comparison
+- id: rust-book-ch08-strings-006
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: definition
+  front: |
+    What is Rust's only string type in the core language?
+  back: |
+    `str`, usually seen through a borrowed string slice `&str`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - definition
+- id: rust-book-ch08-strings-007
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: comparison
+  front: |
+    What is the relationship between `String` and `Vec<u8>`?
+  back: |
+    `String` is implemented as a wrapper around a vector of bytes, with UTF-8 guarantees and string-specific methods.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - comparison
+- id: rust-book-ch08-strings-008
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: comparison
+  front: |
+    What is the practical difference between `String::from("text")` and `"text".to_string()` in the book's string creation examples?
+  back: |
+    They both create an owned `String` from the literal in this context. Choosing between them is mostly style and readability.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - comparison
+- id: rust-book-ch08-strings-009
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: comparison
+  front: |
+    Why is `format!("{s1}-{s2}-{s3}")` often clearer than chaining `+` for several strings?
+  back: |
+    `format!` returns a `String`, uses references rather than taking ownership of its arguments, and avoids visually noisy chained additions.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - comparison
+- id: rust-book-ch08-strings-010
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+    
+    ```rust
+    fn main() {
+        let hello = "Здравствуйте";
+        let answer = &hello[0];
+    }
+    ```
+  back: |
+    String indexing would be byte-based, and byte 0 alone may not be a valid Unicode scalar value. Rust rejects string indexing to avoid misleading results.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - diagnostic
+- id: rust-book-ch08-strings-011
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: concept_boundary
+  front: |
+    When is slicing a string with a byte range acceptable?
+  back: |
+    Only when the range starts and ends on valid UTF-8 character boundaries. Slicing through the middle of a multibyte character panics.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - concept_boundary
+- id: rust-book-ch08-strings-012
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: api_recall
+  front: |
+    Which methods let you iterate over a string as Unicode scalar values or as bytes?
+  back: |
+    ```rust
+    for c in "Зд".chars() {
+        println!("{c}");
+    }
+
+    for b in "Зд".bytes() {
+        println!("{b}");
+    }
+    ```
+    Use `.chars()` for Unicode scalar values and `.bytes()` for raw bytes.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - api_recall
+- id: rust-book-ch08-strings-013
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: syntax
+  front: |
+    What constructor syntax creates an empty owned `String`?
+  back: |
+    ```rust
+    fn main() {
+        let mut s = String::new();
+        s.push_str("hello");
+    }
+    ```
+    `String::new()` creates an empty growable string.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - syntax
+- id: rust-book-ch08-strings-014
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: prediction
+  front: |
+    What happens to `s2` after `s1.push_str(&s2)`?
+  back: |
+    `s2` remains usable because `push_str` takes a string slice and borrows `s2` instead of taking ownership.
+    ```rust
+    fn main() {
+        let mut s1 = String::from("foo");
+        let s2 = String::from("bar");
+        s1.push_str(&s2);
+        println!("{s2}");
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - prediction
+- id: rust-book-ch08-strings-015
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: api_recall
+  front: |
+    What method appends one character to a `String`?
+  back: |
+    `push` appends a single `char`:
+    ```rust
+    fn main() {
+        let mut s = String::from("lo");
+        s.push('l');
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - api_recall
+- id: rust-book-ch08-strings-016
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: diagnostic
+  front: |
+    Why does `let s3 = s1 + &s2; println!("{s1}");` fail?
+  back: |
+    ```rust
+    fn main() {
+        let s1 = String::from("hello");
+        let s2 = String::from("world");
+        let _s3 = s1 + &s2;
+        println!("{s1}");
+    }
+    ```
+    The `+` operator for strings takes ownership of the left-hand `String`, so `s1` is moved into the addition and cannot be used afterward.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - diagnostic
+- id: rust-book-ch08-strings-017
+  chapter: "Chapter 8: Common Collections"
+  section: "Storing UTF-8 Encoded Text with Strings"
+  source: "rust-book/src/ch08-02-strings.md"
+  card_type: syntax
+  front: |
+    What syntax combines several strings without taking ownership of them?
+  back: |
+    ```rust
+    fn main() {
+        let s1 = String::from("tic");
+        let s2 = String::from("tac");
+        let s3 = String::from("toe");
+        let s = format!("{s1}-{s2}-{s3}");
+        println!("{s}");
+    }
+    ```
+    `format!` returns a new `String`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch08
+    - strings
+    - syntax

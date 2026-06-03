@@ -1,0 +1,48 @@
+- id: rust-book-ch12-stderr-001
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Redirecting Errors to Standard Error"
+  source: "rust-book/src/ch12-06-writing-to-stderr-instead-of-stdout.md"
+  card_type: comparison
+  front: |
+    Why should errors go to stderr instead of stdout in a CLI program?
+  back: |
+    Stdout is for successful program output that users may redirect to files or pipes. Stderr keeps diagnostics separate.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - stderr
+    - comparison
+- id: rust-book-ch12-stderr-002
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Redirecting Errors to Standard Error"
+  source: "rust-book/src/ch12-06-writing-to-stderr-instead-of-stdout.md"
+  card_type: api_recall
+  front: |
+    Which macro sends diagnostic output to standard error?
+  back: |
+    ```rust
+    eprintln!("Problem parsing arguments");
+    ```
+    `eprintln!`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch12
+    - stderr
+    - api_recall
+- id: rust-book-ch12-stderr-003
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Redirecting Errors to Standard Error"
+  source: "rust-book/src/ch12-06-writing-to-stderr-instead-of-stdout.md"
+  card_type: prediction
+  front: |
+    What does the terminal still show after stdout is redirected and errors use `eprintln!`?
+  back: |
+    The shell redirects stdout only. Stderr remains connected to the terminal unless redirected separately.
+  compile_status: non_rust
+  tags:
+    - rust-book
+    - ch12
+    - stderr
+    - prediction

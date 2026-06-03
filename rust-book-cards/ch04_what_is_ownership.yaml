@@ -1,0 +1,269 @@
+- id: rust-book-ch04-what-is-ownership-001
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: definition
+  front: |
+    What are Rust's three ownership rules from the Rust Book?
+  back: |
+    Each value has an owner; there can be only one owner at a time; when the owner goes out of scope, the value is dropped.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - definition
+- id: rust-book-ch04-what-is-ownership-002
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: prediction
+  front: |
+    Does this compile, and can `s1` be used after the assignment to `s2`?
+    
+    ```rust
+    fn main() {
+        let s1 = String::from("hello");
+        let s2 = s1;
+        println!("{s1}");
+    }
+    ```
+  back: |
+    No. Assigning `s1` to `s2` moves the `String`; `s1` is no longer valid.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - prediction
+- id: rust-book-ch04-what-is-ownership-003
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: comparison
+  front: |
+    What is the difference between move, copy, and clone?
+  back: |
+    A move transfers ownership and invalidates the old binding. A copy duplicates simple stack-only data implicitly. A clone explicitly performs a possibly deeper duplicate.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - comparison
+- id: rust-book-ch04-what-is-ownership-004
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: definition
+  front: |
+    For `String`, what lives on the stack and what lives on the heap?
+  back: |
+    The stack stores the pointer, length, and capacity. The heap stores the UTF-8 bytes.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - definition
+- id: rust-book-ch04-what-is-ownership-005
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: misconception
+  front: |
+    Does assigning a `String` copy its heap data by default?
+  back: |
+    No. The stack metadata is moved; Rust does not implicitly deep-copy heap data.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - misconception
+- id: rust-book-ch04-what-is-ownership-006
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: prediction
+  front: |
+    What happens to `x` after `let y = x;` when `x` is an `i32`?
+  back: |
+    ```rust
+    let x = 5;
+    let y = x;
+    println!("x = {x}, y = {y}");
+    ```
+    `y` receives a copy and `x` remains valid because `i32` implements `Copy`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - prediction
+- id: rust-book-ch04-what-is-ownership-007
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: api_recall
+  front: |
+    Which trait marks types whose values can be duplicated by simple bitwise copy?
+  back: |
+    `Copy`. Types that implement `Drop` cannot implement `Copy`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - api_recall
+- id: rust-book-ch04-what-is-ownership-008
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: comparison
+  front: |
+    What is the memory-layout boundary between the stack and the heap in the ownership chapter?
+  back: |
+    Stack data must have a known, fixed size and is pushed and popped in last-in, first-out order. Heap data can have a size unknown or changing at compile time and is accessed through a pointer.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - comparison
+- id: rust-book-ch04-what-is-ownership-009
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: definition
+  front: |
+    What does `String::from("hello")` do that a string literal alone does not?
+  back: |
+    It creates a growable, heap-allocated `String` from the string literal. The literal itself is fixed text stored in the program.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - definition
+- id: rust-book-ch04-what-is-ownership-010
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: definition
+  front: |
+    When does Rust call `drop` for an owned value?
+  back: |
+    Rust calls `drop` automatically when the owner goes out of scope, giving the type a chance to clean up resources such as heap memory.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - definition
+- id: rust-book-ch04-what-is-ownership-011
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: misconception
+  front: |
+    Why doesn't Rust let both `s1` and `s2` remain valid after moving a `String` from `s1` to `s2`?
+  back: |
+    Both stack values would point to the same heap allocation, so both could try to free it. Invalidating `s1` prevents a double free.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - misconception
+- id: rust-book-ch04-what-is-ownership-012
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: comparison
+  front: |
+    What is the ownership difference between passing `String` and passing `i32` to a function?
+  back: |
+    Passing `String` moves ownership into the function unless it is borrowed or cloned. Passing `i32` copies the value because `i32` implements `Copy`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - comparison
+- id: rust-book-ch04-what-is-ownership-013
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: definition
+  front: |
+    What does `clone` do for a `String`?
+  back: |
+    `clone` performs an explicit deep copy of the heap data, so both `String` values own separate allocations.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - definition
+- id: rust-book-ch04-what-is-ownership-014
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: invariant
+  front: |
+    Why can a type that implements `Drop` not implement `Copy`?
+  back: |
+    `Copy` would allow implicit duplication while `Drop` implies the type owns resources needing cleanup. Rust prevents that combination to avoid duplicated ownership of the same resource.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - invariant
+- id: rust-book-ch04-what-is-ownership-015
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: prediction
+  front: |
+    What happens to ownership when a function returns a `String`?
+  back: |
+    Ownership moves to the caller that receives the return value.
+    ```rust
+    fn gives_ownership() -> String {
+        String::from("yours")
+    }
+
+    fn main() {
+        let s = gives_ownership();
+        println!("{s}");
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - prediction
+- id: rust-book-ch04-what-is-ownership-016
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "What is Ownership?"
+  source: "rust-book/src/ch04-01-what-is-ownership.md"
+  card_type: transformation
+  front: |
+    How can a function take ownership of a `String` and give ownership back?
+  back: |
+    Return the `String` from the function:
+    ```rust
+    fn takes_and_gives_back(a_string: String) -> String {
+        a_string
+    }
+    ```
+    The caller must bind the return value if it wants to keep using the string.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch04
+    - what-is-ownership
+    - transformation

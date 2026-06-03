@@ -1,0 +1,291 @@
+- id: rust-book-ch10-generic-data-types-001
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: syntax
+  front: |
+    What syntax declares a generic function over type `T`?
+  back: |
+    ```rust
+    fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
+        let mut largest = list[0];
+        for &item in list {
+            if item > largest { largest = item; }
+        }
+        largest
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - syntax
+- id: rust-book-ch10-generic-data-types-002
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+
+    ```rust
+    fn largest<T>(list: &[T]) -> &T {
+        let mut largest = &list[0];
+
+        for item in list {
+            if item > largest {
+                largest = item;
+            }
+        }
+
+        largest
+    }
+    ```
+  back: |
+    The operator `>` is only available for types that implement the appropriate comparison trait, such as `PartialOrd`.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - diagnostic
+- id: rust-book-ch10-generic-data-types-003
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: syntax
+  front: |
+    What syntax defines a generic struct with one type parameter?
+  back: |
+    ```rust
+    struct Point<T> {
+        x: T,
+        y: T,
+    }
+    ```
+    Both fields must have the same concrete type for each `Point<T>`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - syntax
+- id: rust-book-ch10-generic-data-types-004
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: comparison
+  front: |
+    How do `Point<T>` and `Point<T, U>` differ?
+  back: |
+    `Point<T>` requires `x` and `y` to have the same type. `Point<T, U>` allows different types for `x` and `y`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - comparison
+- id: rust-book-ch10-generic-data-types-005
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: definition
+  front: |
+    What does monomorphization do to generic code at compile time?
+  back: |
+    The compiler turns generic code into concrete code for the types actually used, so generics do not add runtime dispatch cost by themselves.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - definition
+- id: rust-book-ch10-generic-data-types-006
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: syntax
+  front: |
+    Where does a generic type parameter go in a function definition?
+  back: |
+    Put it in angle brackets between the function name and the parameter list:
+    ```rust
+    fn largest<T>(list: &[T]) -> &T {
+        &list[0]
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - syntax
+- id: rust-book-ch10-generic-data-types-007
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: api_recall
+  front: |
+    What generic type parameter name does the Rust Book use as the conventional default?
+  back: |
+    `T`, short for "type", is the conventional first generic type parameter name. Rust names are usually short and CamelCase for type parameters.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - api_recall
+- id: rust-book-ch10-generic-data-types-008
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: syntax
+  front: |
+    What is the generic enum shape of `Option<T>`?
+  back: |
+    ```rust
+    enum Option<T> {
+        Some(T),
+        None,
+    }
+    ```
+    `Some` stores one value of type `T`; `None` stores no value.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - syntax
+- id: rust-book-ch10-generic-data-types-009
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: syntax
+  front: |
+    What is the generic enum shape of `Result<T, E>`?
+  back: |
+    ```rust
+    enum Result<T, E> {
+        Ok(T),
+        Err(E),
+    }
+    ```
+    `T` is the success value type; `E` is the error value type.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - syntax
+- id: rust-book-ch10-generic-data-types-010
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: syntax
+  front: |
+    What syntax defines a method on a generic `Point<T>`?
+  back: |
+    ```rust
+    struct Point<T> {
+        x: T,
+        y: T,
+    }
+
+    impl<T> Point<T> {
+        fn x(&self) -> &T {
+            &self.x
+        }
+    }
+    ```
+    The `T` after `impl` declares the generic parameter used in `Point<T>`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - syntax
+- id: rust-book-ch10-generic-data-types-011
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: concept_boundary
+  front: |
+    What does `impl Point<f32>` do differently from `impl<T> Point<T>`?
+  back: |
+    ```rust
+    struct Point<T> {
+        x: T,
+        y: T,
+    }
+
+    impl Point<f32> {
+        fn distance_from_origin(&self) -> f32 {
+            (self.x.powi(2) + self.y.powi(2)).sqrt()
+        }
+    }
+    ```
+    `impl Point<f32>` defines methods only for `Point<f32>` values. Other `Point<T>` instantiations do not get those methods.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - concept_boundary
+- id: rust-book-ch10-generic-data-types-012
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: syntax
+  front: |
+    How can a method introduce generic parameters that are different from the struct's parameters?
+  back: |
+    ```rust
+    struct Point<X1, Y1> {
+        x: X1,
+        y: Y1,
+    }
+
+    impl<X1, Y1> Point<X1, Y1> {
+        fn mixup<X2, Y2>(self, other: Point<X2, Y2>) -> Point<X1, Y2> {
+            Point { x: self.x, y: other.y }
+        }
+    }
+    ```
+    `X1` and `Y1` belong to the struct impl; `X2` and `Y2` belong only to `mixup`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - syntax
+- id: rust-book-ch10-generic-data-types-013
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: misconception
+  front: |
+    Is adding many generic type parameters always a harmless abstraction?
+  back: |
+    No. Generics are useful, but too many type parameters can make code harder to read and understand; they should be introduced when they solve a real problem.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - misconception
+- id: rust-book-ch10-generic-data-types-014
+  chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+  section: "Generic Data Types"
+  source: "rust-book/src/ch10-01-syntax.md"
+  card_type: prediction
+  front: |
+    If code uses `Option<i32>` and `Option<f64>`, what does monomorphization generate?
+  back: |
+    The compiler generates concrete specialized versions for the used types, like one option representation for `i32` and one for `f64`. The generic abstraction is removed at compile time.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch10
+    - generic-data-types
+    - prediction

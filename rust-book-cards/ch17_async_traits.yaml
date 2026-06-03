@@ -1,0 +1,159 @@
+- id: rust-book-ch17-async-traits-001
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: definition
+  front: |
+    What is the core method of the `Future` trait?
+  back: |
+    `poll`, which tries to make progress and returns `Poll::Ready(output)` or `Poll::Pending`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - definition
+- id: rust-book-ch17-async-traits-002
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: definition
+  front: |
+    What does a `Waker` do in the future model?
+  back: |
+    It lets a future tell the executor it may be ready to be polled again.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - definition
+- id: rust-book-ch17-async-traits-003
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: invariant
+  front: |
+    What does `Pin` promise about a value?
+  back: |
+    That the pinned value will not be moved in memory unless it implements `Unpin` or unsafe code upholds the required invariants.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - invariant
+- id: rust-book-ch17-async-traits-004
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: comparison
+  front: |
+    What is the difference between `Poll::Pending` and blocking a thread?
+  back: |
+    `Pending` returns control to the executor so other tasks can run. Blocking keeps the thread occupied.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - comparison
+- id: rust-book-ch17-async-traits-005
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: syntax
+  front: |
+    What is the essential shape of the `Future` trait?
+  back: |
+    ```rust
+    use std::pin::Pin;
+    use std::task::{Context, Poll};
+
+    pub trait Future {
+        type Output;
+
+        fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - syntax
+- id: rust-book-ch17-async-traits-006
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: definition
+  front: |
+    What result type does `Future::Output` name?
+  back: |
+    It is the type produced when the future completes and returns `Poll::Ready(value)`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - definition
+- id: rust-book-ch17-async-traits-007
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: comparison
+  front: |
+    What is the difference between `Poll::Ready(value)` and `Poll::Pending`?
+  back: |
+    `Ready(value)` means the future has completed and produced its output. `Pending` means the future is not ready yet and should arrange to wake the executor when progress may be possible.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - comparison
+- id: rust-book-ch17-async-traits-008
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: invariant
+  front: |
+    After a future returns `Poll::Ready`, should executors keep polling it by default?
+  back: |
+    No. Futures are generally considered complete after `Ready`; polling again is not assumed to be valid unless that future's documentation says so.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - invariant
+- id: rust-book-ch17-async-traits-009
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: diagnostic
+  front: |
+    Why does storing heterogeneous async blocks in a vector often require pinning boxed futures?
+  back: |
+    Each async block has its own anonymous future type, and some futures must not move after being polled. `Pin<Box<dyn Future<Output = T>>>` gives a common trait-object type while keeping each future pinned in place.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - diagnostic
+- id: rust-book-ch17-async-traits-010
+  chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+  section: "A Closer Look at the Traits for Async"
+  source: "rust-book/src/ch17-05-traits-for-async.md"
+  card_type: misconception
+  front: |
+    Do you usually have to manually pin a future before writing `.await`?
+  back: |
+    No. Awaiting a future directly handles the required pinning for that await expression. Manual pinning becomes visible when storing or polling futures yourself.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch17
+    - async-traits
+    - misconception

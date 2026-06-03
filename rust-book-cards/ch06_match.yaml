@@ -1,0 +1,184 @@
+- id: rust-book-ch06-match-001
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: definition
+  front: |
+    What relationship does a `match` expression test against its arms?
+  back: |
+    It compares a value against patterns and runs the code for the first matching arm.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - definition
+- id: rust-book-ch06-match-002
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: syntax
+  front: |
+    What is the shape of a `match` arm?
+  back: |
+    ```rust
+    match 3 {
+        1 => println!("one"),
+        2 => println!("two"),
+        _ => println!("something else"),
+    }
+    ```
+    Each arm is `pattern => expression`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - syntax
+- id: rust-book-ch06-match-003
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: prediction
+  front: |
+    What does this return?
+    
+    ```rust
+    fn plus_one(x: Option<i32>) -> Option<i32> {
+        match x {
+            None => None,
+            Some(i) => Some(i + 1),
+        }
+    }
+    ```
+    For `plus_one(Some(5))`?
+  back: |
+    It returns `Some(6)`. The `Some(i)` pattern binds the inner value to `i`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - prediction
+- id: rust-book-ch06-match-004
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+
+    ```rust
+    fn plus_one(x: Option<i32>) -> Option<i32> {
+        match x {
+            Some(i) => Some(i + 1),
+        }
+    }
+    ```
+  back: |
+    `match` must be exhaustive. The `None` case is a possible value and must be handled or covered by a catch-all arm.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - diagnostic
+- id: rust-book-ch06-match-005
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: comparison
+  front: |
+    What is the difference between `_` and a named catch-all pattern like `other`?
+  back: |
+    A named catch-all binds the unmatched value so it can be used. `_` matches without binding the value.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - comparison
+- id: rust-book-ch06-match-006
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: comparison
+  front: |
+    What is one key difference between `if` and `match` conditions?
+  back: |
+    `if` requires a Boolean condition. `match` can compare a value of any type against patterns.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - comparison
+- id: rust-book-ch06-match-007
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: definition
+  front: |
+    What is the value of a `match` expression?
+  back: |
+    It is the value of the expression in the arm whose pattern matched.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - definition
+- id: rust-book-ch06-match-008
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: syntax
+  front: |
+    When does a `match` arm body need curly braces?
+  back: |
+    ```rust
+    let cents = match "penny" {
+        "penny" => {
+            println!("Lucky penny!");
+            1
+        }
+        _ => 0,
+    };
+    ```
+    Use braces when the arm body has multiple statements; the block's last expression is the arm value.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - syntax
+- id: rust-book-ch06-match-009
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: prediction
+  front: |
+    What happens if a catch-all pattern appears before more specific `match` arms?
+  back: |
+    The catch-all matches first, so later arms are unreachable. Rust warns about arms that can never run.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - prediction
+- id: rust-book-ch06-match-010
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "The match Control Flow Construct"
+  source: "rust-book/src/ch06-02-match.md"
+  card_type: syntax
+  front: |
+    What does `_ => ()` mean in a `match` arm?
+  back: |
+    Match any remaining value, bind nothing, and run no meaningful code because the arm evaluates to the unit value `()`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - match
+    - syntax

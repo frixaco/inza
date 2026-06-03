@@ -1,0 +1,220 @@
+- id: rust-book-ch04-references-and-borrowing-001
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: definition
+  front: |
+    What does borrowing let Rust code do?
+  back: |
+    Borrowing is using a reference to a value without taking ownership of that value.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - definition
+- id: rust-book-ch04-references-and-borrowing-002
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: concept_boundary
+  front: |
+    When should a function take `&String` or `&str` instead of `String`?
+  back: |
+    Take a reference when the function only needs to read the string and should not take ownership. Prefer `&str` when string-slice flexibility is enough.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - concept_boundary
+- id: rust-book-ch04-references-and-borrowing-003
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+    
+    ```rust
+    fn main() {
+        let mut s = String::from("hello");
+        let r1 = &mut s;
+        let r2 = &mut s;
+        println!("{r1}, {r2}");
+    }
+    ```
+  back: |
+    It creates two simultaneous mutable references to `s`. Rust allows either one mutable reference or any number of immutable references, but not both overlapping.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - diagnostic
+- id: rust-book-ch04-references-and-borrowing-004
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+    
+    ```rust
+    fn main() {
+        let mut s = String::from("hello");
+        let r1 = &s;
+        let r2 = &s;
+        let r3 = &mut s;
+        println!("{r1}, {r2}, {r3}");
+    }
+    ```
+  back: |
+    The immutable references are still used after the mutable borrow is created. A mutable borrow cannot overlap with active immutable borrows.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - diagnostic
+- id: rust-book-ch04-references-and-borrowing-005
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: invariant
+  front: |
+    What invariant prevents dangling references in safe Rust?
+  back: |
+    A reference must never outlive the value it points to. The borrow checker rejects code that could return or store a reference to a dropped value.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - invariant
+- id: rust-book-ch04-references-and-borrowing-006
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: transformation
+  front: |
+    How can a function avoid returning a dangling reference to a local `String`?
+  back: |
+    ```rust
+    fn no_dangle() -> String {
+        let s = String::from("hello");
+        s
+    }
+    ```
+    Return the `String` itself instead of `&String`, so ownership of the allocated value moves to the caller.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - transformation
+- id: rust-book-ch04-references-and-borrowing-007
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: comparison
+  front: |
+    How is a Rust reference like a pointer, and how is it different?
+  back: |
+    A reference is an address used to access data. Unlike a raw pointer, a safe reference is guaranteed to point to a valid value of the right type for the lifetime of the reference.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - comparison
+- id: rust-book-ch04-references-and-borrowing-008
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: invariant
+  front: |
+    When a reference parameter goes out of scope, what happens to the value it points to?
+  back: |
+    The reference itself stops being usable, but the referenced value is not dropped because the reference does not own it.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - invariant
+- id: rust-book-ch04-references-and-borrowing-009
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+
+    ```rust
+    fn change(some_string: &String) {
+        some_string.push_str(", world");
+    }
+    ```
+  back: |
+    References are immutable by default. To mutate through a borrow, the caller must pass `&mut String` and the parameter must be `some_string: &mut String`.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - diagnostic
+- id: rust-book-ch04-references-and-borrowing-010
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: syntax
+  front: |
+    What are the caller and parameter syntaxes for a mutable reference to a `String`?
+  back: |
+    ```rust
+    fn change(some_string: &mut String) {
+        some_string.push_str(", world");
+    }
+
+    fn main() {
+        let mut s = String::from("hello");
+        change(&mut s);
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - syntax
+- id: rust-book-ch04-references-and-borrowing-011
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: misconception
+  front: |
+    Do immutable borrows last until the end of the enclosing block no matter what?
+  back: |
+    No. A reference's scope lasts from creation through its last use. After the last use, a later non-overlapping mutable borrow can be allowed.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - misconception
+- id: rust-book-ch04-references-and-borrowing-012
+  chapter: "Chapter 4: Understanding Ownership"
+  section: "References and Borrowing"
+  source: "rust-book/src/ch04-02-references-and-borrowing.md"
+  card_type: invariant
+  front: |
+    What are the two rules of references summarized by the book?
+  back: |
+    At any given time, you can have either one mutable reference or any number of immutable references. References must always be valid.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch04
+    - references-and-borrowing
+    - invariant

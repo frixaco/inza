@@ -1,0 +1,48 @@
+- id: rust-book-ch12-reading-a-file-001
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Reading a File"
+  source: "rust-book/src/ch12-02-reading-a-file.md"
+  card_type: api_recall
+  front: |
+    Which function reads an entire file into a `String` in the minigrep project?
+  back: |
+    ```rust
+    let contents = std::fs::read_to_string("poem.txt");
+    ```
+    `fs::read_to_string(file_path)` returns `Result<String, io::Error>`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch12
+    - reading-a-file
+    - api_recall
+- id: rust-book-ch12-reading-a-file-002
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Reading a File"
+  source: "rust-book/src/ch12-02-reading-a-file.md"
+  card_type: concept_boundary
+  front: |
+    Why should file-reading errors be handled instead of ignored in a CLI tool?
+  back: |
+    The user needs to know when the file path is wrong, inaccessible, or otherwise unreadable, rather than seeing misleading empty output.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - reading-a-file
+    - concept_boundary
+- id: rust-book-ch12-reading-a-file-003
+  chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+  section: "Reading a File"
+  source: "rust-book/src/ch12-02-reading-a-file.md"
+  card_type: prediction
+  front: |
+    What does `expect("Should have been able to read the file")` do if file reading fails?
+  back: |
+    It panics with that message. The chapter later replaces this style with propagated errors.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch12
+    - reading-a-file
+    - prediction

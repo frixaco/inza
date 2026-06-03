@@ -1,0 +1,255 @@
+- id: rust-book-ch20-advanced-traits-001
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: definition
+  front: |
+    What role does an associated type play inside a trait?
+  back: |
+    A type placeholder declared inside a trait and specified by each implementation.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - definition
+- id: rust-book-ch20-advanced-traits-002
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: comparison
+  front: |
+    How is an associated type different from a generic type parameter on a trait?
+  back: |
+    An associated type gives each implementer one concrete choice for that trait. A generic trait can be implemented multiple times for different type parameters.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - comparison
+- id: rust-book-ch20-advanced-traits-003
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: definition
+  front: |
+    What does a default generic type parameter provide?
+  back: |
+    A generic type parameter with a default, such as `trait Add<Rhs = Self>`, used when most implementations use one common type.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - definition
+- id: rust-book-ch20-advanced-traits-004
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: syntax
+  front: |
+    What syntax calls two methods with the same name from different traits explicitly?
+  back: |
+    ```rust
+    trait Pilot {
+        fn fly(&self);
+    }
+
+    struct Human;
+
+    impl Pilot for Human {
+        fn fly(&self) {}
+    }
+
+    fn main() {
+        let person = Human;
+        <Human as Pilot>::fly(&person);
+    }
+    ```
+    Use fully qualified syntax, such as `<Type as Trait>::method(&value)`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - syntax
+- id: rust-book-ch20-advanced-traits-005
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: definition
+  front: |
+    What requirement does a supertrait add to implementers?
+  back: |
+    A trait that requires implementers also implement another trait, such as `trait OutlinePrint: fmt::Display`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - definition
+- id: rust-book-ch20-advanced-traits-006
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: concept_boundary
+  front: |
+    Why is the newtype pattern used with traits?
+  back: |
+    Wrapping a type in a local tuple struct lets you implement external traits for external types while respecting the orphan rule.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - concept_boundary
+- id: rust-book-ch20-advanced-traits-007
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: syntax
+  front: |
+    What does an associated type in a trait look like?
+  back: |
+    ```rust
+    trait IteratorLike {
+        type Item;
+
+        fn next(&mut self) -> Option<Self::Item>;
+    }
+    ```
+    Each implementation chooses one concrete `Item` type.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - syntax
+- id: rust-book-ch20-advanced-traits-008
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: syntax
+  front: |
+    What does overloading `+` for a `Point` with `Add` look like?
+  back: |
+    ```rust
+    use std::ops::Add;
+
+    #[derive(Debug, PartialEq)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    impl Add for Point {
+        type Output = Point;
+
+        fn add(self, other: Point) -> Point {
+            Point {
+                x: self.x + other.x,
+                y: self.y + other.y,
+            }
+        }
+    }
+    ```
+    `type Output` specifies the result type of the `+` operation.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - syntax
+- id: rust-book-ch20-advanced-traits-009
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: syntax
+  front: |
+    What does using a nondefault `Rhs` type with `Add` look like?
+  back: |
+    ```rust
+    use std::ops::Add;
+
+    struct Millimeters(u32);
+    struct Meters(u32);
+
+    impl Add<Meters> for Millimeters {
+        type Output = Millimeters;
+
+        fn add(self, other: Meters) -> Millimeters {
+            Millimeters(self.0 + (other.0 * 1000))
+        }
+    }
+    ```
+    `impl Add<Meters>` overrides the default `Rhs = Self`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - syntax
+- id: rust-book-ch20-advanced-traits-010
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: syntax
+  front: |
+    What does fully qualified syntax for an associated function look like?
+  back: |
+    ```rust
+    trait Animal {
+        fn baby_name() -> String;
+    }
+
+    struct Dog;
+
+    impl Dog {
+        fn baby_name() -> String {
+            String::from("Spot")
+        }
+    }
+
+    impl Animal for Dog {
+        fn baby_name() -> String {
+            String::from("puppy")
+        }
+    }
+
+    fn main() {
+        let name = <Dog as Animal>::baby_name();
+        assert_eq!(name, "puppy");
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - syntax
+- id: rust-book-ch20-advanced-traits-011
+  chapter: "Chapter 20: Advanced Features"
+  section: "Advanced Traits"
+  source: "rust-book/src/ch20-02-advanced-traits.md"
+  card_type: syntax
+  front: |
+    What does a supertrait requirement look like?
+  back: |
+    ```rust
+    use std::fmt;
+
+    trait OutlinePrint: fmt::Display {
+        fn outline_print(&self) {
+            let output = self.to_string();
+            println!("* {output} *");
+        }
+    }
+    ```
+    Any type implementing `OutlinePrint` must also implement `Display`.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch20
+    - advanced-traits
+    - syntax

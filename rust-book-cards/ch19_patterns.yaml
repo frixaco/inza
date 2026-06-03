@@ -1,0 +1,30 @@
+- id: rust-book-ch19-patterns-001
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Patterns and Matching"
+  source: "rust-book/src/ch19-00-patterns.md"
+  card_type: definition
+  front: |
+    What matching role do Rust patterns play?
+  back: |
+    They describe the shape of values and can bind parts of those values to names.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - patterns
+    - definition
+- id: rust-book-ch19-patterns-002
+  chapter: "Chapter 19: Patterns and Matching"
+  section: "Patterns and Matching"
+  source: "rust-book/src/ch19-00-patterns.md"
+  card_type: comparison
+  front: |
+    Why are patterns more general than `match` arms?
+  back: |
+    Patterns appear in `match`, `if let`, `while let`, function parameters, `let` bindings, and more.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch19
+    - patterns
+    - comparison

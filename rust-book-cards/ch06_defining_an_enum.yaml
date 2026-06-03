@@ -1,0 +1,280 @@
+- id: rust-book-ch06-defining-an-enum-001
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: syntax
+  front: |
+    What syntax defines enum variants with different associated data?
+  back: |
+    ```rust
+    enum Message {
+        Quit,
+        Move { x: i32, y: i32 },
+        Write(String),
+        ChangeColor(i32, i32, i32),
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - syntax
+- id: rust-book-ch06-defining-an-enum-002
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: concept_boundary
+  front: |
+    What advantage does an enum with data have over separate structs for related alternatives?
+  back: |
+    The variants share one type, so a function can accept `Message` while still handling different payload shapes.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - concept_boundary
+- id: rust-book-ch06-defining-an-enum-003
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: concept_boundary
+  front: |
+    What absence case does `Option<T>` force Rust code to model?
+  back: |
+    A value that is either `Some(T)` or `None`, making absence explicit in the type system.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - concept_boundary
+- id: rust-book-ch06-defining-an-enum-004
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: misconception
+  front: |
+    Does Rust have `null` as a normal value?
+  back: |
+    No. Rust uses types like `Option<T>` to represent absence, so code must handle the `None` case explicitly.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - misconception
+- id: rust-book-ch06-defining-an-enum-005
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+    
+    ```rust
+    fn main() {
+        let x: i8 = 5;
+        let y: Option<i8> = Some(5);
+        let sum = x + y;
+    }
+    ```
+  back: |
+    `Option<i8>` is not an `i8`. The code must unwrap or match the `Option` before using the contained value.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - diagnostic
+- id: rust-book-ch06-defining-an-enum-006
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: syntax
+  front: |
+    How do you construct enum variants `V4` and `V6` of an enum named `IpAddrKind`?
+  back: |
+    ```rust
+    enum IpAddrKind {
+        V4,
+        V6,
+    }
+
+    let four = IpAddrKind::V4;
+    let six = IpAddrKind::V6;
+    ```
+    Variants are namespaced under the enum name.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - syntax
+- id: rust-book-ch06-defining-an-enum-007
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: concept_boundary
+  front: |
+    Why can a function parameter of type `IpAddrKind` accept both `IpAddrKind::V4` and `IpAddrKind::V6`?
+  back: |
+    Both variants are values of the same enum type, `IpAddrKind`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - concept_boundary
+- id: rust-book-ch06-defining-an-enum-008
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: comparison
+  front: |
+    Why can an enum variant with data be more concise than a struct containing an enum field plus data field?
+  back: |
+    The variant can carry its own associated data directly, so the kind and its data stay together without an extra wrapper struct.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - comparison
+- id: rust-book-ch06-defining-an-enum-009
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: definition
+  front: |
+    What constructor behavior does Rust automatically provide for enum variants with data?
+  back: |
+    Each variant name acts like a constructor function. For example, `IpAddr::V4(String::from("127.0.0.1"))` creates an `IpAddr` value.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - definition
+- id: rust-book-ch06-defining-an-enum-010
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: syntax
+  front: |
+    What four data shapes does the book's `Message` enum demonstrate?
+  back: |
+    A variant with no data, a variant with named fields, a variant with one `String`, and a variant with three `i32` values.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - syntax
+- id: rust-book-ch06-defining-an-enum-011
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: syntax
+  front: |
+    How do you define a method on an enum?
+  back: |
+    Use an `impl` block for the enum type, just as with structs; the method can take `self`, `&self`, or `&mut self`.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - syntax
+- id: rust-book-ch06-defining-an-enum-012
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: concept_boundary
+  front: |
+    Why can you write `Some(5)` and `None` without `Option::`?
+  back: |
+    `Option<T>` and its `Some` and `None` variants are included in Rust's prelude.
+  compile_status: concept_only
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - concept_boundary
+- id: rust-book-ch06-defining-an-enum-013
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: diagnostic
+  front: |
+    Why does this fail?
+
+    ```rust
+    fn main() {
+        let absent_number = None;
+    }
+    ```
+  back: |
+    `None` does not contain a value from which Rust can infer `T`, so the code must say which `Option<T>` type is intended.
+  compile_status: expected_failure
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - diagnostic
+- id: rust-book-ch06-defining-an-enum-014
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: syntax
+  front: |
+    What does a complete enum method definition look like?
+  back: |
+    ```rust
+    enum Message {
+        Quit,
+        Write(String),
+    }
+
+    impl Message {
+        fn call(&self) {
+            match self {
+                Message::Quit => println!("quit"),
+                Message::Write(text) => println!("{text}"),
+            }
+        }
+    }
+    ```
+    Methods on enums are defined in `impl EnumName` blocks, like methods on structs.
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - syntax
+- id: rust-book-ch06-defining-an-enum-015
+  chapter: "Chapter 6: Enums and Pattern Matching"
+  section: "Defining an Enum"
+  source: "rust-book/src/ch06-01-defining-an-enum.md"
+  card_type: syntax
+  front: |
+    What syntax stores the IP address data directly in enum variants?
+  back: |
+    ```rust
+    enum IpAddr {
+        V4(u8, u8, u8, u8),
+        V6(String),
+    }
+
+    fn main() {
+        let home = IpAddr::V4(127, 0, 0, 1);
+        let loopback = IpAddr::V6(String::from("::1"));
+    }
+    ```
+  compile_status: compiles
+  tags:
+    - rust-book
+    - ch06
+    - defining-an-enum
+    - syntax

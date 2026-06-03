@@ -1,8 +1,0 @@
-chapter: CH-00
-chapter_group: ch00
-status: not_started
-source_files:
-  - rust-book/src/ch00-00-introduction.md
-cards: []
-
-# Add cards using ./deck-build/schema/card.schema.yaml.
