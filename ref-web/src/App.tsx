@@ -1,15 +1,27 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Eye, EyeOff, RotateCcw, Volume2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, RotateCcw, Volume2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import YAML from "yaml";
 
 type Role = "main" | "context" | "support" | "note";
+type InlineMark = "strong" | "emphasis" | "code" | "strike" | "highlight";
+type InlineRun =
+  | string
+  | {
+      text: string;
+      marks?: InlineMark[];
+      above?: string;
+      below?: string;
+      link?: string;
+    };
 
 type ContentBlock = {
   role: Role;
   label?: string;
-  text: string;
+  text?: string;
+  runs?: InlineRun[];
   language?: string;
+  media?: MediaRef[];
 };
 
 type MediaRef = {
@@ -48,6 +60,17 @@ type DeckData = {
 };
 
 const DECK_ROOT = "/deck";
+const OVERLINE_MARK = "￣";
+const DROP_MARK = "＼";
+const NOTE_FILES = [
+  "0001-0250.yaml",
+  "0251-0500.yaml",
+  "0501-0750.yaml",
+  "0751-1000.yaml",
+  "1001-1250.yaml",
+  "1251-1500.yaml",
+  "1501-1501.yaml",
+] as const;
 const ROLES: Role[] = ["main", "context", "support", "note"];
 
 function encodeAssetPath(src: string) {
@@ -73,9 +96,11 @@ async function fetchYaml<T>(path: string): Promise<T> {
 
 async function loadDeck(): Promise<DeckData> {
   const manifest = await fetchYaml<DeckManifest>(`${DECK_ROOT}/deck.yaml`);
-  const noteFile = await fetchYaml<NoteFile>(`${DECK_ROOT}/notes/kaishi-sample.yaml`);
-  const defaults = noteFile.defaults ?? {};
-  const notes = noteFile.notes.map((note) => ({ ...defaults, ...note }));
+  const noteFiles = await Promise.all(NOTE_FILES.map((name) => fetchYaml<NoteFile>(`${DECK_ROOT}/notes/${name}`)));
+  const notes = noteFiles.flatMap((noteFile) => {
+    const defaults = noteFile.defaults ?? {};
+    return noteFile.notes.map((note) => ({ ...defaults, ...note }));
+  });
 
   return { manifest, notes };
 }
@@ -84,25 +109,88 @@ function roleLabel(role: Role) {
   return role[0].toUpperCase() + role.slice(1);
 }
 
+function textDensity(text?: string) {
+  const length = text?.trim().replace(/\s+/g, " ").length ?? 0;
+
+  if (length <= 8) return "density-token";
+  if (length <= 28) return "density-short";
+  if (length <= 90) return "density-medium";
+  return "density-long";
+}
+
+function runsText(runs?: InlineRun[]) {
+  return runs?.map((run) => (typeof run === "string" ? run : run.text)).join("") ?? "";
+}
+
+function InlineRuns({ runs, language }: { runs: InlineRun[]; language?: string }) {
+  return (
+    <div className="block-text block-runs" lang={language}>
+      {runs.map((run, index) => {
+        if (typeof run === "string") {
+          return <span key={`${run}-${index}`}>{run}</span>;
+        }
+
+        const isPitchOverline = run.above === OVERLINE_MARK;
+        const isPitchDrop = run.below === DROP_MARK;
+        const classes = [
+          "inline-run",
+          isPitchOverline ? "pitch-overline" : "",
+          isPitchDrop ? "pitch-drop" : "",
+          run.above && !isPitchOverline ? "has-above" : "",
+          run.below && !isPitchDrop ? "has-below" : "",
+          ...(run.marks ?? []).map((mark) => `mark-${mark}`),
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        const content = (
+          <span className={classes}>
+            {run.above && !isPitchOverline ? <span className="run-adornment run-above">{run.above}</span> : null}
+            <span className="run-text">{run.text}</span>
+            {run.below && !isPitchDrop ? <span className="run-adornment run-below">{run.below}</span> : null}
+          </span>
+        );
+
+        if (run.link) {
+          return (
+            <a className="inline-link" href={run.link} key={`${run.text}-${index}`} rel="noreferrer" target="_blank">
+              {content}
+            </a>
+          );
+        }
+
+        return <span key={`${run.text}-${index}`}>{content}</span>;
+      })}
+    </div>
+  );
+}
+
 function BlockList({ blocks, side }: { blocks: ContentBlock[]; side: "prompt" | "answer" }) {
   return (
     <div className={`block-list block-list-${side}`}>
       {blocks.map((block, index) => (
-        <section className={`content-block role-${block.role}`} key={`${block.role}-${block.label ?? "block"}-${index}`}>
+        <section
+          className={`content-block role-${block.role} ${textDensity(block.text ?? runsText(block.runs))}`}
+          key={`${block.role}-${block.label ?? "block"}-${index}`}
+        >
           <div className="block-meta">
             <span>{block.label ?? roleLabel(block.role)}</span>
           </div>
-          <div className="block-text" lang={block.language}>
-            <ReactMarkdown>{block.text}</ReactMarkdown>
-          </div>
+          {block.text ? (
+            <div className="block-text" lang={block.language}>
+              <ReactMarkdown>{block.text}</ReactMarkdown>
+            </div>
+          ) : null}
+          {block.runs ? <InlineRuns runs={block.runs} language={block.language} /> : null}
+          {block.media ? <MediaStrip media={block.media} /> : null}
         </section>
       ))}
     </div>
   );
 }
 
-function MediaStrip({ media, roles }: { media: MediaRef[]; roles: Role[] }) {
-  const filtered = media.filter((item) => roles.includes(item.role ?? "support"));
+function MediaStrip({ media, roles }: { media: MediaRef[]; roles?: Role[] }) {
+  const filtered = roles ? media.filter((item) => roles.includes(item.role ?? "support")) : media;
 
   if (filtered.length === 0) {
     return null;
@@ -141,21 +229,58 @@ function MediaStrip({ media, roles }: { media: MediaRef[]; roles: Role[] }) {
   );
 }
 
-function ProgressDots({ count, active, onSelect }: { count: number; active: number; onSelect: (index: number) => void }) {
+function cardWindow(count: number, active: number) {
+  if (count <= 12) {
+    return Array.from({ length: count }, (_, index) => index);
+  }
+
+  const indexes = new Set([0, count - 1]);
+  const windowStart = Math.max(1, Math.min(active - 2, count - 6));
+  const windowEnd = Math.min(count - 2, Math.max(active + 2, 5));
+
+  for (let index = windowStart; index <= windowEnd; index += 1) {
+    indexes.add(index);
+  }
+
+  return [...indexes].sort((left, right) => left - right);
+}
+
+function CardNavigator({ count, active, onSelect }: { count: number; active: number; onSelect: (index: number) => void }) {
+  const visibleIndexes = cardWindow(count, active);
+
   return (
-    <div className="progress-dots" aria-label="Card picker">
-      {Array.from({ length: count }, (_, index) => (
-        <button
-          aria-label={`Go to card ${index + 1}`}
-          aria-current={index === active ? "step" : undefined}
-          className={index === active ? "active" : ""}
-          key={index}
-          type="button"
-          onClick={() => onSelect(index)}
-        >
-          {index + 1}
-        </button>
-      ))}
+    <div className="card-navigator" aria-label="Card picker">
+      <input
+        aria-label="Jump to card"
+        className="card-range"
+        max={count}
+        min={1}
+        type="range"
+        value={active + 1}
+        onChange={(event) => onSelect(Number(event.currentTarget.value) - 1)}
+      />
+
+      <div className="card-window">
+        {visibleIndexes.map((index, itemIndex) => {
+          const previous = visibleIndexes[itemIndex - 1];
+          const hasGap = previous !== undefined && index - previous > 1;
+
+          return (
+            <div className="card-window-item" key={index}>
+              {hasGap ? <span className="card-gap">...</span> : null}
+              <button
+                aria-label={`Go to card ${index + 1}`}
+                aria-current={index === active ? "step" : undefined}
+                className={index === active ? "active" : ""}
+                type="button"
+                onClick={() => onSelect(index)}
+              >
+                {index + 1}
+              </button>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -221,7 +346,7 @@ export function App() {
       <main className="app-shell center-shell">
         <section className="status-panel">
           <h1>Loading deck</h1>
-          <p>Reading the Open Deck YAML sample.</p>
+          <p>Reading the Kaishi Open Deck YAML files.</p>
         </section>
       </main>
     );
@@ -229,12 +354,13 @@ export function App() {
 
   const media = note.media ?? [];
   const mainAnswer = answerBlocks.find((block) => block.role === "main");
+  const noteCode = note.id.match(/^kaishi-\d+/)?.[0] ?? note.id;
 
   return (
     <main className="app-shell">
       <aside className="deck-panel">
         <div>
-          <p className="deck-kicker">Open Deck stress test</p>
+          <p className="deck-kicker">Open Deck preview</p>
           <h1>{deck.manifest.title}</h1>
           <p>{deck.manifest.description}</p>
         </div>
@@ -245,14 +371,16 @@ export function App() {
           <span>{deck.notes.length}</span>
         </div>
 
-        <ProgressDots count={deck.notes.length} active={index} onSelect={selectCard} />
+        <CardNavigator count={deck.notes.length} active={index} onSelect={selectCard} />
       </aside>
 
       <section className="review-surface" aria-live="polite">
         <header className="review-header">
           <div>
-            <p>{note.id}</p>
-            <h2>{promptBlocks[0]?.text ?? "Card"}</h2>
+            <p>
+              Card {index + 1} of {deck.notes.length}
+            </p>
+            <h2>{noteCode}</h2>
           </div>
           <button className="ghost-button" type="button" onClick={() => setRevealed(false)}>
             <RotateCcw size={18} aria-hidden="true" />
@@ -272,7 +400,9 @@ export function App() {
                 {mainAnswer ? (
                   <div className="answer-callout">
                     <span className="answer-label">{mainAnswer.label ?? "Answer"}</span>
-                    <ReactMarkdown>{mainAnswer.text}</ReactMarkdown>
+                    {mainAnswer.text ? <ReactMarkdown>{mainAnswer.text}</ReactMarkdown> : null}
+                    {mainAnswer.runs ? <InlineRuns runs={mainAnswer.runs} language={mainAnswer.language} /> : null}
+                    {mainAnswer.media ? <MediaStrip media={mainAnswer.media} /> : null}
                   </div>
                 ) : null}
                 <BlockList blocks={answerBlocks.filter((block) => block !== mainAnswer)} side="answer" />
@@ -291,10 +421,6 @@ export function App() {
           <button className="nav-button" type="button" onClick={() => move(-1)}>
             <ChevronLeft size={20} aria-hidden="true" />
             Previous
-          </button>
-          <button className="flip-button" type="button" onClick={() => setRevealed((current) => !current)}>
-            {revealed ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
-            {revealed ? "Hide" : "Reveal"}
           </button>
           <button className="nav-button" type="button" onClick={() => move(1)}>
             Next

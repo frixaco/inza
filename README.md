@@ -12,6 +12,9 @@ project.
 - `open-deck-format.md` defines the current deck format.
 - `tools/validate-open-deck.ts` validates deck directories that follow that
   format.
+- `tools/convert-kaishi-to-open-deck.ts` migrates the local Kaishi `.apkg` into
+  an Open Deck directory.
+- `kaishi-open-deck/` is a generated Open Deck port of Kaishi 1.5k.
 - `rust-book-cards/` contains source YAML flashcards based on The Rust
   Programming Language book.
 - `parser/` contains Anki `.apkg` parser/import experiments.
@@ -41,6 +44,13 @@ Validate a deck directory with:
 
 ```sh
 bun tools/validate-open-deck.ts path/to/deck
+```
+
+Regenerate the Kaishi Open Deck from the bundled `.apkg` with:
+
+```sh
+bun tools/convert-kaishi-to-open-deck.ts parser/Kaishi-1.5k-v2.4.apkg kaishi-open-deck --force
+bun tools/validate-open-deck.ts kaishi-open-deck
 ```
 
 ## Reference Apps

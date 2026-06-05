@@ -185,11 +185,19 @@ prompt:
   - role: main
     text: "\u79c1"
     language: ja
+    media:
+      - kind: audio
+        src: assets/audio/watashi.mp3
+        label: Word audio
 
   - role: context
     label: Sentence
     text: "\u79c1\u306f\u30a2\u30f3\u3067\u3059\u3002"
     language: ja
+    media:
+      - kind: audio
+        src: assets/audio/watashi-sentence.mp3
+        label: Sentence audio
 ```
 
 Block fields:
@@ -198,8 +206,18 @@ Block fields:
 role: main | context | support | note
 label: string
 text: markdown-string
+runs: [inline-run]
 language: language-code
+media: [media-ref]
 ```
+
+A block must contain at least one of `text`, `runs`, or `media`. Use `text` for
+ordinary Markdown. Use `runs` only when a card needs small inline relationships
+that Markdown cannot express cleanly, such as text above or below an exact span.
+Do not set both `text` and `runs` on the same block.
+
+Use media on a block when the file belongs to that specific piece of content,
+such as word audio, sentence audio, or an example image.
 
 `role` tells the renderer the weight of the block, not its subject matter:
 
@@ -214,12 +232,46 @@ Labels are deck content, not renderer commands.
 
 Readers may render a block list as native grouped text, as labeled rows, or as
 plain Markdown-like sections. The app decides layout, spacing, script rendering,
-ruby handling, and emphasis.
+inline above/below text, and emphasis.
+
+### Inline Runs
+
+Inline runs are plain text spans with small generic presentation hints. They are
+not a template language, annotation engine, or subject-matter model. They store
+what appears attached to text, not why.
+
+```yaml
+runs:
+  - Plain text before
+  - text: "\u79c1"
+    above: "\u308f\u305f\u3057"
+    marks: [strong]
+  - "\u306f\u30a2\u30f3\u3067\u3059\u3002"
+```
+
+Run fields:
+
+```yaml
+text: string
+marks: [strong | emphasis | code | strike | highlight]
+above: string
+below: string
+link: url
+```
+
+Run `text`, `above`, and `below` are plain text, not Markdown. Use Markdown
+`text` blocks for paragraphs, code fences, lists, formulas, and ordinary links.
+Use `runs` only for the small cases where the exact span matters.
 
 ### Media References
 
 Media references are semantic. The app decides replay button style, placement,
 image sizing, captions, and lazy loading.
+
+Media may appear on a note or inside an individual content block. Prefer
+block-level media when the media belongs to a specific block. Use note-level
+media when the media belongs to the whole card or there is no useful block to
+attach it to.
 
 ```yaml
 media:
@@ -243,7 +295,9 @@ SVG files may be referenced as `kind: image`.
 
 `role` and `label` on media are optional. They help the renderer group media
 with nearby content without inventing media fields like `word_audio` or
-`sentence_audio`.
+`sentence_audio`. Block-level media already inherits the surrounding block's
+role, so a block-level media item often needs only `kind`, `src`, and maybe
+`label` or `alt`.
 
 ## Type 1: `prompt_response`
 
@@ -295,12 +349,23 @@ references:
   type: prompt_response
   prompt:
     - role: main
-      text: "\u60aa\u3044"
+      runs:
+        - text: "\u60aa"
+          above: "\u308f\u308b"
+        - "\u3044"
       language: ja
+      media:
+        - kind: audio
+          src: assets/audio/warui.mp3
+          label: Word audio
     - role: context
       label: Sentence
       text: "\u3042\u306e\u4eba\u306f\u60aa\u3044\u4eba\u3067\u3059\u3002"
       language: ja
+      media:
+        - kind: audio
+          src: assets/audio/warui-sentence.mp3
+          label: Sentence audio
   answer:
     - role: main
       label: Meaning
@@ -311,19 +376,12 @@ references:
     - role: support
       label: Sentence meaning
       text: That person is a bad person.
-  media:
-    - kind: audio
-      src: assets/audio/warui.mp3
-      role: main
-      label: Word audio
-    - kind: audio
-      src: assets/audio/warui-sentence.mp3
-      role: context
-      label: Sentence audio
-    - kind: image
-      src: assets/images/bad-person.webp
-      role: support
-      alt: Person being threatened
+    - role: support
+      label: Illustration
+      media:
+        - kind: image
+          src: assets/images/bad-person.webp
+          alt: Person being threatened
 ```
 
 ### Example: Structured Fact As Separate Cards
@@ -561,14 +619,18 @@ A validator should check:
 - Asset references exist and stay inside the deck root.
 - IDs are unique within the deck.
 - Prompt-response notes have a prompt and answer.
-- Content blocks, when used, have text and a supported role.
+- Content blocks, when used, have a supported role and at least one of `text`,
+  `runs`, or `media`.
+- Content blocks do not set both `text` and `runs`.
+- Inline runs, when used, are non-empty and use supported marks.
+- Media is valid on both notes and content blocks.
 - Occlusion masks have valid geometry.
 - Cloze notes have at least one cloze marker.
 
 This repository includes a small validator:
 
 ```bash
-bun tools/validate-open-deck.ts rust-book-test kaishi-test
+bun tools/validate-open-deck.ts kaishi-open-deck
 ```
 
 Warnings, not hard errors:
@@ -585,7 +647,7 @@ The renderer must provide good defaults for:
 - Dark mode.
 - Audio controls.
 - Image sizing.
-- Ruby/readings where available.
+- Inline above/below text where available.
 - Code blocks.
 - Math/formula text where available.
 - Accessibility labels.
@@ -630,6 +692,9 @@ and formulas. Card content may also be a list of generic labeled blocks whose
 `text` values are Markdown. Markdown is authoring syntax, not a layout or
 template system.
 
+Blocks that use `runs` bypass Markdown. Run text is already a small inline
+content tree, so readers should render it directly as native text spans.
+
 Readers should parse Markdown into an app-owned content tree before rendering:
 
 ```text
@@ -639,8 +704,8 @@ Markdown content
 ```
 
 For block lists, readers should parse each block's `text` through the same
-Markdown pipeline, then render the block role and label with app-owned native
-components.
+Markdown pipeline, or render its `runs` directly. Then they should render the
+block role and label with app-owned native components.
 
 Readers should render that tree with platform-native UI components where
 practical. For example, iOS can render the tree with SwiftUI views, Android can
