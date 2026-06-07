@@ -1,0 +1,42 @@
+{
+  "name": "@inza/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Expo mobile app for Inza.",
+  "main": "index.ts",
+  "scripts": {
+    "android": "expo run:android",
+    "check": "bun run typecheck && bun run doctor",
+    "doctor": "expo-doctor",
+    "format": "cd .. && bun run format",
+    "format:check": "cd .. && bun run format:check",
+    "ios": "expo run:ios",
+    "lint": "cd .. && bun run lint",
+    "lint:fix": "cd .. && bun run lint:fix",
+    "prebuild": "expo prebuild",
+    "prebuild:clean": "expo prebuild --clean",
+    "start": "expo start --dev-client",
+    "typecheck": "tsgo --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "expo": "~56.0.9",
+    "expo-dev-client": "~56.0.19",
+    "expo-status-bar": "~56.0.4",
+    "expo-system-ui": "~56.0.5",
+    "react": "19.2.3",
+    "react-native": "0.85.3"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "@typescript/native-preview": "^7.0.0-dev.20260527.1",
+    "expo-doctor": "^1.19.8"
+  },
+  "packageManager": "bun@1.4.0",
+  "expo": {
+    "doctor": {
+      "appConfigFieldsNotSyncedCheck": {
+        "enabled": false
+      }
+    }
+  }
+}

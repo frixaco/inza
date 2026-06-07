@@ -1,0 +1,40 @@
+{
+  "name": "@inza/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Electron desktop app for Inza.",
+  "type": "module",
+  "main": "dist/main/main.mjs",
+  "scripts": {
+    "build": "bun run typecheck && bun run build:main && bun run build:renderer",
+    "build:main": "rolldown -c rolldown.config.mjs",
+    "build:renderer": "vite build",
+    "check": "bun run typecheck",
+    "dev": "bun scripts/dev.mjs",
+    "format": "cd .. && bun run format",
+    "format:check": "cd .. && bun run format:check",
+    "lint": "cd .. && bun run lint",
+    "lint:fix": "cd .. && bun run lint:fix",
+    "postinstall": "install-electron",
+    "start": "electron .",
+    "typecheck": "tsgo --noEmit -p tsconfig.main.json && tsgo --noEmit -p tsconfig.renderer.json && tsgo --noEmit -p tsconfig.tools.json",
+    "typecheck:watch": "tsgo --build --watch --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@typescript/native-preview": "^7.0.0-dev.20260527.1",
+    "@vitejs/plugin-react": "^6.0.2",
+    "electron": "^42.3.0",
+    "rolldown": "^1.0.2",
+    "tailwindcss": "^4.3.0",
+    "vite": "^8.0.14"
+  },
+  "packageManager": "bun@1.4.0"
+}

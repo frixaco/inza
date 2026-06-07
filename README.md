@@ -9,19 +9,21 @@ project.
 
 ## What Matters
 
-- `open-deck-format.md` defines the current deck format.
-- `tools/validate-open-deck.ts` validates deck directories that follow that
+- `OPEN-DECK_FORMAT.md` defines the current deck format.
+- `stuff/validate-open-deck.ts` validates deck directories that follow that
   format.
-- `tools/convert-kaishi-to-open-deck.ts` migrates the local Kaishi `.apkg` into
+- `stuff/convert-kaishi-to-open-deck.ts` migrates the local Kaishi `.apkg` into
   an Open Deck directory.
-- `kaishi-open-deck/` is a generated local Open Deck port of Kaishi 1.5k. It is
+- `stuff/kaishi-open-deck/` is a generated local Open Deck port of Kaishi 1.5k. It is
   ignored by Git and should be regenerated when needed.
-- `rust-book-cards/` contains source YAML flashcards based on The Rust
+- `stuff/rust-book-cards/` contains source YAML flashcards based on The Rust
   Programming Language book.
-- `parser/` contains Anki `.apkg` parser/import experiments.
-- `ref-web/`, `ref-electron/`, `ref-expo/`, and `ref-macos/` are reference app
-  prototypes.
-- `deck-math-rendering-notes.md` records current findings for rendering math
+- `stuff/parser/` contains Anki `.apkg` parser/import experiments.
+- `web/` is the web app.
+- `desktop/` is the Electron desktop app.
+- `mobile/` is the Expo mobile app.
+- `stuff/ref-macos/` is a native macOS reference prototype.
+- `stuff/math-rendering.md` records current findings for rendering math
   across desktop and mobile.
 
 ## Deck Format
@@ -44,49 +46,64 @@ accessibility, and platform-specific rendering.
 Validate a deck directory with:
 
 ```sh
-bun tools/validate-open-deck.ts path/to/deck
+bun stuff/validate-open-deck.ts path/to/deck
 ```
 
 Regenerate the Kaishi Open Deck from the bundled `.apkg` with:
 
 ```sh
-bun tools/convert-kaishi-to-open-deck.ts parser/Kaishi-1.5k-v2.4.apkg kaishi-open-deck --force
-bun tools/validate-open-deck.ts kaishi-open-deck
+bun stuff/convert-kaishi-to-open-deck.ts stuff/parser/Kaishi-1.5k-v2.4.apkg stuff/kaishi-open-deck --force
+bun stuff/validate-open-deck.ts stuff/kaishi-open-deck
 ```
 
 Imported Anki decks should become ordinary Open Deck notes. Preserve
 learner-facing facts, media, links, and useful provenance; do not preserve Anki
 HTML templates, CSS, JavaScript, or exact styling as core deck fields.
 
-## Reference Apps
+## Apps
 
-The reference apps are prototypes, not canonical deck data.
+This is a Bun workspace. Install JavaScript dependencies from the repo root:
 
 ```sh
-cd ref-web
 bun install
-bun run dev
 ```
 
-`ref-web` is a Kaishi stress-test viewer, not a general deck loader. It expects
-an Open Deck directory to be available at `ref-web/public/deck` and currently
-loads the generated Kaishi note filenames directly.
+Run app commands from the root:
 
-Other reference app commands live in their local README files:
+```sh
+bun run web
+bun run desktop
+bun run mobile
+```
 
-- `ref-electron/README.md`
-- `ref-expo/README.md`
-- `ref-macos/README.md`
+Build or check from the root:
+
+```sh
+bun run web:build
+bun run desktop:build
+bun run check:mobile
+bun run check
+```
+
+`web` is currently a Kaishi stress-test viewer, not a general deck loader. It
+expects an Open Deck directory to be available at `web/public/deck` and
+currently loads the generated Kaishi note filenames directly.
+
+App-specific notes live in:
+
+- `desktop/README.md`
+- `mobile/README.md`
+- `stuff/ref-macos/README.md`
 
 ## Parser
 
 The parser is for inspecting and extracting Anki `.apkg` decks. Work inside
-`parser/` follows `parser/AGENTS.md`.
+`stuff/parser/` follows `stuff/parser/AGENTS.md`.
 
 Useful commands:
 
 ```sh
-cd parser
+cd stuff/parser
 bun run check
 bun run parse ./Kaishi-1.5k-v2.4.apkg ./tmp_out
 ```
@@ -94,6 +111,8 @@ bun run parse ./Kaishi-1.5k-v2.4.apkg ./tmp_out
 ## Repo Notes
 
 - Use Bun-first tooling where JavaScript or TypeScript is involved.
-- Do not commit `node_modules`, app build output, parser extraction output, or
-  large deck/media artifacts unless they are intentionally part of the work.
+- Keep JavaScript dependencies and the lockfile at the repo root.
+- Do not commit `node_modules`, app build output, CocoaPods output, parser
+  extraction output, or large deck/media artifacts unless they are intentionally
+  part of the work.
 - Check the current tree before assuming old sample decks still exist.
