@@ -21,10 +21,10 @@ async function createMainWindow() {
   const isDark = nativeTheme.shouldUseDarkColors;
 
   const mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 640,
     height: 800,
-    minWidth: 900,
-    minHeight: 660,
+    minWidth: 640,
+    minHeight: 800,
     titleBarStyle: "hidden",
     trafficLightPosition: { x: 17, y: 11 },
     titleBarOverlay: {
