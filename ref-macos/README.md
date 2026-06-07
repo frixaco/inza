@@ -1,4 +1,4 @@
-# Manki Reference macOS App
+# Inza Reference macOS App
 
 Native SwiftUI prototype for a clean, minimal, power-user-oriented Anki interface.
 
@@ -17,4 +17,4 @@ Run it from this directory:
 swift run
 ```
 
-Or open `Package.swift` in Xcode and run the `MankiReference` scheme.
+Or open `Package.swift` in Xcode and run the `InzaReference` scheme.

@@ -11,7 +11,7 @@ async function createMainWindow() {
   const mainWindow = new BrowserWindow({
     width: 1120,
     height: 760,
-    title: "Manki",
+    title: "Inza",
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,

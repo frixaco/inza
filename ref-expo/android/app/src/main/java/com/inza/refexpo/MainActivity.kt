@@ -1,4 +1,4 @@
-package com.manki.refexpo
+package com.inza.refexpo
 
 import android.os.Build
 import android.os.Bundle

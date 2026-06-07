@@ -1,6 +1,6 @@
 import { deriveDefaultOutputDir, parseApkg } from "./parse_anki.ts";
 
-const DEFAULT_DECK_PATH = "./Kaishi.1.5k.v2.3.apkg";
+const DEFAULT_DECK_PATH = "./Kaishi-1.5k-v2.4.apkg";
 
 async function main(): Promise<void> {
   const deckPath = Bun.argv[2] || DEFAULT_DECK_PATH;

@@ -2,7 +2,7 @@
   "name": "ref-expo",
   "version": "1.0.0",
   "private": true,
-  "description": "Fresh Expo reference app for Manki.",
+  "description": "Fresh Expo reference app for Inza.",
   "main": "index.ts",
   "scripts": {
     "android": "expo run:android",
@@ -19,8 +19,8 @@
     "typecheck": "tsgo --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "expo": "~56.0.5",
-    "expo-dev-client": "~56.0.16",
+    "expo": "~56.0.9",
+    "expo-dev-client": "~56.0.19",
     "expo-status-bar": "~56.0.4",
     "expo-system-ui": "~56.0.5",
     "react": "19.2.3",

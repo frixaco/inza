@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 @main
-struct MankiReferenceApp: App {
+struct InzaReferenceApp: App {
     var body: some Scene {
         WindowGroup {
             AppShell()

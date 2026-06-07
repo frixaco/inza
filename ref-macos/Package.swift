@@ -3,16 +3,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "MankiReference",
+    name: "InzaReference",
     platforms: [
         .macOS(.v14)
     ],
     products: [
-        .executable(name: "MankiReference", targets: ["MankiReference"])
+        .executable(name: "InzaReference", targets: ["InzaReference"])
     ],
     targets: [
         .executableTarget(
-            name: "MankiReference"
+            name: "InzaReference"
         )
     ]
 )

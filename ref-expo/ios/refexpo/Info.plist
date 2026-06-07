@@ -28,7 +28,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>refexpo</string>
-				<string>com.manki.refexpo</string>
+				<string>com.inza.refexpo</string>
 			</array>
 		</dict>
 		<dict>

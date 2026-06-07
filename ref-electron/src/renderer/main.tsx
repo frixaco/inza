@@ -13,7 +13,7 @@ function App() {
             className="text-4xl leading-none font-semibold tracking-normal text-ink-strong"
             id="app-title"
           >
-            Manki
+            Inza
           </h1>
         </header>
 
