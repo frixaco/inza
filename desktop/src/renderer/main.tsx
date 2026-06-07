@@ -1,6 +1,8 @@
 import { StrictMode, useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 
+import { cn } from "./utils";
+
 type Route =
   | "today"
   | "study"
@@ -22,7 +24,6 @@ type Deck = {
   retention: number;
   streak: number;
   lastStudied: string;
-  tint: string;
 };
 
 type NoteCard = {
@@ -80,7 +81,6 @@ const decks: Deck[] = [
     retention: 94,
     streak: 42,
     lastStudied: "2m ago",
-    tint: "oklch(58% 0.18 22)",
   },
   {
     id: "medicine",
@@ -93,7 +93,6 @@ const decks: Deck[] = [
     retention: 91,
     streak: 106,
     lastStudied: "1h ago",
-    tint: "oklch(61% 0.14 146)",
   },
   {
     id: "art-history",
@@ -106,7 +105,6 @@ const decks: Deck[] = [
     retention: 88,
     streak: 18,
     lastStudied: "3h ago",
-    tint: "oklch(70% 0.17 55)",
   },
   {
     id: "hsk-3000-characters",
@@ -119,7 +117,6 @@ const decks: Deck[] = [
     retention: 87,
     streak: 25,
     lastStudied: "5h ago",
-    tint: "oklch(56% 0.17 300)",
   },
   {
     id: "leetcode-patterns",
@@ -132,7 +129,6 @@ const decks: Deck[] = [
     retention: 96,
     streak: 9,
     lastStudied: "1d ago",
-    tint: "oklch(64% 0.15 196)",
   },
 ];
 
@@ -301,9 +297,9 @@ function App() {
   const showToolbar = selectedRoute !== "study";
 
   return (
-    <div className="app-shell">
+    <div className="flex h-screen w-screen overflow-hidden bg-zinc-100 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-100">
       <Sidebar selectedRoute={selectedRoute} onSelectRoute={setSelectedRoute} />
-      <main className="detail-shell">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col">
         {showToolbar ? (
           <Toolbar
             searchText={searchText}
@@ -311,7 +307,7 @@ function App() {
             onCreate={() => setSelectedRoute("create")}
           />
         ) : null}
-        <section className={showToolbar ? "detail-content" : "detail-content study-content"}>
+        <section className="min-h-0 min-w-0 flex-1 overflow-hidden">
           <DetailView
             filteredCards={filteredCards}
             prompt={prompt}
@@ -340,9 +336,8 @@ function Sidebar({
   onSelectRoute: (route: Route) => void;
 }) {
   return (
-    <aside className="sidebar">
-      <div className="window-drag-space" />
-      <nav aria-label="Main navigation">
+    <aside className="m-2 flex w-64 shrink-0 flex-col overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+      <nav aria-label="Main navigation" className="grid gap-4">
         <SidebarSection title="Review">
           <SidebarItem
             count={261}
@@ -375,15 +370,23 @@ function Sidebar({
         <SidebarSection title="Decks">
           {decks.map((deck) => (
             <button
-              className={`sidebar-row deck-link ${selectedRoute === `deck:${deck.id}` ? "is-selected" : ""}`}
+              className={cn(
+                "flex min-h-8 items-center gap-2 rounded-lg px-2 py-1 text-left text-sm text-zinc-800 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800",
+                selectedRoute === `deck:${deck.id}` &&
+                  "bg-blue-600 text-white hover:bg-blue-600 dark:text-white dark:hover:bg-blue-600",
+              )}
               key={deck.id}
               onClick={() => onSelectRoute(`deck:${deck.id}`)}
               type="button"
             >
-              <span className="deck-dot" style={{ background: deck.tint }} />
-              <span className="sidebar-label">{deck.name}</span>
+              <DeckDot deck={deck} />
+              <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                {deck.name}
+              </span>
               {deck.due > 0 ? (
-                <span className="sidebar-count">{deck.due.toLocaleString()}</span>
+                <span className="text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
+                  {deck.due.toLocaleString()}
+                </span>
               ) : null}
             </button>
           ))}
@@ -416,9 +419,9 @@ function Sidebar({
 
 function SidebarSection({ children, title }: { children: React.ReactNode; title: string }) {
   return (
-    <section className="sidebar-section">
-      <h2>{title}</h2>
-      <div className="sidebar-items">{children}</div>
+    <section className="grid gap-1">
+      <h2 className="px-1 text-xs font-bold text-zinc-500 dark:text-zinc-400">{title}</h2>
+      <div className="grid gap-px">{children}</div>
     </section>
   );
 }
@@ -438,13 +441,23 @@ function SidebarItem({
 }) {
   return (
     <button
-      className={`sidebar-row ${isSelected ? "is-selected" : ""}`}
+      className={cn(
+        "flex min-h-8 items-center gap-2 rounded-lg px-2 py-1 text-left text-sm text-zinc-800 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800",
+        isSelected &&
+          "bg-blue-600 text-white hover:bg-blue-600 dark:text-white dark:hover:bg-blue-600",
+      )}
       onClick={onClick}
       type="button"
     >
       <Icon name={icon} />
-      <span className="sidebar-label">{title}</span>
-      {count !== undefined ? <span className="sidebar-count">{count.toLocaleString()}</span> : null}
+      <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+        {title}
+      </span>
+      {count !== undefined ? (
+        <span className="text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
+          {count.toLocaleString()}
+        </span>
+      ) : null}
     </button>
   );
 }
@@ -459,30 +472,38 @@ function Toolbar({
   onSearchTextChange: (text: string) => void;
 }) {
   return (
-    <header className="toolbar">
+    <header className="flex h-12 items-center gap-2 px-3">
       <button
         aria-label="Create Deck"
-        className="toolbar-button icon-only"
+        className="inline-flex size-9 items-center justify-center rounded-full bg-white text-zinc-500 shadow-sm hover:bg-zinc-50 active:translate-y-px dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800"
         onClick={onCreate}
         title="Create Deck"
         type="button"
       >
         <Icon name="create" />
       </button>
-      <button aria-label="Sync" className="toolbar-button icon-only" title="Sync" type="button">
+      <button
+        aria-label="Sync"
+        className="inline-flex size-9 items-center justify-center rounded-full bg-white text-zinc-500 shadow-sm hover:bg-zinc-50 active:translate-y-px dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800"
+        title="Sync"
+        type="button"
+      >
         <Icon name="sync" />
       </button>
-      <label className="search-field" htmlFor="collection-search">
-        <Icon name="browser" />
+      <label
+        className="flex h-9 w-80 max-w-full items-center gap-2 rounded-full bg-white px-3 shadow-sm dark:bg-zinc-900"
+        htmlFor="collection-search"
+      >
+        <Icon className="size-4 text-zinc-400" name="browser" />
         <input
           autoComplete="off"
+          className="min-w-0 flex-1 border-0 bg-transparent text-sm font-semibold outline-0 placeholder:text-zinc-400"
           id="collection-search"
           placeholder="Decks, cards, tags"
           value={searchText}
           onChange={(event) => onSearchTextChange(event.currentTarget.value)}
         />
       </label>
-      <div className="toolbar-drag" />
     </header>
   );
 }
@@ -565,35 +586,43 @@ function TodayView({
 
   return (
     <ScrollPage>
-      <div className="today-header">
-        <div>
-          <h1>Today</h1>
-          <p>124 reviews queued. Current load is heavy but recoverable before 22:00.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-4xl font-semibold tracking-normal text-zinc-950 dark:text-zinc-50">
+            Today
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
+            124 reviews queued. Current load is heavy but recoverable before 22:00.
+          </p>
         </div>
-        <button className="primary-action" onClick={onStartStudy} type="button">
+        <button
+          className="inline-flex min-h-9 min-w-36 items-center justify-center gap-2 rounded-full bg-blue-600 px-4 text-sm font-semibold whitespace-nowrap text-white shadow-sm hover:bg-blue-700 active:translate-y-px"
+          onClick={onStartStudy}
+          type="button"
+        >
           <Icon name="play" />
           Start Review
         </button>
       </div>
 
-      <div className="status-line">
+      <div className="flex items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-500 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
         <span>
           {totalDue} due · {totalLearning} learning · {totalNew} new · 92% retention · 38m estimate
         </span>
-        <span className="pill">FSRS 91%</span>
+        <Pill>FSRS 91%</Pill>
       </div>
 
-      <section className="section-block">
+      <section className="grid gap-3">
         <SectionHeader action="Sort by pressure" title="Decks" />
         <DeckTable onSelectDeck={onSelectDeck} />
       </section>
 
-      <footer className="footer-bar">
-        <span className="sync-status">
+      <footer className="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+        <span className="flex items-center gap-2">
           <Icon name="check" />
           Synced 38s ago
         </span>
-        <span className="footer-hints">
+        <span className="ml-auto flex items-center gap-3.5">
           <KeyHint keyName="⌘K" label="Commands" />
           <KeyHint keyName="Space" label="Review" />
           <KeyHint keyName="/" label="Search" />
@@ -622,16 +651,16 @@ function DeckDetailView({ deck }: { deck: Deck }) {
           { title: "Streak", value: `${deck.streak}d`, detail: "deck" },
         ]}
       />
-      <div className="two-column">
+      <div className="grid grid-cols-3 items-start gap-6">
         <Panel>
           <SectionHeader action="Open Browser" title="Recent Notes" />
-          <div className="preview-list">
+          <div className="grid">
             {deckCards.slice(0, 5).map((card) => (
               <CardPreviewRow card={card} key={card.id} />
             ))}
           </div>
         </Panel>
-        <Panel className="options-panel">
+        <Panel>
           <SectionHeader action="Edit" title="Deck Options" />
           <SettingLine title="Scheduler" value="FSRS compatible" />
           <SettingLine title="Daily limit" value="120 reviews" />
@@ -651,28 +680,31 @@ function StudyView({
   onShowBackChange: (showing: boolean) => void;
 }) {
   return (
-    <div className="study-view">
-      <div className="window-drag-strip" />
-      <div className="study-card">
-        <div className="study-prompt">
-          <div className="kanji">静か</div>
-          <p>adjective · common · audio attached</p>
+    <div className="grid h-screen bg-zinc-100 dark:bg-zinc-950">
+      <div className="grid min-h-0 grid-rows-5 justify-items-center px-10 pb-8 text-center">
+        <div className="row-span-2 grid content-end gap-4">
+          <div className="font-serif text-8xl leading-none">静か</div>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            adjective · common · audio attached
+          </p>
         </div>
 
         {showingBack ? (
-          <div className="answer-block">
-            <h2>Quiet, peaceful</h2>
-            <p className="reading">shizuka</p>
-            <p>The room became quiet after the lecture ended.</p>
+          <div className="mt-6 grid gap-2">
+            <h2 className="text-3xl font-semibold">Quiet, peaceful</h2>
+            <p className="text-xl text-zinc-500 dark:text-zinc-400">shizuka</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              The room became quiet after the lecture ended.
+            </p>
           </div>
         ) : null}
 
-        <div className="study-actions">
+        <div className="mt-8 w-full max-w-5xl">
           {showingBack ? (
             <RatingBar onRate={() => onShowBackChange(false)} />
           ) : (
             <button
-              className="show-answer-button"
+              className="inline-flex min-h-11 w-full max-w-md items-center justify-center gap-2 rounded-full bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
               onClick={() => onShowBackChange(true)}
               type="button"
             >
@@ -702,36 +734,60 @@ function BrowserView({
   const selectedCard = visibleCards.find((card) => card.id === selectedCardId) ?? visibleCards[0];
 
   return (
-    <div className="browser-view">
-      <div className="browser-table-pane">
-        <div className="browser-header">
-          <h1>{visibleCards.length} notes</h1>
+    <div className="grid h-full min-h-0 grid-cols-3">
+      <div className="col-span-2 flex min-h-0 min-w-0 flex-col">
+        <div className="flex items-center justify-between gap-4 p-4">
+          <h1 className="text-base font-bold">{visibleCards.length} notes</h1>
           <SegmentedControl options={["Due", "New", "Marked"]} selected="Due" />
         </div>
-        {searchText ? <p className="search-summary">Filtered by "{searchText}"</p> : null}
-        <div className="table-wrap">
-          <table>
+        {searchText ? (
+          <p className="mx-4 mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+            Filtered by "{searchText}"
+          </p>
+        ) : null}
+        <div className="min-h-0 overflow-auto border-t border-zinc-200 dark:border-zinc-800">
+          <table className="w-full table-fixed border-collapse">
             <thead>
               <tr>
-                <th>Front</th>
-                <th>Back</th>
-                <th>Deck</th>
-                <th>Due</th>
-                <th>Ease</th>
+                <th className="sticky top-0 border-b border-zinc-200 bg-zinc-100 p-2 text-left text-xs font-semibold text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+                  Front
+                </th>
+                <th className="sticky top-0 border-b border-zinc-200 bg-zinc-100 p-2 text-left text-xs font-semibold text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+                  Back
+                </th>
+                <th className="sticky top-0 border-b border-zinc-200 bg-zinc-100 p-2 text-left text-xs font-semibold text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+                  Deck
+                </th>
+                <th className="sticky top-0 border-b border-zinc-200 bg-zinc-100 p-2 text-left text-xs font-semibold text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+                  Due
+                </th>
+                <th className="sticky top-0 border-b border-zinc-200 bg-zinc-100 p-2 text-left text-xs font-semibold text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+                  Ease
+                </th>
               </tr>
             </thead>
             <tbody>
               {visibleCards.map((card) => (
                 <tr
-                  className={card.id === selectedCard?.id ? "is-selected" : ""}
+                  className={card.id === selectedCard?.id ? "bg-blue-100 dark:bg-blue-950" : ""}
                   key={card.id}
                   onClick={() => onSelectCard(card.id)}
                 >
-                  <td>{card.front}</td>
-                  <td>{card.back}</td>
-                  <td>{card.deck}</td>
-                  <td className="numeric">{card.due}</td>
-                  <td className="numeric">{card.ease}</td>
+                  <td className="overflow-hidden border-b border-zinc-200 p-2 text-sm text-ellipsis whitespace-nowrap dark:border-zinc-800">
+                    {card.front}
+                  </td>
+                  <td className="overflow-hidden border-b border-zinc-200 p-2 text-sm text-ellipsis whitespace-nowrap dark:border-zinc-800">
+                    {card.back}
+                  </td>
+                  <td className="overflow-hidden border-b border-zinc-200 p-2 text-sm text-ellipsis whitespace-nowrap dark:border-zinc-800">
+                    {card.deck}
+                  </td>
+                  <td className="overflow-hidden border-b border-zinc-200 p-2 text-sm text-ellipsis whitespace-nowrap text-zinc-500 tabular-nums dark:border-zinc-800 dark:text-zinc-400">
+                    {card.due}
+                  </td>
+                  <td className="overflow-hidden border-b border-zinc-200 p-2 text-sm text-ellipsis whitespace-nowrap text-zinc-500 tabular-nums dark:border-zinc-800 dark:text-zinc-400">
+                    {card.ease}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -757,19 +813,22 @@ function CreateDeckView({
         title="Create"
         trailing="Skill-ready"
       />
-      <div className="create-grid">
-        <Panel>
-          <SectionHeader action="Run" title="Prompt" />
-          <textarea
-            value={prompt}
-            onChange={(event) => onPromptChange(event.currentTarget.value)}
-          />
-          <div className="source-grid">
-            <SourceChip icon="doc" title="Notes.md" />
-            <SourceChip icon="image" title="Images" />
-            <SourceChip icon="archive" title="Existing APKG" />
-          </div>
-        </Panel>
+      <div className="grid grid-cols-3 gap-6">
+        <div className="col-span-2">
+          <Panel>
+            <SectionHeader action="Run" title="Prompt" />
+            <textarea
+              className="min-h-44 w-full resize-y rounded-lg border-0 bg-zinc-100 p-3 text-sm outline-0 dark:bg-zinc-800"
+              value={prompt}
+              onChange={(event) => onPromptChange(event.currentTarget.value)}
+            />
+            <div className="grid grid-cols-3 gap-2">
+              <SourceChip icon="doc" title="Notes.md" />
+              <SourceChip icon="image" title="Images" />
+              <SourceChip icon="archive" title="Existing APKG" />
+            </div>
+          </Panel>
+        </div>
         <Panel>
           <SectionHeader action="Adjust" title="Deck Blueprint" />
           <BlueprintRow detail="Basic, Cloze, Image Occlusion" title="Note types" />
@@ -806,9 +865,11 @@ function StatsView() {
           { title: "Mature", value: "68%", detail: "collection" },
         ]}
       />
-      <div className="two-column">
-        <ReviewDensityPanel />
-        <Panel className="pressure-panel">
+      <div className="grid grid-cols-3 items-start gap-6">
+        <div className="col-span-2">
+          <ReviewDensityPanel />
+        </div>
+        <Panel>
           <SectionHeader action="Tune" title="Deck Pressure" />
           {decks.map((deck) => (
             <PressureRow deck={deck} key={deck.id} />
@@ -864,7 +925,7 @@ function SettingsView() {
 }
 
 function ScrollPage({ children }: { children: React.ReactNode }) {
-  return <div className="scroll-page">{children}</div>;
+  return <div className="grid h-full content-start gap-5 overflow-auto px-5 py-8">{children}</div>;
 }
 
 function HeaderBlock({
@@ -877,24 +938,39 @@ function HeaderBlock({
   trailing: string;
 }) {
   return (
-    <header className="header-block">
-      <div>
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
+    <header className="flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <h1 className="text-4xl font-semibold tracking-normal text-zinc-950 dark:text-zinc-50">
+          {title}
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">{subtitle}</p>
       </div>
-      <span className="pill">{trailing}</span>
+      <Pill>{trailing}</Pill>
     </header>
+  );
+}
+
+function Pill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex min-h-6 items-center rounded-full bg-zinc-200 px-3 py-1 text-xs font-semibold whitespace-nowrap text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+      {children}
+    </span>
   );
 }
 
 function MetricStrip({ metrics }: { metrics: Metric[] }) {
   return (
-    <div className="metric-strip">
+    <div className="grid grid-cols-5 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
       {metrics.map((metric) => (
-        <div className="metric-cell" key={metric.title}>
-          <span>{metric.title}</span>
-          <strong>{metric.value}</strong>
-          <span>{metric.detail}</span>
+        <div
+          className="grid gap-1 border-l border-zinc-200 p-4 first:border-l-0 dark:border-zinc-800"
+          key={metric.title}
+        >
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">{metric.title}</span>
+          <strong className="text-2xl font-semibold tracking-normal tabular-nums">
+            {metric.value}
+          </strong>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">{metric.detail}</span>
         </div>
       ))}
     </div>
@@ -903,10 +979,13 @@ function MetricStrip({ metrics }: { metrics: Metric[] }) {
 
 function SectionHeader({ action, title }: { action?: string; title: string }) {
   return (
-    <div className="section-header">
-      <h2>{title}</h2>
+    <div className="flex items-center justify-between gap-3">
+      <h2 className="text-sm font-semibold">{title}</h2>
       {action ? (
-        <button className="link-button" type="button">
+        <button
+          className="rounded bg-transparent text-xs text-blue-600 hover:underline"
+          type="button"
+        >
           {action}
         </button>
       ) : null}
@@ -914,94 +993,133 @@ function SectionHeader({ action, title }: { action?: string; title: string }) {
   );
 }
 
-function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <section className={`panel ${className}`}>{children}</section>;
+function Panel({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="grid content-start gap-4 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      {children}
+    </section>
+  );
 }
 
 function DeckTable({ onSelectDeck }: { onSelectDeck: (deck: Deck) => void }) {
   return (
-    <div className="deck-table">
-      <div className="deck-table-head">
+    <div className="grid overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="grid grid-cols-9 items-center gap-4 px-4 pb-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
         <span />
-        <span>Deck</span>
+        <span className="col-span-2">Deck</span>
         <span>Due</span>
         <span>Learn</span>
         <span>New</span>
-        <span className="wide-column">Ret.</span>
-        <span className="wide-column">ETA</span>
-        <span className="wide-column">Last</span>
+        <span>Ret.</span>
+        <span>ETA</span>
+        <span>Last</span>
       </div>
       {decks.map((deck) => (
-        <button className="deck-row" key={deck.id} onClick={() => onSelectDeck(deck)} type="button">
-          <span className="deck-dot" style={{ background: statusColor(deck) }} />
-          <span className="deck-title">
-            <strong>{deck.name}</strong>
-            <small>{deck.path}</small>
+        <button
+          className="grid min-h-12 grid-cols-9 items-center gap-4 border-t border-zinc-200 px-4 py-2 text-left hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800"
+          key={deck.id}
+          onClick={() => onSelectDeck(deck)}
+          type="button"
+        >
+          <DeckDot deck={deck} />
+          <span className="col-span-2 grid min-w-0 gap-1">
+            <strong className="overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap">
+              {deck.name}
+            </strong>
+            <small className="overflow-hidden text-xs text-ellipsis whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+              {deck.path}
+            </small>
           </span>
           <DeckValue emphasized={deck.due >= 80} value={deck.due.toLocaleString()} />
           <DeckValue emphasized={deck.learning >= 12} value={deck.learning.toLocaleString()} />
           <DeckValue value={deck.newCards.toLocaleString()} />
-          <DeckValue
-            className="wide-column"
-            emphasized={deck.retention < 90}
-            value={`${deck.retention}%`}
-          />
-          <DeckValue className="wide-column" value={estimateDeck(deck)} />
-          <span className="wide-column last-studied">{deck.lastStudied}</span>
+          <DeckValue emphasized={deck.retention < 90} value={`${deck.retention}%`} />
+          <DeckValue value={estimateDeck(deck)} />
+          <span className="text-right text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
+            {deck.lastStudied}
+          </span>
         </button>
       ))}
     </div>
   );
 }
 
-function DeckValue({
-  className = "",
-  emphasized = false,
-  value,
-}: {
-  className?: string;
-  emphasized?: boolean;
-  value: string;
-}) {
+function DeckDot({ deck }: { deck: Deck }) {
   return (
-    <span className={`deck-value ${emphasized ? "is-emphasized" : ""} ${className}`}>{value}</span>
+    <span
+      className={cn(
+        "size-2 shrink-0 rounded-full",
+        deck.id === "japanese-core" && "bg-red-500",
+        deck.id === "medicine" && "bg-emerald-600",
+        deck.id === "art-history" && "bg-amber-500",
+        deck.id === "hsk-3000-characters" && "bg-purple-600",
+        deck.id === "leetcode-patterns" && "bg-cyan-600",
+      )}
+    />
+  );
+}
+
+function DeckValue({ emphasized = false, value }: { emphasized?: boolean; value: string }) {
+  return (
+    <span
+      className={cn(
+        "text-right text-xs font-medium text-zinc-500 tabular-nums dark:text-zinc-400",
+        emphasized && "font-bold text-zinc-950 dark:text-zinc-50",
+      )}
+    >
+      {value}
+    </span>
   );
 }
 
 function CardPreviewRow({ card }: { card: NoteCard }) {
   return (
-    <div className="card-preview-row">
-      <span>
-        <strong>{card.front}</strong>
-        <small>{card.back}</small>
+    <div className="flex items-center gap-3 border-t border-zinc-200 py-2 first:border-t-0 dark:border-zinc-800">
+      <span className="grid min-w-0 gap-1">
+        <strong className="overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap">
+          {card.front}
+        </strong>
+        <small className="overflow-hidden text-xs text-ellipsis whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+          {card.back}
+        </small>
       </span>
-      <time>{card.due}</time>
+      <time className="ml-auto text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
+        {card.due}
+      </time>
     </div>
   );
 }
 
 function RatingBar({ onRate }: { onRate: () => void }) {
   const ratings = [
-    { title: "Again", time: "1m", keyName: "1", className: "again" },
-    { title: "Hard", time: "6m", keyName: "2", className: "hard" },
-    { title: "Good", time: "2d", keyName: "3", className: "good" },
-    { title: "Easy", time: "5d", keyName: "4", className: "easy" },
+    { title: "Again", time: "1m", keyName: "1" },
+    { title: "Hard", time: "6m", keyName: "2" },
+    { title: "Good", time: "2d", keyName: "3" },
+    { title: "Easy", time: "5d", keyName: "4" },
   ];
 
   return (
-    <div className="rating-bar">
+    <div className="grid grid-cols-4 gap-3">
       {ratings.map((rating) => (
         <button
-          className={`rating-button ${rating.className}`}
+          className={cn(
+            "flex min-h-16 items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800",
+            rating.title === "Again" && "text-red-600",
+            rating.title === "Hard" && "text-amber-600",
+            rating.title === "Good" && "text-emerald-600",
+            rating.title === "Easy" && "text-blue-600",
+          )}
           key={rating.title}
           onClick={onRate}
           type="button"
         >
-          <span>
+          <span className="flex items-center gap-2 font-bold">
             {rating.title}
             <KeyCap>{rating.keyName}</KeyCap>
           </span>
-          <time>{rating.time}</time>
+          <time className="text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
+            {rating.time}
+          </time>
         </button>
       ))}
     </div>
@@ -1010,12 +1128,12 @@ function RatingBar({ onRate }: { onRate: () => void }) {
 
 function ReviewShortcutBar({ answerShown }: { answerShown: boolean }) {
   return (
-    <div className="review-shortcuts">
-      <div className="review-progress">
+    <div className="flex w-full max-w-5xl items-center justify-between gap-4 self-end text-xs text-zinc-500 dark:text-zinc-400">
+      <div className="flex items-center gap-2">
         <span>Japanese Core</span>
         <span>18 / 124</span>
       </div>
-      <div className="shortcut-list">
+      <div className="flex items-center gap-2">
         <KeyHint keyName="Space" label={answerShown ? "Next" : "Answer"} />
         <KeyHint keyName="E" label="Edit" />
         <KeyHint keyName="B" label="Browse" />
@@ -1028,16 +1146,16 @@ function ReviewShortcutBar({ answerShown }: { answerShown: boolean }) {
 
 function NoteInspector({ card }: { card: NoteCard | undefined }) {
   return (
-    <aside className="note-inspector">
-      <h2>Inspector</h2>
+    <aside className="grid min-w-0 content-start gap-4 border-l border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <h2 className="text-sm font-bold">Inspector</h2>
       {card ? (
         <>
-          <div className="inspector-card">
-            <h3>{card.front}</h3>
-            <p>{card.back}</p>
-            <div className="tag-row">
+          <div className="grid gap-2">
+            <h3 className="text-2xl font-semibold">{card.front}</h3>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{card.back}</p>
+            <div className="flex flex-wrap gap-1">
               {card.tags.map((tag) => (
-                <span className="tag" key={tag}>
+                <span className="rounded bg-zinc-200 px-2 py-1 text-xs dark:bg-zinc-800" key={tag}>
                   {tag}
                 </span>
               ))}
@@ -1049,17 +1167,25 @@ function NoteInspector({ card }: { card: NoteCard | undefined }) {
           <SettingLine title="Interval" value={card.interval} />
           <SettingLine title="Ease" value={card.ease} />
           <hr />
-          <button className="inspector-button" type="button">
+          <button
+            className="flex min-h-8 items-center justify-start gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
+            type="button"
+          >
             <Icon name="code" />
             Edit Template
           </button>
-          <button className="inspector-button" type="button">
+          <button
+            className="flex min-h-8 items-center justify-start gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
+            type="button"
+          >
             <Icon name="image" />
             Open Media
           </button>
         </>
       ) : (
-        <p className="muted">Select a note to inspect scheduling, tags, templates, and media.</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Select a note to inspect scheduling, tags, templates, and media.
+        </p>
       )}
     </aside>
   );
@@ -1067,9 +1193,22 @@ function NoteInspector({ card }: { card: NoteCard | undefined }) {
 
 function SegmentedControl({ options, selected }: { options: string[]; selected: string }) {
   return (
-    <div className="segmented-control" role="tablist">
+    <div
+      className="grid w-56 grid-cols-3 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800"
+      role="tablist"
+    >
       {options.map((option) => (
-        <button aria-selected={option === selected} key={option} role="tab" type="button">
+        <button
+          aria-selected={option === selected}
+          className={cn(
+            "min-h-7 border-l border-zinc-300 text-xs text-zinc-500 first:border-l-0 dark:border-zinc-700 dark:text-zinc-400",
+            option === selected &&
+              "bg-white font-semibold text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50",
+          )}
+          key={option}
+          role="tab"
+          type="button"
+        >
           {option}
         </button>
       ))}
@@ -1079,7 +1218,10 @@ function SegmentedControl({ options, selected }: { options: string[]; selected: 
 
 function SourceChip({ icon, title }: { icon: IconName; title: string }) {
   return (
-    <button className="source-chip" type="button">
+    <button
+      className="flex min-h-9 items-center justify-start gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+      type="button"
+    >
       <Icon name={icon} />
       {title}
     </button>
@@ -1088,9 +1230,11 @@ function SourceChip({ icon, title }: { icon: IconName; title: string }) {
 
 function BlueprintRow({ detail, title }: { detail: string; title: string }) {
   return (
-    <div className="blueprint-row">
+    <div className="grid gap-1 py-1">
       <strong>{title}</strong>
-      <span>{detail}</span>
+      <span className="overflow-hidden text-xs text-ellipsis whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+        {detail}
+      </span>
     </div>
   );
 }
@@ -1105,27 +1249,35 @@ function GenerationStep({
   title: string;
 }) {
   return (
-    <div className="generation-step">
+    <div className="grid grid-cols-6 items-center gap-3 py-1 text-sm">
       <Icon name={status === "complete" ? "check" : "deck"} />
-      <strong>{title}</strong>
+      <strong className="col-span-2">{title}</strong>
       <progress max={1} value={progress} />
-      <span>{status}</span>
+      <span className="text-right text-xs text-zinc-500 dark:text-zinc-400">{status}</span>
     </div>
   );
 }
 
 function ReviewDensityPanel() {
   return (
-    <Panel className="density-panel">
+    <Panel>
       <SectionHeader title="Review Density" />
-      <div className="density-chart">
+      <div className="mt-auto flex h-36 items-end gap-2">
         {events.map((event) => (
-          <div className="density-column" key={event.hour}>
+          <div className="grid flex-1 items-end justify-items-center gap-2" key={event.hour}>
             <span
-              className={event.accuracy >= 93 ? "high" : event.accuracy >= 88 ? "mid" : "low"}
-              style={{ height: `${event.reviews * 1.1}px` }}
+              className={cn(
+                "w-full max-w-10 rounded",
+                event.reviews >= 50 && "h-16",
+                event.reviews >= 35 && event.reviews < 50 && "h-12",
+                event.reviews >= 25 && event.reviews < 35 && "h-10",
+                event.reviews < 25 && "h-8",
+                event.accuracy >= 93 && "bg-emerald-500",
+                event.accuracy >= 88 && event.accuracy < 93 && "bg-cyan-500",
+                event.accuracy < 88 && "bg-amber-500",
+              )}
             />
-            <small>{event.hour}</small>
+            <small className="text-xs text-zinc-500 dark:text-zinc-400">{event.hour}</small>
           </div>
         ))}
       </div>
@@ -1135,41 +1287,53 @@ function ReviewDensityPanel() {
 
 function PressureRow({ deck }: { deck: Deck }) {
   return (
-    <div className="pressure-row">
-      <div>
+    <div className="grid gap-2">
+      <div className="flex justify-between gap-3 text-sm">
         <span>{deck.name}</span>
-        <small>{deck.due} due</small>
+        <small className="text-zinc-500 dark:text-zinc-400">{deck.due} due</small>
       </div>
-      <progress max={120} style={{ accentColor: deck.tint }} value={Math.min(deck.due, 120)} />
+      <progress
+        className={cn(
+          deck.id === "japanese-core" && "accent-red-500",
+          deck.id === "medicine" && "accent-emerald-600",
+          deck.id === "art-history" && "accent-amber-500",
+          deck.id === "hsk-3000-characters" && "accent-purple-600",
+          deck.id === "leetcode-patterns" && "accent-cyan-600",
+        )}
+        max={120}
+        value={Math.min(deck.due, 120)}
+      />
     </div>
   );
 }
 
 function SyncLine({ detail, icon, title }: { detail: string; icon: IconName; title: string }) {
   return (
-    <div className="sync-line">
+    <div className="flex items-center gap-3 py-1">
       <Icon name={icon} />
-      <span>
-        <strong>{title}</strong>
-        <small>{detail}</small>
+      <span className="grid min-w-0 flex-1 gap-1">
+        <strong className="overflow-hidden text-ellipsis whitespace-nowrap">{title}</strong>
+        <small className="overflow-hidden text-xs text-ellipsis whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+          {detail}
+        </small>
       </span>
-      <Icon name="check" />
+      <Icon className="text-emerald-600" name="check" />
     </div>
   );
 }
 
 function SettingLine({ title, value }: { title: string; value: string }) {
   return (
-    <div className="setting-line">
-      <span>{title}</span>
-      <strong>{value}</strong>
+    <div className="flex items-baseline justify-between gap-4 text-sm">
+      <span className="text-zinc-500 dark:text-zinc-400">{title}</span>
+      <strong className="text-right font-semibold">{value}</strong>
     </div>
   );
 }
 
 function KeyHint({ keyName, label }: { keyName: string; label: string }) {
   return (
-    <span className="key-hint">
+    <span className="flex items-center gap-2">
       <KeyCap>{keyName}</KeyCap>
       <span>{label}</span>
     </span>
@@ -1177,10 +1341,14 @@ function KeyHint({ keyName, label }: { keyName: string; label: string }) {
 }
 
 function KeyCap({ children }: { children: React.ReactNode }) {
-  return <kbd>{children}</kbd>;
+  return (
+    <kbd className="inline-flex min-h-5 min-w-6 items-center justify-center rounded border border-zinc-300 bg-zinc-200 px-1 font-mono text-xs font-bold text-zinc-950 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50">
+      {children}
+    </kbd>
+  );
 }
 
-function Icon({ name }: { name: IconName }) {
+function Icon({ className = "", name }: { className?: string; name: IconName }) {
   const icons: Record<IconName, string> = {
     archive: "M4 7h16v13H4z M7 4h10l2 3H5z M8 12h8",
     browser: "M4 5h16v15H4z M4 9h16 M9 9v11",
@@ -1204,7 +1372,12 @@ function Icon({ name }: { name: IconName }) {
   };
 
   return (
-    <svg aria-hidden="true" className="icon" fill="none" viewBox="0 0 24 24">
+    <svg
+      aria-hidden="true"
+      className={cn("size-4 shrink-0", className)}
+      fill="none"
+      viewBox="0 0 24 24"
+    >
       <path
         d={icons[name]}
         stroke="currentColor"
@@ -1214,18 +1387,6 @@ function Icon({ name }: { name: IconName }) {
       />
     </svg>
   );
-}
-
-function statusColor(deck: Deck) {
-  if (deck.due >= 80) {
-    return "oklch(70% 0.17 55)";
-  }
-
-  if (deck.retention < 90) {
-    return "oklch(76% 0.13 92)";
-  }
-
-  return deck.tint;
 }
 
 function estimateDeck(deck: Deck) {

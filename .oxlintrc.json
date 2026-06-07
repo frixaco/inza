@@ -7,6 +7,12 @@
   "env": {
     "builtin": true
   },
+  "jsPlugins": ["oxlint-tailwindcss"],
+  "settings": {
+    "tailwindcss": {
+      "entryPoint": "desktop/src/renderer/style.css"
+    }
+  },
   "ignorePatterns": [
     "**/node_modules/**",
     "**/dist/**",
@@ -42,6 +48,22 @@
       ],
       "env": {
         "browser": true
+      }
+    },
+    {
+      "files": ["desktop/src/renderer/**/*.tsx", "web/src/**/*.tsx"],
+      "rules": {
+        "tailwindcss/no-unknown-classes": "error",
+        "tailwindcss/no-duplicate-classes": "error",
+        "tailwindcss/no-conflicting-classes": "error",
+        "tailwindcss/no-deprecated-classes": "error",
+        "tailwindcss/no-unnecessary-whitespace": "error",
+        "tailwindcss/enforce-canonical": "error",
+        "tailwindcss/enforce-shorthand": "error",
+        "tailwindcss/enforce-negative-arbitrary-values": "error",
+        "tailwindcss/no-arbitrary-value": "error",
+        "tailwindcss/no-hardcoded-colors": "error",
+        "tailwindcss/no-unnecessary-arbitrary-value": "error"
       }
     },
     {

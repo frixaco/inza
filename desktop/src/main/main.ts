@@ -15,8 +15,6 @@ async function createMainWindow() {
     minHeight: 660,
     title: "Inza",
     backgroundColor: "#f6f4ef",
-    titleBarStyle: "hiddenInset",
-    trafficLightPosition: { x: 24, y: 24 },
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
