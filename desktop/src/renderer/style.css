@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+:root {
+  --window-radius: 12px;
+}
+
 html,
 body,
 #app {
@@ -17,10 +21,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-#app {
-  padding-top: 32px;
-}
-
 body::before {
   content: "";
   position: fixed;
@@ -29,6 +29,15 @@ body::before {
   left: 0;
   z-index: 1;
   height: 32px;
+  -webkit-app-region: drag;
+}
+
+[data-window-shell] {
+  border-radius: var(--window-radius);
+}
+
+[data-window-sidebar] {
+  border-radius: var(--window-radius);
   -webkit-app-region: drag;
 }
 

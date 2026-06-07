@@ -13,7 +13,8 @@ async function createMainWindow() {
     height: 450,
     minWidth: 360,
     minHeight: 450,
-    titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "hidden",
+    titleBarStyle: "hidden",
+    trafficLightPosition: { x: 18, y: 12 },
     titleBarOverlay: {
       color: "#f6f4ef",
       symbolColor: "#1f1d18",
