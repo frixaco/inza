@@ -2,3 +2,7 @@ node_modules
 .DS_Store
 *.apkg
 kaishi-open-deck/
+dist/
+.expo/
+.build/
+ios/Pods/
