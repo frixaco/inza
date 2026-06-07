@@ -9,38 +9,80 @@ import rolldownConfig from "../rolldown.config.mjs";
 const require = createRequire(import.meta.url);
 const electronBinary = String(require("electron"));
 const expectedElectronExits = new WeakSet();
+const electronShutdownTimeoutMs = 2_000;
 
 /** @type {import("node:child_process").ChildProcess | undefined} */
 let electronProcess;
 /** @type {NodeJS.Timeout | undefined} */
 let restartTimer;
+let electronStartSerial = 0;
 let buildFailed = false;
 let isShuttingDown = false;
 
-function stopElectron() {
-  if (
-    !electronProcess ||
-    electronProcess.exitCode !== null ||
-    electronProcess.signalCode !== null
-  ) {
+/**
+ * @param {import("node:child_process").ChildProcess} child
+ */
+function isChildRunning(child) {
+  return child.exitCode === null && child.signalCode === null;
+}
+
+/**
+ * @param {import("node:child_process").ChildProcess} child
+ * @param {NodeJS.Signals} signal
+ */
+function signalElectronProcessGroup(child, signal) {
+  try {
+    if (child.pid && process.platform !== "win32") {
+      process.kill(-child.pid, signal);
+      return;
+    }
+
+    child.kill(signal);
+  } catch (error) {
+    if (!(error instanceof Error) || !("code" in error) || error.code !== "ESRCH") {
+      throw error;
+    }
+  }
+}
+
+async function stopElectron() {
+  const child = electronProcess;
+
+  if (!child || !isChildRunning(child)) {
     return;
   }
 
-  expectedElectronExits.add(electronProcess);
+  expectedElectronExits.add(child);
 
-  if (electronProcess.pid && process.platform !== "win32") {
-    process.kill(-electronProcess.pid, "SIGTERM");
-    return;
-  }
+  await new Promise((resolve) => {
+    const forceQuitTimer = setTimeout(() => {
+      if (isChildRunning(child)) {
+        signalElectronProcessGroup(child, "SIGKILL");
+      }
+    }, electronShutdownTimeoutMs);
 
-  electronProcess.kill("SIGTERM");
+    forceQuitTimer.unref();
+
+    child.once("exit", () => {
+      clearTimeout(forceQuitTimer);
+      resolve(undefined);
+    });
+
+    signalElectronProcessGroup(child, "SIGTERM");
+  });
 }
 
 /**
  * @param {string} url
  */
-function startElectron(url) {
-  stopElectron();
+async function startElectron(url) {
+  const startSerial = ++electronStartSerial;
+
+  await stopElectron();
+
+  if (isShuttingDown || startSerial !== electronStartSerial) {
+    return;
+  }
 
   const child = spawn(electronBinary, [process.cwd()], {
     detached: process.platform !== "win32",
@@ -48,11 +90,17 @@ function startElectron(url) {
       ...process.env,
       VITE_DEV_SERVER_URL: url,
     },
-    stdio: ["ignore", "inherit", "pipe"],
+    stdio: ["ignore", "pipe", "pipe"],
     windowsHide: false,
   });
 
   electronProcess = child;
+
+  child.stdout?.on("data", (chunk) => {
+    if (!expectedElectronExits.has(child)) {
+      process.stdout.write(chunk);
+    }
+  });
 
   child.stderr?.on("data", (chunk) => {
     if (!expectedElectronExits.has(child)) {
@@ -87,7 +135,7 @@ const devServerUrl = resolvedUrls[0] ?? "http://127.0.0.1:5173/";
 function restartElectron() {
   clearTimeout(restartTimer);
   restartTimer = setTimeout(() => {
-    startElectron(devServerUrl);
+    void startElectron(devServerUrl);
   }, 80);
 }
 
@@ -144,9 +192,8 @@ async function shutdown() {
 
   isShuttingDown = true;
   clearTimeout(restartTimer);
-  stopElectron();
-  await Promise.allSettled([watcher.close(), server.close()]);
-  process.exit(0);
+  await Promise.allSettled([stopElectron(), watcher.close(), server.close()]);
+  process.exitCode = 0;
 }
 
 process.on("SIGINT", () => {
