@@ -108,14 +108,6 @@ function IconSun({ className }: { className?: string }) {
   );
 }
 
-function IconPlay({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M8 5v14l11-7z" />
-    </svg>
-  );
-}
-
 function IconPlayCircle({ className }: { className?: string }) {
   return (
     <svg
@@ -265,22 +257,6 @@ function IconGear({ className }: { className?: string }) {
       <path d="M20 12h2" />
       <path d="m6.34 17.66-1.41 1.41" />
       <path d="m19.07 4.93-1.41 1.41" />
-    </svg>
-  );
-}
-
-function IconSparkle({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m12 3-1.5 5.5L5 10l4.5 3.5L8 19l4-3 4 3-1.5-5.5L19 10l-5.5-1.5z" />
     </svg>
   );
 }
@@ -532,21 +508,15 @@ function Sidebar({ onCollapsedChange }: { onCollapsedChange?: (collapsed: boolea
 /* ────────────────────────────────
    Today View
    ──────────────────────────────── */
-function KeyCap({ children }: { children: React.ReactNode }) {
-  return (
-    <kbd className="inline-flex items-center rounded border border-stone-300 bg-stone-100 px-1.5 py-0.5 text-xs font-semibold text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400">
-      {children}
-    </kbd>
-  );
-}
-
 function TodayView({ isCollapsed }: { isCollapsed: boolean }) {
-  const hPad = isCollapsed ? "pl-12 pr-6" : "px-6";
-
   return (
     <div className="flex h-full flex-col">
       {/* Top toolbar */}
-      <div className={cn("z-10 flex shrink-0 items-center gap-2 pt-0.5", hPad)}>
+      <div
+        className={cn("z-10 flex shrink-0 items-center gap-2 px-2 pt-0.5", {
+          "pl-24": isCollapsed,
+        })}
+      >
         <button className="flex size-6 items-center justify-center rounded-full text-stone-500 transition-colors hover:bg-stone-200/50 hover:text-stone-800 dark:text-stone-400 dark:hover:bg-stone-800/50 dark:hover:text-stone-200">
           <IconRefresh className="size-4.5" />
         </button>
@@ -561,7 +531,11 @@ function TodayView({ isCollapsed }: { isCollapsed: boolean }) {
       </div>
 
       {/* Scrollable content */}
-      <div className={cn("flex flex-1 flex-col overflow-y-auto pb-4", hPad)}>
+      <div
+        className={cn("flex flex-1 flex-col overflow-y-auto px-2 pb-4", {
+          "px-1": isCollapsed,
+        })}
+      >
         {/* Deck table */}
         <div className="mt-3 rounded-lg border border-stone-200/60 bg-stone-100/40 dark:border-white/10 dark:bg-stone-900/60">
           {/* Header */}
@@ -621,7 +595,7 @@ function App() {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex h-full gap-2 rounded-xl bg-stone-100 p-2 text-stone-950 dark:bg-stone-900 dark:text-stone-100">
+    <div className="flex h-full rounded-xl bg-stone-100 p-2 text-stone-950 dark:bg-stone-900 dark:text-stone-100">
       <Sidebar onCollapsedChange={setIsCollapsed} />
       <main className="flex-1 overflow-hidden rounded-xl bg-stone-50 shadow-lg shadow-stone-400/10 dark:bg-stone-900 dark:shadow-stone-950/20">
         <TodayView isCollapsed={isCollapsed} />
