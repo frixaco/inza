@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 function Sidebar() {
   return (
     <aside
-      className="h-full w-48 border border-white/75 bg-stone-50 shadow-xl"
+      className="h-full w-48 border border-white/75 bg-stone-50 shadow-lg shadow-stone-400/10"
       data-window-sidebar
     />
   );
