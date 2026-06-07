@@ -2,6 +2,7 @@
 
 :root {
   --window-radius: 12px;
+  color-scheme: light dark;
 }
 
 html,
@@ -11,6 +12,14 @@ body,
   height: 100%;
   min-height: 100%;
   background: #f6f4ef;
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body,
+  #app {
+    background: #1c1917;
+  }
 }
 
 body {
@@ -39,6 +48,12 @@ body::before {
 [data-window-sidebar] {
   border-radius: var(--window-radius);
   -webkit-app-region: drag;
+}
+
+.resize-handle {
+  cursor: col-resize;
+  -webkit-app-region: no-drag;
+  width: 4px;
 }
 
 * {

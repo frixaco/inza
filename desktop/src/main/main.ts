@@ -1,13 +1,25 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { BrowserWindow, app, session } from "electron";
+import { BrowserWindow, app, nativeTheme, session } from "electron";
 
 const localDevHostnames = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
 const devServerUrl = getLocalDevServerUrl(process.env["VITE_DEV_SERVER_URL"]);
 const devServerOrigin = devServerUrl ? new URL(devServerUrl).origin : undefined;
 
+function applyThemeToWindow(window: BrowserWindow) {
+  const isDark = nativeTheme.shouldUseDarkColors;
+  window.setBackgroundColor(isDark ? "#1c1917" : "#f6f4ef");
+  window.setTitleBarOverlay({
+    color: isDark ? "#1c1917" : "#f6f4ef",
+    symbolColor: isDark ? "#e7e5e4" : "#1f1d18",
+    height: 32,
+  });
+}
+
 async function createMainWindow() {
+  const isDark = nativeTheme.shouldUseDarkColors;
+
   const mainWindow = new BrowserWindow({
     width: 360,
     height: 450,
@@ -16,12 +28,12 @@ async function createMainWindow() {
     titleBarStyle: "hidden",
     trafficLightPosition: { x: 17, y: 11 },
     titleBarOverlay: {
-      color: "#f6f4ef",
-      symbolColor: "#1f1d18",
+      color: isDark ? "#1c1917" : "#f6f4ef",
+      symbolColor: isDark ? "#e7e5e4" : "#1f1d18",
       height: 32,
     },
     title: "Inza",
-    backgroundColor: "#f6f4ef",
+    backgroundColor: isDark ? "#1c1917" : "#f6f4ef",
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -98,6 +110,12 @@ async function startApp() {
   });
 
   await createMainWindow();
+
+  nativeTheme.on("updated", () => {
+    for (const window of BrowserWindow.getAllWindows()) {
+      applyThemeToWindow(window);
+    }
+  });
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
