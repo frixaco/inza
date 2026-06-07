@@ -9,10 +9,16 @@ const devServerOrigin = devServerUrl ? new URL(devServerUrl).origin : undefined;
 
 async function createMainWindow() {
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 712,
-    minWidth: 900,
-    minHeight: 660,
+    width: 360,
+    height: 450,
+    minWidth: 360,
+    minHeight: 450,
+    titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "hidden",
+    titleBarOverlay: {
+      color: "#f6f4ef",
+      symbolColor: "#1f1d18",
+      height: 32,
+    },
     title: "Inza",
     backgroundColor: "#f6f4ef",
     webPreferences: {
