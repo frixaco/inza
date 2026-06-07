@@ -299,6 +299,34 @@ with nearby content without inventing media fields like `word_audio` or
 role, so a block-level media item often needs only `kind`, `src`, and maybe
 `label` or `alt`.
 
+### Visual Demonstrations
+
+Some cards need to show how something is produced over time: drawing a
+character, sketching a diagram, constructing a proof, playing a chord, or
+folding a shape. Model that as ordinary media first.
+
+```yaml
+answer:
+  - role: main
+    text: "\u4f60"
+    language: zh-Hans
+    media:
+      - kind: video
+        src: assets/video/ni-writing-demo.mp4
+        label: Writing demo
+        role: support
+```
+
+This keeps the format generic. The deck stores learner-facing content and
+optional demonstration media. The app decides playback controls, animation
+style, native drawing surfaces, script-aware stroke renderers, and fallbacks.
+
+Do not add renderer-specific libraries, JavaScript, CDN URLs, canvas settings,
+stroke colors, or widget configuration to the deck. If native ordered-step
+rendering becomes a common real need, define one generic media form for ordered
+visual sequences later. Do not add subject-specific fields such as
+`hanzi_writer`, `stroke_order`, or `kanji_svg` to the core note shape.
+
 ## Type 1: `prompt_response`
 
 Use `prompt_response` for ordinary recall and problem-solving cards:
@@ -405,6 +433,40 @@ references:
       src: assets/images/france.svg
       alt: Flag of France
   answer: France
+```
+
+Use separate notes when one source item should create multiple review prompts.
+This is intentionally boring: it avoids introducing a template or card-generator
+layer into the deck format.
+
+```yaml
+- id: artwork-ernst-artist
+  type: prompt_response
+  prompt:
+    - role: main
+      label: Artwork
+      media:
+        - kind: image
+          src: assets/images/europe-after-rain.jpg
+          alt: Europe After the Rain II
+  answer:
+    - role: main
+      label: Artist
+      text: Max Ernst
+
+- id: artwork-ernst-title
+  type: prompt_response
+  prompt:
+    - role: main
+      label: Artwork
+      media:
+        - kind: image
+          src: assets/images/europe-after-rain.jpg
+          alt: Europe After the Rain II
+  answer:
+    - role: main
+      label: Title
+      text: Europe After the Rain II
 ```
 
 ### Example: Code Diagnostic
@@ -606,6 +668,9 @@ Readers may ignore `provenance`.
 
 Importers should produce ordinary native notes. If they need to preserve source
 system details, they should put that data in `provenance`, not in review fields.
+Imported HTML templates, CSS, JavaScript, renderer preferences, and widget
+configuration are not native deck content. Preserve the useful learner-facing
+facts, media, links, and audit metadata instead.
 
 ## Validation Rules
 
@@ -665,7 +730,9 @@ format: open-deck
 
 Compatibility rules:
 
-- Readers may ignore unknown optional fields.
+- Canonical validators should reject unknown schema fields so typos and stale
+  fields are caught early.
+- Readers may ignore unknown keys inside `provenance`.
 - Readers must reject unknown required `type` values.
 - Unknown note types are invalid.
 - Native deck behavior must not depend on `provenance`.

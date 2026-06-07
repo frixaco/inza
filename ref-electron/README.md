@@ -1,4 +1,4 @@
-# Manki Electron Reference
+# Inza Electron Reference
 
 Fresh Electron 42 reference app with a React 19 + Tailwind CSS v4 Vite renderer and `@typescript/native-preview` for typechecking.
 

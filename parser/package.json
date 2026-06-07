@@ -1,12 +1,13 @@
 {
-  "name": "bun-react-template",
+  "name": "inza-apkg-parser",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --hot src/index.ts",
-    "start": "NODE_ENV=production bun src/index.ts",
-    "build": "bun run build.ts"
+    "check": "bun run test && bun run typecheck",
+    "parse": "bun ./index.ts",
+    "test": "bun test",
+    "typecheck": "bun x tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "jszip": "^3.10.1"

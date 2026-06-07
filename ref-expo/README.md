@@ -1,4 +1,4 @@
-# Manki Expo Reference
+# Inza Expo Reference
 
 Fresh Expo SDK 56 reference app for iOS and Android development builds.
 

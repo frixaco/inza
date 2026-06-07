@@ -352,7 +352,7 @@ async function loadMediaManifest(zip: JSZip): Promise<MediaEntry[]> {
 }
 
 async function openDatabase(bytes: Uint8Array): Promise<OpenDatabaseResult> {
-  const tempPath = join("/tmp", `manki-${Date.now()}-${Math.random().toString(36).slice(2)}.sqlite`);
+  const tempPath = join("/tmp", `inza-${Date.now()}-${Math.random().toString(36).slice(2)}.sqlite`);
   await Bun.write(tempPath, normalizeUnsupportedSqliteCollations(bytes));
 
   const db = new Database(tempPath, { readwrite: true, create: false });

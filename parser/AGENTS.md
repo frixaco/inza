@@ -26,7 +26,7 @@ Keep that boundary intact.
 ## Code rules
 
 - Use Bun, not Node-first tooling.
-- Prefer `bun test`, `bunx tsc --noEmit`, `bun ./index.ts ...`.
+- Prefer `bun run check`, `bun test`, `bun run typecheck`, `bun ./index.ts ...`.
 - No new dependencies unless clearly necessary.
 - Keep `parse_anki.ts` import-safe: no CLI side effects.
 - CLI behavior belongs in `index.ts`.
@@ -53,14 +53,13 @@ Identify:
 Default checks after meaningful changes:
 
 ```bash
-bun test
-bunx tsc --noEmit
+bun run check
 ```
 
 For CLI-affecting changes, also smoke test:
 
 ```bash
-bun ./index.ts ./Kaishi.1.5k.v2.3.apkg ./tmp_out
+bun ./index.ts ./Kaishi-1.5k-v2.4.apkg ./tmp_out
 ```
 
 ## Do not

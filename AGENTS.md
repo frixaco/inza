@@ -9,7 +9,7 @@ More specific `AGENTS.md` files override this file. In particular, follow
 
 ## Project Shape
 
-Manki is a deck-format and app-prototype workspace for a modern Anki
+Inza is a deck-format and app-prototype workspace for a modern Anki
 alternative.
 
 Current center of gravity:
@@ -28,6 +28,9 @@ sample decks, generated outputs, or old names still exist.
 - Keep the deck format simple and content-first.
 - Deck files describe learning content and review intent. Apps own rendering,
   layout, styling, accessibility, and platform behavior.
+- Desktop and mobile app work should implement `open-deck-format.md` directly.
+  Treat `ref-*` directories as prototypes, not as canonical loader or renderer
+  architecture.
 - Avoid deck-authored HTML templates, CSS, JavaScript, and renderer-specific
   layout knobs unless the user explicitly reopens that design.
 - Do not add custom markup, exact Anki styling preservation, or import metadata
@@ -42,6 +45,8 @@ sample decks, generated outputs, or old names still exist.
 - Use Bun-first tooling for TypeScript and JavaScript projects.
 - Do not add dependencies unless they clearly remove more complexity than they
   introduce.
+- Keep generated full-deck outputs such as `kaishi-open-deck/` local unless the
+  user explicitly asks to track them.
 
 ## Editing Rules
 

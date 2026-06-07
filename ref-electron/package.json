@@ -1,8 +1,8 @@
 {
-  "name": "manki-ref-electron",
+  "name": "inza-ref-electron",
   "version": "0.1.0",
   "private": true,
-  "description": "Fresh Electron reference app for Manki.",
+  "description": "Fresh Electron reference app for Inza.",
   "type": "module",
   "main": "dist/main/main.mjs",
   "scripts": {

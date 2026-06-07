@@ -1,6 +1,6 @@
-# Manki
+# Inza
 
-Manki is a working area for a modern flashcard app and its deck format.
+Inza is a working area for a modern flashcard app and its deck format.
 
 The main goal is a simple, native-feeling deck design that can represent useful
 learning content without copying Anki's HTML, CSS, and template model. Anki
@@ -14,7 +14,8 @@ project.
   format.
 - `tools/convert-kaishi-to-open-deck.ts` migrates the local Kaishi `.apkg` into
   an Open Deck directory.
-- `kaishi-open-deck/` is a generated Open Deck port of Kaishi 1.5k.
+- `kaishi-open-deck/` is a generated local Open Deck port of Kaishi 1.5k. It is
+  ignored by Git and should be regenerated when needed.
 - `rust-book-cards/` contains source YAML flashcards based on The Rust
   Programming Language book.
 - `parser/` contains Anki `.apkg` parser/import experiments.
@@ -53,6 +54,10 @@ bun tools/convert-kaishi-to-open-deck.ts parser/Kaishi-1.5k-v2.4.apkg kaishi-ope
 bun tools/validate-open-deck.ts kaishi-open-deck
 ```
 
+Imported Anki decks should become ordinary Open Deck notes. Preserve
+learner-facing facts, media, links, and useful provenance; do not preserve Anki
+HTML templates, CSS, JavaScript, or exact styling as core deck fields.
+
 ## Reference Apps
 
 The reference apps are prototypes, not canonical deck data.
@@ -63,8 +68,9 @@ bun install
 bun run dev
 ```
 
-`ref-web` expects an Open Deck directory to be available at
-`ref-web/public/deck` when running locally.
+`ref-web` is a Kaishi stress-test viewer, not a general deck loader. It expects
+an Open Deck directory to be available at `ref-web/public/deck` and currently
+loads the generated Kaishi note filenames directly.
 
 Other reference app commands live in their local README files:
 
@@ -81,8 +87,8 @@ Useful commands:
 
 ```sh
 cd parser
-bun test
-bun run build
+bun run check
+bun run parse ./Kaishi-1.5k-v2.4.apkg ./tmp_out
 ```
 
 ## Repo Notes
