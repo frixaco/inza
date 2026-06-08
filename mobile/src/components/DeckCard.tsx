@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  Platform,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View, Platform } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { colors, radius, spacing, typography } from "../theme";
@@ -27,17 +21,10 @@ export const DeckCard: React.FC<DeckCardProps> = ({ deck, onPress }) => {
   return (
     <Pressable
       onPress={handlePress}
-      style={({ pressed }) => [
-        styles.pressable,
-        pressed && styles.pressed,
-      ]}
+      style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
     >
       <View style={styles.glassWrapper}>
-        <BlurView
-          intensity={60}
-          tint="light"
-          style={StyleSheet.absoluteFill}
-        />
+        <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFill} />
         <View style={styles.content}>
           <View style={styles.left}>
             <View style={styles.textBlock}>
@@ -121,5 +108,4 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontVariant: ["tabular-nums"],
   },
-
 });

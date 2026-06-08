@@ -1,11 +1,5 @@
 import React, { useCallback, useState } from "react";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  Platform,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import { SymbolView } from "expo-symbols";
@@ -33,11 +27,7 @@ const RATING_CONFIG: {
   { key: "easy", label: "Easy", interval: "7 d", bg: "#2563eb" },
 ];
 
-export const StudyScreen: React.FC<StudyScreenProps> = ({
-  deck,
-  cards,
-  onFinish,
-}) => {
+export const StudyScreen: React.FC<StudyScreenProps> = ({ deck, cards, onFinish }) => {
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
 
@@ -53,7 +43,6 @@ export const StudyScreen: React.FC<StudyScreenProps> = ({
       if (Platform.OS === "ios") {
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
-      // eslint-disable-next-line no-console
       console.log("Rated", rating, "for card", currentCard?.id);
 
       if (index + 1 >= cards.length) {
@@ -94,12 +83,7 @@ export const StudyScreen: React.FC<StudyScreenProps> = ({
         </Pressable>
 
         <View style={styles.progressPill}>
-          <View
-            style={[
-              styles.progressPillFill,
-              { width: `${Math.max(progress * 100, 4)}%` },
-            ]}
-          />
+          <View style={[styles.progressPillFill, { width: `${Math.max(progress * 100, 4)}%` }]} />
           <Text style={styles.progressPillText} numberOfLines={1}>
             {deck?.name}
           </Text>
@@ -112,11 +96,7 @@ export const StudyScreen: React.FC<StudyScreenProps> = ({
 
       {/* Card */}
       <View style={styles.cardArea}>
-        <Flashcard
-          card={currentCard}
-          revealed={revealed}
-          onReveal={handleReveal}
-        />
+        <Flashcard card={currentCard} revealed={revealed} onReveal={handleReveal} />
       </View>
 
       {/* Rating tiles — 2×2 grid */}
