@@ -20,16 +20,21 @@
   },
   "dependencies": {
     "expo": "~56.0.9",
+    "expo-blur": "~56.0.3",
     "expo-dev-client": "~56.0.19",
+    "expo-haptics": "~56.0.3",
     "expo-status-bar": "~56.0.4",
+    "expo-symbols": "~56.0.0",
     "expo-system-ui": "~56.0.5",
     "react": "19.2.3",
-    "react-native": "0.85.3"
+    "react-native": "0.85.3",
+    "react-native-safe-area-context": "5.8.0"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
     "@typescript/native-preview": "^7.0.0-dev.20260527.1",
-    "expo-doctor": "^1.19.8"
+    "expo-doctor": "^1.19.8",
+    "typescript": "~6.0.3"
   },
   "packageManager": "bun@1.4.0",
   "expo": {
