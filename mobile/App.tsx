@@ -8,9 +8,7 @@ import { HomeScreen } from "./src/screens/HomeScreen";
 import { StudyScreen } from "./src/screens/StudyScreen";
 import type { Deck, Card } from "./src/data";
 
-type Screen =
-  | { name: "home" }
-  | { name: "study"; deck?: Deck; cards: Card[] };
+type Screen = { name: "home" } | { name: "study"; deck?: Deck; cards: Card[] };
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>({ name: "home" });
@@ -32,17 +30,10 @@ export default function App() {
     <SafeAreaProvider>
       <View style={styles.container}>
         {screen.name === "home" && (
-          <HomeScreen
-            onStudyDeck={handleStudyDeck}
-            onStudyAll={handleStudyAll}
-          />
+          <HomeScreen onStudyDeck={handleStudyDeck} onStudyAll={handleStudyAll} />
         )}
         {screen.name === "study" && (
-          <StudyScreen
-            deck={screen.deck}
-            cards={screen.cards}
-            onFinish={handleFinish}
-          />
+          <StudyScreen deck={screen.deck} cards={screen.cards} onFinish={handleFinish} />
         )}
         <StatusBar style="dark" />
       </View>

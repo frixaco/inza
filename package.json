@@ -26,11 +26,11 @@
     "web": "cd web && bun run dev",
     "web:build": "cd web && bun run build"
   },
+  "dependencies": {},
   "devDependencies": {
     "oxfmt": "^0.52.0",
     "oxlint": "^1.67.0",
     "oxlint-tailwindcss": "^1.2.0"
   },
-  "packageManager": "bun@1.4.0",
-  "dependencies": {}
+  "packageManager": "bun@1.4.0"
 }

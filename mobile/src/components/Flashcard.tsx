@@ -18,25 +18,15 @@ export type FlashcardProps = {
   onReveal: () => void;
 };
 
-export const Flashcard: React.FC<FlashcardProps> = ({
-  card,
-  revealed,
-  onReveal,
-}) => {
+export const Flashcard: React.FC<FlashcardProps> = ({ card, revealed, onReveal }) => {
   const [answerVisible, setAnswerVisible] = React.useState(revealed);
   const fadeAnim = React.useRef(new Animated.Value(revealed ? 1 : 0)).current;
-  const slideAnim = React.useRef(
-    new Animated.Value(revealed ? 0 : 14),
-  ).current;
-  const scaleAnim = React.useRef(
-    new Animated.Value(revealed ? 1 : 0.98),
-  ).current;
+  const slideAnim = React.useRef(new Animated.Value(revealed ? 0 : 14)).current;
+  const scaleAnim = React.useRef(new Animated.Value(revealed ? 1 : 0.98)).current;
 
   React.useEffect(() => {
     if (revealed) {
-      LayoutAnimation.configureNext(
-        LayoutAnimation.create(150, "easeInEaseOut", "opacity")
-      );
+      LayoutAnimation.configureNext(LayoutAnimation.create(150, "easeInEaseOut", "opacity"));
       setAnswerVisible(true);
       Animated.parallel([
         Animated.timing(fadeAnim, {

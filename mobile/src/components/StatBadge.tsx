@@ -9,11 +9,7 @@ export type StatBadgeProps = {
   tint?: string;
 };
 
-export const StatBadge: React.FC<StatBadgeProps> = ({
-  label,
-  value,
-  tint = colors.text,
-}) => {
+export const StatBadge: React.FC<StatBadgeProps> = ({ label, value, tint = colors.text }) => {
   return (
     <View style={styles.wrapper}>
       <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} />

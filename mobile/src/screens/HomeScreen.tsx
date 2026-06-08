@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  Platform,
-  Pressable,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View, Platform, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SymbolView } from "expo-symbols";
 import * as Haptics from "expo-haptics";
@@ -47,12 +40,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             style={styles.iconButton}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <SymbolView
-              name="plus"
-              size={20}
-              weight="semibold"
-              tintColor={colors.textSecondary}
-            />
+            <SymbolView name="plus" size={20} weight="semibold" tintColor={colors.textSecondary} />
           </Pressable>
           <Pressable
             onPress={onSettings}
@@ -77,11 +65,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Stats row */}
         <View style={styles.statsRow}>
           <StatBadge label="Due" value={STATS.due} tint={colors.tintRed} />
-          <StatBadge
-            label="Learning"
-            value={STATS.learning}
-            tint={colors.tintAmber}
-          />
+          <StatBadge label="Learning" value={STATS.learning} tint={colors.tintAmber} />
           <StatBadge label="New" value={STATS.new} tint={colors.tintCyan} />
         </View>
 
@@ -92,15 +76,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
       {/* Footer CTA */}
       <View style={styles.footer}>
-        <Text style={styles.footerSubtitle}>
-          {STATS.queued} cards waiting
-        </Text>
+        <Text style={styles.footerSubtitle}>{STATS.queued} cards waiting</Text>
         <Pressable onPress={handleStudyAll} style={styles.startButton}>
-          <SymbolView
-            name="play.fill"
-            size={16}
-            tintColor={colors.white}
-          />
+          <SymbolView name="play.fill" size={16} tintColor={colors.white} />
           <Text style={styles.startButtonText}>Start</Text>
         </Pressable>
       </View>
