@@ -1,0 +1,301 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch04-slices-001
+    type: prompt_response
+    prompt: |
+      What does a slice let you reference?
+    answer: |
+      A slice lets you reference a contiguous sequence of elements in a collection without owning that sequence.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - definition
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch04-slices-002
+    type: prompt_response
+    prompt: |
+      What do `&s[0..5]`, `&s[..5]`, and `&s[0..]` mean for a `String`?
+    answer: |
+      ```rust
+      let s = String::from("hello world");
+      let hello = &s[0..5];
+      let also_hello = &s[..5];
+      let whole = &s[0..];
+      ```
+      The end index is exclusive; omitting the start means 0, and omitting the end means `s.len()`.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - syntax
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch04-slices-003
+    type: prompt_response
+    prompt: |
+      Why does this fail?
+      
+      ```rust
+      fn first_word(s: &String) -> &str {
+          let bytes = s.as_bytes();
+      
+          for (i, &item) in bytes.iter().enumerate() {
+              if item == b' ' {
+                  return &s[0..i];
+              }
+          }
+      
+          &s[..]
+      }
+      
+      fn main() {
+          let mut s = String::from("hello world");
+          let word = first_word(&s);
+          s.clear();
+          println!("the first word is: {word}");
+      }
+      ```
+    answer: |
+      The slice is an immutable borrow of `s`; `clear` needs a mutable borrow. Mutating could invalidate the slice.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - diagnostic
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: diagnostic
+      compile_status: expected_failure
+  - id: rust-book-ch04-slices-004
+    type: prompt_response
+    prompt: |
+      Why is returning `&str` from `first_word` better than returning an index?
+    answer: |
+      The slice stays tied to the borrowed string, so Rust prevents mutation that would make the result stale. A bare index has no such relationship.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - concept_boundary
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch04-slices-005
+    type: prompt_response
+    prompt: |
+      Does a string-slice range index characters?
+    answer: |
+      No. String slice ranges are byte indexes and must fall on valid UTF-8 character boundaries.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - misconception
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: misconception
+      compile_status: concept_only
+  - id: rust-book-ch04-slices-006
+    type: prompt_response
+    prompt: |
+      Why is returning a bare `usize` index from `first_word` brittle?
+    answer: |
+      The index is not tied to the `String` state it came from. The string can change or be cleared while the old index still exists.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - diagnostic
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch04-slices-007
+    type: prompt_response
+    prompt: |
+      What does `&s[start..end]` store conceptually for a string slice?
+    answer: |
+      It stores a pointer to the start of the slice and a length. The `end` index is one past the last byte included.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - definition
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch04-slices-008
+    type: prompt_response
+    prompt: |
+      Why is `fn first_word(s: &str) -> &str` more flexible than `fn first_word(s: &String) -> &str`?
+    answer: |
+      `&str` accepts both string slices and borrowed `String` values. `&String` unnecessarily restricts callers to `String`.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - comparison
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch04-slices-009
+    type: prompt_response
+    prompt: |
+      What is the type of a string literal like `"Hello, world!"`?
+    answer: |
+      It is `&str`: an immutable string slice pointing to text stored in the program binary.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - definition
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch04-slices-010
+    type: prompt_response
+    prompt: |
+      Besides string slices, what kind of slice can Rust create from an array?
+    answer: |
+      A slice of elements such as `&[i32]`, for example `let slice = &a[1..3];`.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - definition
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch04-slices-011
+    type: prompt_response
+    prompt: |
+      What are the shorthand forms for slicing from the start, to the end, or the whole string?
+    answer: |
+      ```rust
+      fn main() {
+          let s = String::from("hello");
+          let a = &s[0..2];
+          let b = &s[..2];
+          let c = &s[3..s.len()];
+          let d = &s[3..];
+          let e = &s[0..s.len()];
+          let f = &s[..];
+          println!("{a} {b} {c} {d} {e} {f}");
+      }
+      ```
+      Omitting the start means 0; omitting the end means the string length.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - syntax
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch04-slices-012
+    type: prompt_response
+    prompt: |
+      What is the improved `first_word` signature that accepts both `String` values and string literals?
+    answer: |
+      ```rust
+      fn first_word(s: &str) -> &str {
+          for (i, &item) in s.as_bytes().iter().enumerate() {
+              if item == b' ' {
+                  return &s[..i];
+              }
+          }
+          &s[..]
+      }
+      
+      fn main() {
+          let my_string = String::from("hello world");
+          let word1 = first_word(&my_string[..]);
+          let word2 = first_word("hello world");
+          println!("{word1} {word2}");
+      }
+      ```
+      Taking `&str` lets callers pass a string slice directly or pass a slice of a `String`.
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - syntax
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch04-slices-013
+    type: prompt_response
+    prompt: |
+      What is the type of an array slice like `&a[1..3]`?
+    answer: |
+      ```rust
+      fn main() {
+          let a = [1, 2, 3, 4, 5];
+          let slice: &[i32] = &a[1..3];
+          assert_eq!(slice, &[2, 3]);
+      }
+      ```
+    tags:
+      - rust-book
+      - ch04
+      - slices
+      - syntax
+    provenance:
+      source_file: ch04_slices.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "The Slice Type"
+      source: rust-book/src/ch04-03-slices.md
+      card_type: syntax
+      compile_status: compiles

@@ -1,0 +1,41 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch21-web-server-001
+    type: prompt_response
+    prompt: |
+      What concepts does the final web server project combine?
+    answer: |
+      TCP networking, HTTP parsing basics, file I/O, concurrency, channels, graceful shutdown, and cleanup.
+    tags:
+      - rust-book
+      - ch21
+      - web-server
+      - project_architecture
+    provenance:
+      source_file: ch21_web_server.yaml
+      chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+      section: "Final Project: Building a Multithreaded Web Server"
+      source: rust-book/src/ch21-00-final-project-a-web-server.md
+      card_type: project_architecture
+      compile_status: concept_only
+  - id: rust-book-ch21-web-server-002
+    type: prompt_response
+    prompt: |
+      Is the Chapter 21 server a production-ready web server?
+    answer: |
+      No. It is a teaching project with intentionally limited HTTP parsing and server behavior.
+    tags:
+      - rust-book
+      - ch21
+      - web-server
+      - misconception
+    provenance:
+      source_file: ch21_web_server.yaml
+      chapter: "Chapter 21: Final Project: Building a Multithreaded Web Server"
+      section: "Final Project: Building a Multithreaded Web Server"
+      source: rust-book/src/ch21-00-final-project-a-web-server.md
+      card_type: misconception
+      compile_status: concept_only

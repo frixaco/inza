@@ -1,0 +1,41 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch17-async-await-001
+    type: prompt_response
+    prompt: |
+      What does async Rust let a program do?
+    answer: |
+      Express work that can pause while waiting, allowing other work to make progress without blocking a thread unnecessarily.
+    tags:
+      - rust-book
+      - ch17
+      - async-await
+      - definition
+    provenance:
+      source_file: ch17_async_await.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      source: rust-book/src/ch17-00-async-await.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch17-async-await-002
+    type: prompt_response
+    prompt: |
+      What is the broad boundary between concurrency and parallelism?
+    answer: |
+      Concurrency is structuring work so tasks can make progress in overlapping time. Parallelism is executing work at the same instant on multiple cores.
+    tags:
+      - rust-book
+      - ch17
+      - async-await
+      - comparison
+    provenance:
+      source_file: ch17_async_await.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      source: rust-book/src/ch17-00-async-await.md
+      card_type: comparison
+      compile_status: concept_only

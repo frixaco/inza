@@ -1,0 +1,174 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch13-improving-io-project-001
+    type: prompt_response
+    prompt: |
+      How can the minigrep argument parsing avoid indexing into a `Vec<String>`?
+    answer: |
+      Accept an iterator of arguments and call `next()` for each expected value, returning an error when one is missing.
+    tags:
+      - rust-book
+      - ch13
+      - improving-io-project
+      - transformation
+    provenance:
+      source_file: ch13_improving_io_project.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Improving Our I/O Project"
+      source: rust-book/src/ch13-03-improving-our-io-project.md
+      card_type: transformation
+      compile_status: concept_only
+  - id: rust-book-ch13-improving-io-project-002
+    type: prompt_response
+    prompt: |
+      Why change `Config::build` to take an iterator instead of `&[String]`?
+    answer: |
+      It avoids collecting arguments only to index them, and it makes the function work directly with `env::args()`.
+    tags:
+      - rust-book
+      - ch13
+      - improving-io-project
+      - project_architecture
+    provenance:
+      source_file: ch13_improving_io_project.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Improving Our I/O Project"
+      source: rust-book/src/ch13-03-improving-our-io-project.md
+      card_type: project_architecture
+      compile_status: concept_only
+  - id: rust-book-ch13-improving-io-project-003
+    type: prompt_response
+    prompt: |
+      How does the iterator-based `search` implementation replace a manual loop?
+    answer: |
+      ```rust
+      pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+          contents
+              .lines()
+              .filter(|line| line.contains(query))
+              .collect()
+      }
+      ```
+      It filters the line iterator and collects the matching borrowed lines.
+    tags:
+      - rust-book
+      - ch13
+      - improving-io-project
+      - transformation
+    provenance:
+      source_file: ch13_improving_io_project.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Improving Our I/O Project"
+      source: rust-book/src/ch13-03-improving-our-io-project.md
+      card_type: transformation
+      compile_status: compiles
+  - id: rust-book-ch13-improving-io-project-004
+    type: prompt_response
+    prompt: |
+      Why is returning `impl Iterator` not used for `search` in the book version?
+    answer: |
+      The project returns a `Vec<&str>` for an eager collection of matches; later Rust can also expose iterators when API design calls for laziness.
+    tags:
+      - rust-book
+      - ch13
+      - improving-io-project
+      - concept_boundary
+    provenance:
+      source_file: ch13_improving_io_project.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Improving Our I/O Project"
+      source: rust-book/src/ch13-03-improving-our-io-project.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch13-improving-io-project-005
+    type: prompt_response
+    prompt: |
+      What signature does the book use for `Config::build` after switching to an argument iterator?
+    answer: |
+      ```rust
+      struct Config {
+          query: String,
+          file_path: String,
+      }
+      
+      impl Config {
+          pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
+              args.next();
+      
+              let query = args.next().ok_or("Didn't get a query string")?;
+              let file_path = args.next().ok_or("Didn't get a file path")?;
+      
+              Ok(Config { query, file_path })
+          }
+      }
+      ```
+      The iterator is mutable because calling `next` advances it.
+    tags:
+      - rust-book
+      - ch13
+      - improving-io-project
+      - syntax
+    provenance:
+      source_file: ch13_improving_io_project.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Improving Our I/O Project"
+      source: rust-book/src/ch13-03-improving-our-io-project.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch13-improving-io-project-006
+    type: prompt_response
+    prompt: |
+      What does the first `args.next()` skip in the iterator-based `Config::build`?
+    answer: |
+      The first command-line argument is the program name, so the parser skips it before reading the query and file path.
+    tags:
+      - rust-book
+      - ch13
+      - improving-io-project
+      - prediction
+    provenance:
+      source_file: ch13_improving_io_project.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Improving Our I/O Project"
+      source: rust-book/src/ch13-03-improving-our-io-project.md
+      card_type: prediction
+      compile_status: concept_only
+  - id: rust-book-ch13-improving-io-project-007
+    type: prompt_response
+    prompt: |
+      What changes if `search` returns `impl Iterator<Item = &'a str>` instead of `Vec<&'a str>`?
+    answer: |
+      The function becomes lazy and does not collect all matches before returning. Callers consume the returned iterator to get matches.
+    tags:
+      - rust-book
+      - ch13
+      - improving-io-project
+      - comparison
+    provenance:
+      source_file: ch13_improving_io_project.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Improving Our I/O Project"
+      source: rust-book/src/ch13-03-improving-our-io-project.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch13-improving-io-project-008
+    type: prompt_response
+    prompt: |
+      Why does the book say the iterator version of `search` can be clearer than the loop version?
+    answer: |
+      It states the high-level intent directly: get lines, filter to those containing the query, and collect the matches.
+    tags:
+      - rust-book
+      - ch13
+      - improving-io-project
+      - project_architecture
+    provenance:
+      source_file: ch13_improving_io_project.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Improving Our I/O Project"
+      source: rust-book/src/ch13-03-improving-our-io-project.md
+      card_type: project_architecture
+      compile_status: concept_only

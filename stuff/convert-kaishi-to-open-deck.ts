@@ -76,6 +76,7 @@ const textFieldOrder = [
   "Frequency",
 ] as const;
 
+const expectedFieldNames = new Set([...textFieldOrder, "Word Audio", "Sentence Audio", "Picture"]);
 const promptFields = new Set(["Word", "Sentence"]);
 const overlineMark = "\uffe3";
 const dropMark = "\uff3c";
@@ -346,6 +347,21 @@ function pitchAccentToRuns(value: string): InlineRun[] | undefined {
     if (token.startsWith("<")) {
       const tag = token.toLowerCase();
 
+      if (/^<\s*br\b/.test(tag)) {
+        pushRun(runs, "\n", false);
+        continue;
+      }
+
+      if (/^<\s*\/\s*(div|p|li|tr|h[1-6])\s*>/.test(tag)) {
+        pushRun(runs, "\n", false);
+        continue;
+      }
+
+      if (/^<\s*li\b/.test(tag)) {
+        pushRun(runs, "- ", false);
+        continue;
+      }
+
       if (/^<\s*\/\s*span\s*>/.test(tag)) {
         spans.pop();
         continue;
@@ -393,6 +409,10 @@ function pitchAccentToRuns(value: string): InlineRun[] | undefined {
 
 function runsForField(fieldName: string, rawValue: string): InlineRun[] | undefined {
   if (fieldName === "Pitch Accent") {
+    return pitchAccentToRuns(rawValue);
+  }
+
+  if (fieldName === "Pitch Accent Notes" && /<\s*span\b/i.test(rawValue)) {
     return pitchAccentToRuns(rawValue);
   }
 
@@ -616,6 +636,12 @@ function attachMediaToBlocks(
 }
 
 function buildOpenNote(note: Note, index: number, copiedMedia: Map<string, string>): OpenNote {
+  for (const fieldName of Object.keys(note.fields)) {
+    if (!expectedFieldNames.has(fieldName)) {
+      throw new Error(`Unexpected Kaishi field "${fieldName}" on note ${note.id}`);
+    }
+  }
+
   const promptBlocks = blocksForFields(
     note.fields,
     textFieldOrder.filter((fieldName) => promptFields.has(fieldName)),

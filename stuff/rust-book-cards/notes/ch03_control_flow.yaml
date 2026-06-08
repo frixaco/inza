@@ -1,0 +1,302 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch03-control-flow-001
+    type: prompt_response
+    prompt: |
+      Why does this fail?
+      
+      ```rust
+      fn main() {
+          let number = 3;
+          if number {
+              println!("number was three");
+          }
+      }
+      ```
+    answer: |
+      An `if` condition must be a `bool`. Rust does not automatically convert integers to Booleans.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - diagnostic
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: diagnostic
+      compile_status: expected_failure
+  - id: rust-book-ch03-control-flow-002
+    type: prompt_response
+    prompt: |
+      What does this code assign to `number`?
+      
+      ```rust
+      fn main() {
+          let condition = true;
+          let number = if condition { 5 } else { 6 };
+      }
+      ```
+    answer: |
+      `number` gets `5`. `if` is an expression, and both branches produce the same type.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - prediction
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: prediction
+      compile_status: compiles
+  - id: rust-book-ch03-control-flow-003
+    type: prompt_response
+    prompt: |
+      Why do the two branches of an `if` expression used in `let x = if ...` need compatible types?
+    answer: |
+      The `let` binding must have one type. If one branch returns an integer and the other returns a string, Rust cannot assign a single type to the expression.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - diagnostic
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch03-control-flow-004
+    type: prompt_response
+    prompt: |
+      What is the basic `for` loop syntax for iterating over every element of an array?
+    answer: |
+      ```rust
+      let a = [10, 20, 30, 40, 50];
+      
+      for element in a {
+          println!("the value is: {element}");
+      }
+      ```
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - syntax
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch03-control-flow-005
+    type: prompt_response
+    prompt: |
+      How do you return a value from a `loop` expression?
+    answer: |
+      ```rust
+      let mut counter = 0;
+      
+      let result = loop {
+          counter += 1;
+          if counter == 10 {
+              break counter * 2;
+          }
+      };
+      ```
+      `break value;` returns `value` from the loop expression.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - syntax
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch03-control-flow-006
+    type: prompt_response
+    prompt: |
+      What does a loop label let you do?
+    answer: |
+      A loop label such as `'counting_up: loop { ... }` lets `break 'counting_up;` or `continue 'counting_up;` target that loop instead of the innermost loop.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - syntax
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: syntax
+      compile_status: concept_only
+  - id: rust-book-ch03-control-flow-007
+    type: prompt_response
+    prompt: |
+      In an `else if` chain, what happens after Rust finds the first condition that evaluates to `true`?
+    answer: |
+      Rust runs that block and does not check the remaining conditions in the chain.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - prediction
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: prediction
+      compile_status: concept_only
+  - id: rust-book-ch03-control-flow-008
+    type: prompt_response
+    prompt: |
+      What is the difference between `break` and `continue` in a loop?
+    answer: |
+      `break` exits the current loop. `continue` skips the rest of the current iteration and starts the next iteration.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - comparison
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch03-control-flow-009
+    type: prompt_response
+    prompt: |
+      In a loop, what is the difference between `break` and `return`?
+    answer: |
+      `break` exits the current loop. `return` exits the current function.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - comparison
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch03-control-flow-010
+    type: prompt_response
+    prompt: |
+      When should you prefer a `for` loop over indexing through a collection with `while`?
+    answer: |
+      Prefer `for` when visiting each element of a collection. It is more concise and avoids manual index and bounds mistakes.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - concept_boundary
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch03-control-flow-011
+    type: prompt_response
+    prompt: |
+      What range syntax does the book use to count down from 3 to 1?
+    answer: |
+      ```rust
+      for number in (1..4).rev() {
+          println!("{number}!");
+      }
+      ```
+      The range `1..4` excludes 4, and `rev()` reverses the iterator.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - syntax
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch03-control-flow-012
+    type: prompt_response
+    prompt: |
+      What is the basic syntax of a `while` loop?
+    answer: |
+      ```rust
+      let mut number = 3;
+      
+      while number != 0 {
+          println!("{number}!");
+          number -= 1;
+      }
+      ```
+      The loop runs while the condition evaluates to `true`.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - syntax
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch03-control-flow-013
+    type: prompt_response
+    prompt: |
+      Why is manually iterating over an array with `while index < a.len()` more error-prone than `for element in a`?
+    answer: |
+      Manual indexing can use the wrong length or index and cause a runtime panic. A `for` loop over the collection avoids explicit indexing for this case.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - diagnostic
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch03-control-flow-014
+    type: prompt_response
+    prompt: |
+      What happens when `break 'counting_up;` runs inside an inner loop?
+    answer: |
+      It exits the loop labeled `'counting_up`, not just the innermost loop.
+    tags:
+      - rust-book
+      - ch03
+      - control-flow
+      - prediction
+    provenance:
+      source_file: ch03_control_flow.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: "Control Flow"
+      source: rust-book/src/ch03-05-control-flow.md
+      card_type: prediction
+      compile_status: concept_only

@@ -1,0 +1,203 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch01-hello-cargo-001
+    type: prompt_response
+    prompt: |
+      Which Cargo command creates a new binary package named `hello_cargo`?
+    answer: |
+      `cargo new hello_cargo`.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - api_recall
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-cargo-002
+    type: prompt_response
+    prompt: |
+      What does `cargo check` do that makes it faster than `cargo build`?
+    answer: |
+      `cargo check` verifies the code compiles but does not produce an executable, so it is usually faster during development.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - comparison
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: comparison
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-cargo-003
+    type: prompt_response
+    prompt: |
+      What is the difference between `cargo build` and `cargo run`?
+    answer: |
+      `cargo build` compiles the package. `cargo run` compiles if needed and then runs the resulting executable.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - comparison
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: comparison
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-cargo-004
+    type: prompt_response
+    prompt: |
+      When would you use `cargo build --release` instead of `cargo build`?
+    answer: |
+      Use `--release` when you want optimized code for distribution or benchmarking; it takes longer to compile and writes to `target/release`.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - concept_boundary
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: concept_boundary
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-cargo-005
+    type: prompt_response
+    prompt: |
+      Which two roles does Cargo play in the Rust ecosystem?
+    answer: |
+      Cargo is Rust's build system and package manager. It builds your package, downloads dependency crates, and builds those dependencies.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - definition
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch01-hello-cargo-006
+    type: prompt_response
+    prompt: |
+      What does `Cargo.toml` configure in a new Cargo package?
+    answer: |
+      `Cargo.toml` configures package metadata such as the package name, version, edition, and dependency list.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - definition
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: definition
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-cargo-007
+    type: prompt_response
+    prompt: |
+      Where does Cargo expect Rust source files to live in a package?
+    answer: |
+      Cargo expects source files under `src/`. The top-level directory is for files such as `Cargo.toml`, README files, licenses, and other project metadata.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - project_architecture
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: project_architecture
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-cargo-008
+    type: prompt_response
+    prompt: |
+      Which Cargo command converts an existing directory into a Cargo project?
+    answer: |
+      `cargo init`.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - api_recall
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-cargo-009
+    type: prompt_response
+    prompt: |
+      What problem does `Cargo.lock` solve for a Cargo project?
+    answer: |
+      `Cargo.lock` records the exact dependency versions Cargo selected, so future builds reuse the same versions until you update them.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - definition
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: definition
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-cargo-010
+    type: prompt_response
+    prompt: |
+      Where does `cargo build` place the default debug executable?
+    answer: |
+      In `target/debug/`, such as `target/debug/hello_cargo` or `target\debug\hello_cargo.exe` on Windows.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - api_recall
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-cargo-011
+    type: prompt_response
+    prompt: |
+      Which command checks whether Cargo is installed and shows its version?
+    answer: |
+      `cargo --version`.
+    tags:
+      - rust-book
+      - ch01
+      - hello-cargo
+      - api_recall
+    provenance:
+      source_file: ch01_hello_cargo.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, Cargo!"
+      source: rust-book/src/ch01-03-hello-cargo.md
+      card_type: api_recall
+      compile_status: non_rust

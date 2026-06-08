@@ -1,0 +1,405 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch05-defining-structs-001
+    type: prompt_response
+    prompt: |
+      What is the basic syntax for defining and instantiating a struct?
+    answer: |
+      ```rust
+      struct User {
+          active: bool,
+          username: String,
+      }
+      
+      let user = User { active: true, username: String::from("alice") };
+      ```
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - syntax
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch05-defining-structs-002
+    type: prompt_response
+    prompt: |
+      Why must the whole struct instance be mutable to mutate a field?
+    answer: |
+      Rust does not allow marking only individual fields mutable in an instance. Mutability belongs to the binding, not to selected fields.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - concept_boundary
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch05-defining-structs-003
+    type: prompt_response
+    prompt: |
+      What field-name rule does field init shorthand rely on?
+    answer: |
+      ```rust
+      struct User {
+          username: String,
+          active: bool,
+      }
+      
+      let username = String::from("alice");
+      let user = User { username, active: true };
+      ```
+      The field and local variable have the same name, so `username` means `username: username`.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - syntax
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch05-defining-structs-004
+    type: prompt_response
+    prompt: |
+      Why does this fail?
+      
+      ```rust
+      struct User {
+          active: bool,
+          username: String,
+          email: String,
+          sign_in_count: u64,
+      }
+      
+      fn main() {
+          let user1 = User {
+              email: String::from("someone@example.com"),
+              username: String::from("someusername123"),
+              active: true,
+              sign_in_count: 1,
+          };
+      
+          let user2 = User {
+              email: String::from("another@example.com"),
+              ..user1
+          };
+      
+          println!("{}", user1.username);
+      }
+      ```
+    answer: |
+      Struct update syntax moves non-`Copy` fields that are not explicitly replaced; moved fields of `user1` are no longer usable.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - diagnostic
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: diagnostic
+      compile_status: expected_failure
+  - id: rust-book-ch05-defining-structs-005
+    type: prompt_response
+    prompt: |
+      What is the difference between tuple structs and unit-like structs?
+    answer: |
+      Tuple structs name the overall type but have unnamed fields. Unit-like structs have no fields and are useful when behavior matters more than stored data.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - comparison
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch05-defining-structs-006
+    type: prompt_response
+    prompt: |
+      What is the struct update syntax for creating `user2` from `user1` while overriding only `email`?
+    answer: |
+      ```rust
+      struct User {
+          active: bool,
+          username: String,
+          email: String,
+          sign_in_count: u64,
+      }
+      
+      let user1 = User {
+          active: true,
+          username: String::from("someusername123"),
+          email: String::from("someone@example.com"),
+          sign_in_count: 1,
+      };
+      
+      let user2 = User {
+          email: String::from("another@example.com"),
+          ..user1
+      };
+      ```
+      The `..user1` part fills every remaining field from `user1`.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - syntax
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch05-defining-structs-007
+    type: prompt_response
+    prompt: |
+      Where must `..user1` appear in struct update syntax?
+    answer: |
+      `..user1` must come last, after any fields explicitly set in the new struct literal.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - syntax
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: syntax
+      compile_status: concept_only
+  - id: rust-book-ch05-defining-structs-008
+    type: prompt_response
+    prompt: |
+      After struct update syntax moves `user1.username` into `user2`, why can `user1.email` still be used when `email` was explicitly replaced?
+    answer: |
+      Struct update moves only the fields it takes from the source instance. If `email` is explicitly set in `user2`, `user1.email` was not moved by the update.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - concept_boundary
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch05-defining-structs-009
+    type: prompt_response
+    prompt: |
+      What happens to `user1` if struct update syntax copies only `active: bool` and `sign_in_count: u64` from it?
+    answer: |
+      `user1` remains usable, assuming all non-`Copy` fields were explicitly replaced. `bool` and `u64` implement `Copy`, so using those fields in the update does not move them out of `user1`.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - prediction
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: prediction
+      compile_status: concept_only
+  - id: rust-book-ch05-defining-structs-010
+    type: prompt_response
+    prompt: |
+      What is the syntax for defining two tuple structs named `Color` and `Point` with three `i32` fields?
+    answer: |
+      ```rust
+      struct Color(i32, i32, i32);
+      struct Point(i32, i32, i32);
+      ```
+      Tuple structs name the overall type but do not name the individual fields.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - syntax
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch05-defining-structs-011
+    type: prompt_response
+    prompt: |
+      Why can't a function expecting `Color` accept a `Point` even if both are tuple structs with three `i32` fields?
+    answer: |
+      Each tuple struct definition creates a distinct type. Having the same field types does not make `Color` and `Point` interchangeable.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - diagnostic
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch05-defining-structs-012
+    type: prompt_response
+    prompt: |
+      How do you destructure a tuple struct value named `origin: Point` into `x`, `y`, and `z`?
+    answer: |
+      ```rust
+      struct Point(i32, i32, i32);
+      let origin = Point(0, 0, 0);
+      let Point(x, y, z) = origin;
+      ```
+      Unlike a plain tuple pattern, the tuple struct pattern must name the tuple struct type.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - syntax
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch05-defining-structs-013
+    type: prompt_response
+    prompt: |
+      What is the syntax for defining and instantiating a unit-like struct named `AlwaysEqual`?
+    answer: |
+      ```rust
+      struct AlwaysEqual;
+      
+      fn main() {
+          let subject = AlwaysEqual;
+      }
+      ```
+      Unit-like structs have no fields, so they use neither braces nor parentheses.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - syntax
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch05-defining-structs-014
+    type: prompt_response
+    prompt: |
+      Why does this struct definition fail as written?
+      
+      ```rust
+      struct User {
+          active: bool,
+          username: &str,
+          email: &str,
+          sign_in_count: u64,
+      }
+      ```
+    answer: |
+      The reference fields need lifetime parameters so Rust can check that the referenced data lives at least as long as the `User` value. The book uses owned `String` fields first so each `User` owns its data.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - diagnostic
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: diagnostic
+      compile_status: expected_failure
+  - id: rust-book-ch05-defining-structs-015
+    type: prompt_response
+    prompt: |
+      What does field init shorthand look like in a full `build_user` function?
+    answer: |
+      ```rust
+      struct User {
+          active: bool,
+          username: String,
+          email: String,
+          sign_in_count: u64,
+      }
+      
+      fn build_user(email: String, username: String) -> User {
+          User {
+              active: true,
+              username,
+              email,
+              sign_in_count: 1,
+          }
+      }
+      ```
+      `username` and `email` use shorthand because local variables with those names exist.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - syntax
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch05-defining-structs-016
+    type: prompt_response
+    prompt: |
+      How do you access an individual field of a tuple struct by index?
+    answer: |
+      ```rust
+      struct Color(i32, i32, i32);
+      
+      fn main() {
+          let black = Color(0, 0, 0);
+          let red = black.0;
+          println!("{red}");
+      }
+      ```
+      Tuple struct fields use dot plus numeric index, like tuple fields.
+    tags:
+      - rust-book
+      - ch05
+      - defining-structs
+      - syntax
+    provenance:
+      source_file: ch05_defining_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Defining and Instantiating Structs"
+      source: rust-book/src/ch05-01-defining-structs.md
+      card_type: syntax
+      compile_status: compiles

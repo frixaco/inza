@@ -1,0 +1,246 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch09-panic-or-not-001
+    type: prompt_response
+    prompt: |
+      When is calling `panic!` more appropriate than returning `Result`?
+    answer: |
+      When code reaches a bad state that is unexpected, must not be continued from, or means a caller violated a documented contract.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - concept_boundary
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-002
+    type: prompt_response
+    prompt: |
+      When should a function return `Result` instead of panicking?
+    answer: |
+      When failure is expected or recoverable, such as malformed input or a rate limit, and the caller should choose how to handle it.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - concept_boundary
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-003
+    type: prompt_response
+    prompt: |
+      Does using `unwrap` in examples mean it is recommended production error handling?
+    answer: |
+      No. The book uses `unwrap` and `expect` for prototypes, tests, and examples, but production code usually handles or propagates errors.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - misconception
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: misconception
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-004
+    type: prompt_response
+    prompt: |
+      What is a good reason to use `expect` instead of `unwrap` when a failure should be impossible?
+    answer: |
+      The message documents the invariant that makes the success case expected, helping diagnose a panic if the assumption is wrong.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - invariant
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-005
+    type: prompt_response
+    prompt: |
+      Why is returning `Result` a good default for a function that might fail?
+    answer: |
+      It gives the caller options: recover, choose a fallback, or deliberately turn the error into a panic.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - concept_boundary
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-006
+    type: prompt_response
+    prompt: |
+      In the Rust Book's error-handling guidelines, what is a bad state?
+    answer: |
+      A bad state is when an assumption, guarantee, contract, or invariant has been broken, such as invalid or contradictory values reaching code that relies on them being valid.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - definition
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-007
+    type: prompt_response
+    prompt: |
+      Why does a function contract violation often justify `panic!`?
+    answer: |
+      A contract violation is a caller-side bug, and continuing could be insecure or harmful. The caller's programmer needs to fix the call.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - concept_boundary
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-008
+    type: prompt_response
+    prompt: |
+      What problem does a validated `Guess` type solve compared with checking `1..=100` everywhere?
+    answer: |
+      It centralizes validation in `Guess::new`, keeps the field private, and lets function signatures require a value already known to satisfy the range invariant.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - project_architecture
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: project_architecture
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-009
+    type: prompt_response
+    prompt: |
+      Why should the `Guess` struct's `value` field be private in the validation example?
+    answer: |
+      External code must not set `value` directly and bypass `Guess::new`; privacy preserves the invariant that every `Guess` is between 1 and 100.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - invariant
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-010
+    type: prompt_response
+    prompt: |
+      Why are `unwrap` and `expect` often acceptable in tests?
+    answer: |
+      A panic fails the test, which is the desired outcome when setup or an assertion prerequisite unexpectedly fails.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - concept_boundary
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-011
+    type: prompt_response
+    prompt: |
+      Why are `unwrap` and `expect` often tolerated in prototypes and examples?
+    answer: |
+      They keep the code focused while behavior is still being sketched or demonstrated. They should be revisited when deciding real error-handling behavior.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - concept_boundary
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch09-panic-or-not-012
+    type: prompt_response
+    prompt: |
+      When can `unwrap` be justified because the programmer has more information than the compiler?
+    answer: |
+      ```rust
+      use std::net::IpAddr;
+      
+      let home: IpAddr = "127.0.0.1"
+          .parse()
+          .expect("hardcoded IP address should be valid");
+      ```
+      When the code constructs a value that is known to be valid even though the API returns `Result`, such as parsing a hardcoded valid IP address.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - invariant
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: invariant
+      compile_status: compiles
+  - id: rust-book-ch09-panic-or-not-013
+    type: prompt_response
+    prompt: |
+      Why should libraries usually avoid panicking for ordinary errors?
+    answer: |
+      Returning `Result` gives callers control. A library panic forces all callers into the same failure behavior and may be inappropriate for recoverable situations.
+    tags:
+      - rust-book
+      - ch09
+      - panic-or-not
+      - concept_boundary
+    provenance:
+      source_file: ch09_panic_or_not.yaml
+      chapter: "Chapter 9: Error Handling"
+      section: "To panic! or Not to panic!"
+      source: rust-book/src/ch09-03-to-panic-or-not-to-panic.md
+      card_type: concept_boundary
+      compile_status: concept_only

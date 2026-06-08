@@ -1,0 +1,128 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch19-refutability-001
+    type: prompt_response
+    prompt: |
+      What kind of pattern is irrefutable for a type?
+    answer: |
+      A pattern that matches every possible value of the type, such as `x` or `(x, y)` for a two-tuple.
+    tags:
+      - rust-book
+      - ch19
+      - refutability
+      - definition
+    provenance:
+      source_file: ch19_refutability.yaml
+      chapter: "Chapter 19: Patterns and Matching"
+      section: "Refutability: Whether a Pattern Might Fail to Match"
+      source: rust-book/src/ch19-02-refutability.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch19-refutability-002
+    type: prompt_response
+    prompt: |
+      What kind of pattern is refutable for a type?
+    answer: |
+      A pattern that might not match some possible values, such as `Some(x)` for `Option<T>`.
+    tags:
+      - rust-book
+      - ch19
+      - refutability
+      - definition
+    provenance:
+      source_file: ch19_refutability.yaml
+      chapter: "Chapter 19: Patterns and Matching"
+      section: "Refutability: Whether a Pattern Might Fail to Match"
+      source: rust-book/src/ch19-02-refutability.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch19-refutability-003
+    type: prompt_response
+    prompt: |
+      Why does `let Some(x) = some_option_value;` fail for `Option<T>`?
+    answer: |
+      `Some(x)` is refutable because the value might be `None`. Use `if let`, `let...else`, or `match`.
+    tags:
+      - rust-book
+      - ch19
+      - refutability
+      - diagnostic
+    provenance:
+      source_file: ch19_refutability.yaml
+      chapter: "Chapter 19: Patterns and Matching"
+      section: "Refutability: Whether a Pattern Might Fail to Match"
+      source: rust-book/src/ch19-02-refutability.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch19-refutability-004
+    type: prompt_response
+    prompt: |
+      Should `if let x = 5` be used for an irrefutable pattern?
+    answer: |
+      No. It is allowed with a warning because the pattern always matches, so a plain `let` is clearer.
+    tags:
+      - rust-book
+      - ch19
+      - refutability
+      - misconception
+    provenance:
+      source_file: ch19_refutability.yaml
+      chapter: "Chapter 19: Patterns and Matching"
+      section: "Refutability: Whether a Pattern Might Fail to Match"
+      source: rust-book/src/ch19-02-refutability.md
+      card_type: misconception
+      compile_status: concept_only
+  - id: rust-book-ch19-refutability-005
+    type: prompt_response
+    prompt: |
+      Why does a plain `let Some(x) = value;` fail for an `Option<i32>`?
+    answer: |
+      ```rust
+      fn main() {
+          let value = Some(5);
+          let Some(x) = value;
+      }
+      ```
+      `Some(x)` is refutable because the value could be `None`; plain `let` requires an irrefutable pattern.
+    tags:
+      - rust-book
+      - ch19
+      - refutability
+      - diagnostic
+    provenance:
+      source_file: ch19_refutability.yaml
+      chapter: "Chapter 19: Patterns and Matching"
+      section: "Refutability: Whether a Pattern Might Fail to Match"
+      source: rust-book/src/ch19-02-refutability.md
+      card_type: diagnostic
+      compile_status: expected_failure
+  - id: rust-book-ch19-refutability-006
+    type: prompt_response
+    prompt: |
+      How can `let...else` handle a refutable `Some(x)` pattern?
+    answer: |
+      ```rust
+      fn main() {
+          let value = Some(5);
+          let Some(x) = value else {
+              return;
+          };
+          println!("{x}");
+      }
+      ```
+      The `else` block handles the nonmatching case by diverging.
+    tags:
+      - rust-book
+      - ch19
+      - refutability
+      - transformation
+    provenance:
+      source_file: ch19_refutability.yaml
+      chapter: "Chapter 19: Patterns and Matching"
+      section: "Refutability: Whether a Pattern Might Fail to Match"
+      source: rust-book/src/ch19-02-refutability.md
+      card_type: transformation
+      compile_status: compiles

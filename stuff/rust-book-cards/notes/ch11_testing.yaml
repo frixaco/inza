@@ -1,0 +1,41 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch11-testing-001
+    type: prompt_response
+    prompt: |
+      What behavior are Rust tests meant to verify?
+    answer: |
+      That non-test code behaves as expected, usually by arranging data, running code, and asserting results.
+    tags:
+      - rust-book
+      - ch11
+      - testing
+      - definition
+    provenance:
+      source_file: ch11_testing.yaml
+      chapter: "Chapter 11: Writing Automated Tests"
+      section: "Writing Automated Tests"
+      source: rust-book/src/ch11-00-testing.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch11-testing-002
+    type: prompt_response
+    prompt: |
+      Which Cargo command runs a package's tests?
+    answer: |
+      `cargo test`.
+    tags:
+      - rust-book
+      - ch11
+      - testing
+      - api_recall
+    provenance:
+      source_file: ch11_testing.yaml
+      chapter: "Chapter 11: Writing Automated Tests"
+      section: "Writing Automated Tests"
+      source: rust-book/src/ch11-00-testing.md
+      card_type: api_recall
+      compile_status: non_rust
