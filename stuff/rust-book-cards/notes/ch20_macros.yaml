@@ -1,0 +1,204 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch20-macros-001
+    type: prompt_response
+    prompt: |
+      What capability does a Rust macro provide?
+    answer: |
+      A way to write code that writes other code, reducing repetition or enabling syntax that functions cannot express.
+    tags:
+      - rust-book
+      - ch20
+      - macros
+      - definition
+    provenance:
+      source_file: ch20_macros.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: Macros
+      source: rust-book/src/ch20-05-macros.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch20-macros-002
+    type: prompt_response
+    prompt: |
+      What is a key difference between macros and functions?
+    answer: |
+      Macros are expanded before compilation and can take variable numbers or shapes of arguments. Functions have fixed signatures and are called at runtime.
+    tags:
+      - rust-book
+      - ch20
+      - macros
+      - comparison
+    provenance:
+      source_file: ch20_macros.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: Macros
+      source: rust-book/src/ch20-05-macros.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch20-macros-003
+    type: prompt_response
+    prompt: |
+      What is the difference between declarative and procedural macros?
+    answer: |
+      Declarative macros match input against patterns and expand templates. Procedural macros take token streams as input and produce token streams as output.
+    tags:
+      - rust-book
+      - ch20
+      - macros
+      - comparison
+    provenance:
+      source_file: ch20_macros.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: Macros
+      source: rust-book/src/ch20-05-macros.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch20-macros-004
+    type: prompt_response
+    prompt: |
+      What macro form defines a declarative macro?
+    answer: |
+      ```rust
+      macro_rules! say_hello {
+          () => {
+              println!("hello");
+          };
+      }
+      
+      fn main() {
+          say_hello!();
+      }
+      ```
+      Declarative macros are defined with `macro_rules! name { ... }`.
+    tags:
+      - rust-book
+      - ch20
+      - macros
+      - syntax
+    provenance:
+      source_file: ch20_macros.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: Macros
+      source: rust-book/src/ch20-05-macros.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch20-macros-005
+    type: prompt_response
+    prompt: |
+      What are the three kinds of procedural macros discussed in the book?
+    answer: |
+      Custom derive macros, attribute-like macros, and function-like macros.
+    tags:
+      - rust-book
+      - ch20
+      - macros
+      - definition
+    provenance:
+      source_file: ch20_macros.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: Macros
+      source: rust-book/src/ch20-05-macros.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch20-macros-006
+    type: prompt_response
+    prompt: |
+      Why must procedural macro crates usually have a special crate type?
+    answer: |
+      The compiler loads them as compiler plugins that operate on token streams, so they are built as `proc-macro` crates.
+    tags:
+      - rust-book
+      - ch20
+      - macros
+      - invariant
+    provenance:
+      source_file: ch20_macros.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: Macros
+      source: rust-book/src/ch20-05-macros.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch20-macros-007
+    type: prompt_response
+    prompt: |
+      What does a simplified `vec!`-style declarative macro look like?
+    answer: |
+      ```rust
+      macro_rules! my_vec {
+          ( $( $x:expr ),* ) => {
+              {
+                  let mut temp_vec = Vec::new();
+                  $(
+                      temp_vec.push($x);
+                  )*
+                  temp_vec
+              }
+          };
+      }
+      
+      fn main() {
+          let v = my_vec![1, 2, 3];
+          assert_eq!(v, vec![1, 2, 3]);
+      }
+      ```
+      `$( ... ),*` matches zero or more comma-separated expressions and repeats the expansion.
+    tags:
+      - rust-book
+      - ch20
+      - macros
+      - syntax
+    provenance:
+      source_file: ch20_macros.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: Macros
+      source: rust-book/src/ch20-05-macros.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch20-macros-008
+    type: prompt_response
+    prompt: |
+      What is the signature shape of a custom derive procedural macro function?
+    answer: |
+      ```rust
+      use proc_macro::TokenStream;
+      
+      #[proc_macro_derive(HelloMacro)]
+      pub fn hello_macro_derive(input: TokenStream) -> TokenStream {
+          input
+      }
+      ```
+      This is excerpted because procedural macro definitions must live in a `proc-macro` crate.
+    tags:
+      - rust-book
+      - ch20
+      - macros
+      - syntax
+    provenance:
+      source_file: ch20_macros.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: Macros
+      source: rust-book/src/ch20-05-macros.md
+      card_type: syntax
+      compile_status: excerpt
+  - id: rust-book-ch20-macros-009
+    type: prompt_response
+    prompt: |
+      How do attribute-like and function-like procedural macro signatures differ?
+    answer: |
+      Attribute-like macros use `#[proc_macro_attribute]` and receive two `TokenStream`s: the attribute arguments and the annotated item. Function-like macros use `#[proc_macro]` and receive one `TokenStream` containing the macro invocation body.
+    tags:
+      - rust-book
+      - ch20
+      - macros
+      - comparison
+    provenance:
+      source_file: ch20_macros.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: Macros
+      source: rust-book/src/ch20-05-macros.md
+      card_type: comparison
+      compile_status: concept_only

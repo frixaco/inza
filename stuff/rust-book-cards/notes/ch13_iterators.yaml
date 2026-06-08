@@ -1,0 +1,297 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch13-iterators-001
+    type: prompt_response
+    prompt: |
+      Which trait behavior makes a value an iterator in Rust?
+    answer: |
+      Implementing the `Iterator` trait and its `next` method makes a value produce a sequence of items.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - definition
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-002
+    type: prompt_response
+    prompt: |
+      What does `Iterator::next` return at the end of iteration?
+    answer: |
+      `Option<Self::Item>`: `Some(item)` until the iterator is exhausted, then `None`.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - api_recall
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: api_recall
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-003
+    type: prompt_response
+    prompt: |
+      What is the difference between `iter`, `iter_mut`, and `into_iter` on a collection?
+    answer: |
+      `iter` yields shared references, `iter_mut` yields mutable references, and `into_iter` usually consumes the collection to yield owned values.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - comparison
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-004
+    type: prompt_response
+    prompt: |
+      Which kind of iterator adapter drives an iterator to completion?
+    answer: |
+      Consuming adapters, such as `sum`, take ownership of the iterator and drive it to completion.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - definition
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-005
+    type: prompt_response
+    prompt: |
+      Which kind of iterator method returns a new lazy iterator?
+    answer: |
+      Iterator adapters such as `map` or `filter` return a new iterator; they are lazy until consumed.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - definition
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-006
+    type: prompt_response
+    prompt: |
+      Why does `v1.iter().map(|x| x + 1);` by itself do nothing observable?
+    answer: |
+      Iterator adapters are lazy. Without a consuming adapter or loop, the returned iterator is never driven.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - diagnostic
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-007
+    type: prompt_response
+    prompt: |
+      What associated type does the `Iterator` trait require?
+    answer: |
+      `type Item`, the type of values produced by the iterator and returned inside `Option<Self::Item>` from `next`.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - definition
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-008
+    type: prompt_response
+    prompt: |
+      Why does calling `next` directly require a mutable iterator binding?
+    answer: |
+      `next` advances internal iterator state, so it takes `&mut self` and consumes one item at a time.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - diagnostic
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-009
+    type: prompt_response
+    prompt: |
+      Which iterator method consumes an iterator and gathers its items into a collection?
+    answer: |
+      ```rust
+      let v: Vec<_> = [1, 2, 3].iter().map(|x| x + 1).collect();
+      assert_eq!(v, vec![2, 3, 4]);
+      ```
+      `collect`; the target collection type often needs to be inferred from context or annotated.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - api_recall
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: api_recall
+      compile_status: compiles
+  - id: rust-book-ch13-iterators-010
+    type: prompt_response
+    prompt: |
+      What does `filter` expect its closure to return?
+    answer: |
+      ```rust
+      let evens: Vec<_> = [1, 2, 3, 4]
+          .into_iter()
+          .filter(|x| x % 2 == 0)
+          .collect();
+      ```
+      A `bool`; items for which the closure returns `true` remain in the produced iterator.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - api_recall
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: api_recall
+      compile_status: compiles
+  - id: rust-book-ch13-iterators-011
+    type: prompt_response
+    prompt: |
+      What is the essential shape of the `Iterator` trait shown in the book?
+    answer: |
+      ```rust
+      pub trait Iterator {
+          type Item;
+      
+          fn next(&mut self) -> Option<Self::Item>;
+      }
+      ```
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - syntax
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch13-iterators-012
+    type: prompt_response
+    prompt: |
+      What happens to an iterator after calling `sum()` on it?
+    answer: |
+      `sum` takes ownership of the iterator and consumes it by repeatedly calling `next`, so that iterator cannot be used afterward.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - prediction
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: prediction
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-013
+    type: prompt_response
+    prompt: |
+      How does the book turn `v1.iter().map(|x| x + 1)` into a vector?
+    answer: |
+      ```rust
+      fn main() {
+          let v1 = vec![1, 2, 3];
+          let v2: Vec<_> = v1.iter().map(|x| x + 1).collect();
+          assert_eq!(v2, vec![2, 3, 4]);
+      }
+      ```
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - syntax
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch13-iterators-014
+    type: prompt_response
+    prompt: |
+      Why does `collect` often need a type annotation?
+    answer: |
+      `collect` can produce many collection types, so Rust often needs context such as `Vec<_>` to know which collection to build.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - concept_boundary
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch13-iterators-015
+    type: prompt_response
+    prompt: |
+      In the shoe example, what does `filter(|s| s.size == shoe_size)` capture?
+    answer: |
+      The closure captures `shoe_size` from its environment and keeps only shoes whose `size` equals that captured value.
+    tags:
+      - rust-book
+      - ch13
+      - iterators
+      - prediction
+    provenance:
+      source_file: ch13_iterators.yaml
+      chapter: "Chapter 13: Functional Language Features: Iterators and Closures"
+      section: "Processing a Series of Items with Iterators"
+      source: rust-book/src/ch13-02-iterators.md
+      card_type: prediction
+      compile_status: concept_only

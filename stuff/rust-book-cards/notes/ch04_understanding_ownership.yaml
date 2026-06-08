@@ -1,0 +1,41 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch04-understanding-ownership-001
+    type: prompt_response
+    prompt: |
+      What problem is Rust ownership designed to solve?
+    answer: |
+      It lets Rust manage memory safety without a garbage collector by enforcing compile-time rules about who owns data and when it is dropped.
+    tags:
+      - rust-book
+      - ch04
+      - understanding-ownership
+      - definition
+    provenance:
+      source_file: ch04_understanding_ownership.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "Understanding Ownership"
+      source: rust-book/src/ch04-00-understanding-ownership.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch04-understanding-ownership-002
+    type: prompt_response
+    prompt: |
+      What makes ownership different from garbage collection?
+    answer: |
+      Ownership uses compile-time rules and deterministic cleanup when values go out of scope. Garbage collection finds unused memory at runtime.
+    tags:
+      - rust-book
+      - ch04
+      - understanding-ownership
+      - comparison
+    provenance:
+      source_file: ch04_understanding_ownership.yaml
+      chapter: "Chapter 4: Understanding Ownership"
+      section: "Understanding Ownership"
+      source: rust-book/src/ch04-00-understanding-ownership.md
+      card_type: comparison
+      compile_status: concept_only

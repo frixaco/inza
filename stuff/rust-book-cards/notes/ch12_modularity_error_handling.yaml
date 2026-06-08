@@ -1,0 +1,275 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch12-modularity-error-handling-001
+    type: prompt_response
+    prompt: |
+      Why move argument parsing into a `Config` struct?
+    answer: |
+      It names the parsed settings, keeps related values together, and separates configuration from program execution.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - project_architecture
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: project_architecture
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-002
+    type: prompt_response
+    prompt: |
+      Why change `Config::new` from panicking to returning `Result<Config, &str>`?
+    answer: |
+      Returning `Result` lets `main` report a user-facing error and exit cleanly instead of crashing with an internal panic.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - comparison
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-003
+    type: prompt_response
+    prompt: |
+      Why move most logic from `main.rs` into `lib.rs`?
+    answer: |
+      It leaves `main` responsible for CLI concerns and makes the core behavior testable as a library.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - project_architecture
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: project_architecture
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-004
+    type: prompt_response
+    prompt: |
+      Why use `unwrap_or_else` on `Config::build(args)`?
+    answer: |
+      It handles the error lazily with a closure, printing the problem and exiting only when parsing fails.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - concept_boundary
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-005
+    type: prompt_response
+    prompt: |
+      Why should `run` return `Result<(), Box<dyn Error>>`?
+    answer: |
+      The success case has no meaningful value, while the error case can carry any error type implementing `Error` behind a trait object.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - concept_boundary
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-006
+    type: prompt_response
+    prompt: |
+      What responsibilities should remain in `main` after the minigrep refactor?
+    answer: |
+      Parse arguments, set up configuration, call `run`, and handle any error returned by `run`.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - project_architecture
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: project_architecture
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-007
+    type: prompt_response
+    prompt: |
+      Why is `main.rs` plus `lib.rs` a useful split for a binary project?
+    answer: |
+      `main.rs` handles running the program, while `lib.rs` holds task logic that can be tested directly.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - project_architecture
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: project_architecture
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-008
+    type: prompt_response
+    prompt: |
+      Why is cloning the query and file path acceptable in the early `Config` refactor?
+    answer: |
+      It copies a few small strings once and avoids lifetime complexity while the program is being refactored. The book later improves this with iterators.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - misconception
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: misconception
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-009
+    type: prompt_response
+    prompt: |
+      Why rename `Config::new` to `Config::build` when argument parsing can fail?
+    answer: |
+      Many Rust programmers expect `new` not to fail. `build` returning `Result<Config, _>` better communicates that construction can produce an error.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - comparison
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-010
+    type: prompt_response
+    prompt: |
+      Which standard-library function exits the process with a status code in the minigrep error path?
+    answer: |
+      `process::exit(1)`, where a nonzero code conventionally signals an error to the calling process.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - api_recall
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: api_recall
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-011
+    type: prompt_response
+    prompt: |
+      Why does `run` return `Ok(())` on success?
+    answer: |
+      The function's useful work is side effects such as printing matches, so the success case has no value to return; `()` communicates that.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - concept_boundary
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-012
+    type: prompt_response
+    prompt: |
+      What changes when the minigrep logic moves from `main.rs` into `lib.rs`?
+    answer: |
+      The binary crate keeps CLI setup and error reporting, while the library crate owns the searchable logic and can be tested with ordinary unit tests.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - evolution
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: evolution
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-013
+    type: prompt_response
+    prompt: |
+      Why does `main` use `if let Err(e) = run(config)` instead of `unwrap_or_else`?
+    answer: |
+      `run` returns `()` on success, so there is no useful value to unwrap. `if let` handles only the error case directly.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - comparison
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-014
+    type: prompt_response
+    prompt: |
+      Why does `Config` own `String` values after the early refactor instead of borrowing `&str` from `args`?
+    answer: |
+      Returning references into the local `args` vector would violate borrowing rules once `args` is dropped. Cloning gives `Config` owned values with a straightforward lifetime.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - concept_boundary
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch12-modularity-error-handling-015
+    type: prompt_response
+    prompt: |
+      What limitation does the book note about collecting all search results into a `Vec`?
+    answer: |
+      It means results are accumulated before printing. For very large files, printing or streaming matches as they are found could use less memory.
+    tags:
+      - rust-book
+      - ch12
+      - modularity-error-handling
+      - project_architecture
+    provenance:
+      source_file: ch12_modularity_error_handling.yaml
+      chapter: "Chapter 12: An I/O Project: Building a Command Line Program"
+      section: "Refactoring to Improve Modularity and Error Handling"
+      source: rust-book/src/ch12-03-improving-error-handling-and-modularity.md
+      card_type: project_architecture
+      compile_status: concept_only

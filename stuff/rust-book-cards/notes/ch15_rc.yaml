@@ -1,0 +1,211 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch15-rc-001
+    type: prompt_response
+    prompt: |
+      What ownership pattern does `Rc<T>` enable?
+    answer: |
+      Multiple owners of the same heap allocation in single-threaded code by keeping a reference count.
+    tags:
+      - rust-book
+      - ch15
+      - rc
+      - definition
+    provenance:
+      source_file: ch15_rc.yaml
+      chapter: "Chapter 15: Smart Pointers"
+      section: "Rc<T>, the Reference Counted Smart Pointer"
+      source: rust-book/src/ch15-04-rc.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch15-rc-002
+    type: prompt_response
+    prompt: |
+      What ownership count change does `Rc::clone(&value)` make?
+    answer: |
+      ```rust
+      use std::rc::Rc;
+      
+      let value = Rc::new(String::from("shared"));
+      let another_owner = Rc::clone(&value);
+      assert_eq!(Rc::strong_count(&value), 2);
+      ```
+      It increments the reference count and returns another `Rc<T>` pointing to the same allocation; it does not deep-copy `T`.
+    tags:
+      - rust-book
+      - ch15
+      - rc
+      - api_recall
+    provenance:
+      source_file: ch15_rc.yaml
+      chapter: "Chapter 15: Smart Pointers"
+      section: "Rc<T>, the Reference Counted Smart Pointer"
+      source: rust-book/src/ch15-04-rc.md
+      card_type: api_recall
+      compile_status: compiles
+  - id: rust-book-ch15-rc-003
+    type: prompt_response
+    prompt: |
+      What ownership count does `Rc::strong_count(&value)` report?
+    answer: |
+      ```rust
+      use std::rc::Rc;
+      
+      let value = Rc::new(5);
+      assert_eq!(Rc::strong_count(&value), 1);
+      ```
+      The number of strong `Rc<T>` owners keeping the allocation alive.
+    tags:
+      - rust-book
+      - ch15
+      - rc
+      - api_recall
+    provenance:
+      source_file: ch15_rc.yaml
+      chapter: "Chapter 15: Smart Pointers"
+      section: "Rc<T>, the Reference Counted Smart Pointer"
+      source: rust-book/src/ch15-04-rc.md
+      card_type: api_recall
+      compile_status: compiles
+  - id: rust-book-ch15-rc-004
+    type: prompt_response
+    prompt: |
+      Why is `Rc<T>` only for single-threaded scenarios?
+    answer: |
+      Its reference count updates are not thread-safe. Use `Arc<T>` when ownership must be shared across threads.
+    tags:
+      - rust-book
+      - ch15
+      - rc
+      - concept_boundary
+    provenance:
+      source_file: ch15_rc.yaml
+      chapter: "Chapter 15: Smart Pointers"
+      section: "Rc<T>, the Reference Counted Smart Pointer"
+      source: rust-book/src/ch15-04-rc.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch15-rc-005
+    type: prompt_response
+    prompt: |
+      Why can two lists not both share ownership of a tail list through `Box<T>`?
+    answer: |
+      `Box<T>` has single ownership. Moving the boxed tail into one list leaves the original binding unavailable for the second list.
+    tags:
+      - rust-book
+      - ch15
+      - rc
+      - diagnostic
+    provenance:
+      source_file: ch15_rc.yaml
+      chapter: "Chapter 15: Smart Pointers"
+      section: "Rc<T>, the Reference Counted Smart Pointer"
+      source: rust-book/src/ch15-04-rc.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch15-rc-006
+    type: prompt_response
+    prompt: |
+      What happens to an `Rc<T>` strong count when an `Rc<T>` clone goes out of scope?
+    answer: |
+      Its `Drop` implementation decrements the strong count automatically. When the strong count reaches zero, the inner value is cleaned up.
+    tags:
+      - rust-book
+      - ch15
+      - rc
+      - prediction
+    provenance:
+      source_file: ch15_rc.yaml
+      chapter: "Chapter 15: Smart Pointers"
+      section: "Rc<T>, the Reference Counted Smart Pointer"
+      source: rust-book/src/ch15-04-rc.md
+      card_type: prediction
+      compile_status: concept_only
+  - id: rust-book-ch15-rc-007
+    type: prompt_response
+    prompt: |
+      Does `Rc<T>` by itself allow mutation through multiple owners?
+    answer: |
+      No. `Rc<T>` gives shared ownership for reading. Combine `Rc<T>` with `RefCell<T>` when single-threaded shared mutation is needed.
+    tags:
+      - rust-book
+      - ch15
+      - rc
+      - concept_boundary
+    provenance:
+      source_file: ch15_rc.yaml
+      chapter: "Chapter 15: Smart Pointers"
+      section: "Rc<T>, the Reference Counted Smart Pointer"
+      source: rust-book/src/ch15-04-rc.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch15-rc-008
+    type: prompt_response
+    prompt: |
+      What does a cons list that shares a tail with `Rc<T>` look like?
+    answer: |
+      ```rust
+      use std::rc::Rc;
+      
+      enum List {
+          Cons(i32, Rc<List>),
+          Nil,
+      }
+      
+      use List::{Cons, Nil};
+      
+      fn main() {
+          let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
+          let b = Cons(3, Rc::clone(&a));
+          let c = Cons(4, Rc::clone(&a));
+      }
+      ```
+      `Rc::clone(&a)` creates another owner of the same list tail.
+    tags:
+      - rust-book
+      - ch15
+      - rc
+      - syntax
+    provenance:
+      source_file: ch15_rc.yaml
+      chapter: "Chapter 15: Smart Pointers"
+      section: "Rc<T>, the Reference Counted Smart Pointer"
+      source: rust-book/src/ch15-04-rc.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch15-rc-009
+    type: prompt_response
+    prompt: |
+      What happens to `Rc::strong_count(&a)` as clones are created and dropped?
+    answer: |
+      ```rust
+      use std::rc::Rc;
+      
+      fn main() {
+          let a = Rc::new(5);
+          assert_eq!(Rc::strong_count(&a), 1);
+          let b = Rc::clone(&a);
+          assert_eq!(Rc::strong_count(&a), 2);
+          {
+              let c = Rc::clone(&a);
+              assert_eq!(Rc::strong_count(&a), 3);
+          }
+          assert_eq!(Rc::strong_count(&a), 2);
+      }
+      ```
+      Cloning increases the strong count; dropping a clone decreases it.
+    tags:
+      - rust-book
+      - ch15
+      - rc
+      - prediction
+    provenance:
+      source_file: ch15_rc.yaml
+      chapter: "Chapter 15: Smart Pointers"
+      section: "Rc<T>, the Reference Counted Smart Pointer"
+      source: rust-book/src/ch15-04-rc.md
+      card_type: prediction
+      compile_status: compiles

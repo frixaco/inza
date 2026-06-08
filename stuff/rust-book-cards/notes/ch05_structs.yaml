@@ -1,0 +1,41 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch05-structs-001
+    type: prompt_response
+    prompt: |
+      What does a struct let you do that a tuple does not?
+    answer: |
+      A struct groups related values and names each field, making the data's meaning explicit.
+    tags:
+      - rust-book
+      - ch05
+      - structs
+      - definition
+    provenance:
+      source_file: ch05_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Using Structs to Structure Related Data"
+      source: rust-book/src/ch05-00-structs.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch05-structs-002
+    type: prompt_response
+    prompt: |
+      When is a struct preferable to a tuple for related data?
+    answer: |
+      Use a struct when field names clarify meaning or when callers should not rely on positional order.
+    tags:
+      - rust-book
+      - ch05
+      - structs
+      - comparison
+    provenance:
+      source_file: ch05_structs.yaml
+      chapter: "Chapter 5: Using Structs to Structure Related Data"
+      section: "Using Structs to Structure Related Data"
+      source: rust-book/src/ch05-00-structs.md
+      card_type: comparison
+      compile_status: concept_only

@@ -12,6 +12,11 @@ More specific `AGENTS.md` files override this file. In particular, follow
 Inza is a deck-format and app-prototype workspace for a modern Anki
 alternative.
 
+For persistent product context, priorities, and design intent, read
+`CONTEXT.md` before making substantial changes.
+
+For the current realistic work queue, read `TODO.md`.
+
 Current center of gravity:
 
 - `OPEN-DECK_FORMAT.md` is the source of truth for the deck design.

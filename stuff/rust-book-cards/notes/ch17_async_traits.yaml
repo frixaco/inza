@@ -1,0 +1,194 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch17-async-traits-001
+    type: prompt_response
+    prompt: |
+      What is the core method of the `Future` trait?
+    answer: |
+      `poll`, which tries to make progress and returns `Poll::Ready(output)` or `Poll::Pending`.
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - definition
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch17-async-traits-002
+    type: prompt_response
+    prompt: |
+      What does a `Waker` do in the future model?
+    answer: |
+      It lets a future tell the executor it may be ready to be polled again.
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - definition
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch17-async-traits-003
+    type: prompt_response
+    prompt: |
+      What does `Pin` promise about a value?
+    answer: |
+      That the pinned value will not be moved in memory unless it implements `Unpin` or unsafe code upholds the required invariants.
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - invariant
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch17-async-traits-004
+    type: prompt_response
+    prompt: |
+      What is the difference between `Poll::Pending` and blocking a thread?
+    answer: |
+      `Pending` returns control to the executor so other tasks can run. Blocking keeps the thread occupied.
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - comparison
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch17-async-traits-005
+    type: prompt_response
+    prompt: |
+      What is the essential shape of the `Future` trait?
+    answer: |
+      ```rust
+      use std::pin::Pin;
+      use std::task::{Context, Poll};
+      
+      pub trait Future {
+          type Output;
+      
+          fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;
+      }
+      ```
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - syntax
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch17-async-traits-006
+    type: prompt_response
+    prompt: |
+      What result type does `Future::Output` name?
+    answer: |
+      It is the type produced when the future completes and returns `Poll::Ready(value)`.
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - definition
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch17-async-traits-007
+    type: prompt_response
+    prompt: |
+      What is the difference between `Poll::Ready(value)` and `Poll::Pending`?
+    answer: |
+      `Ready(value)` means the future has completed and produced its output. `Pending` means the future is not ready yet and should arrange to wake the executor when progress may be possible.
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - comparison
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch17-async-traits-008
+    type: prompt_response
+    prompt: |
+      After a future returns `Poll::Ready`, should executors keep polling it by default?
+    answer: |
+      No. Futures are generally considered complete after `Ready`; polling again is not assumed to be valid unless that future's documentation says so.
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - invariant
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch17-async-traits-009
+    type: prompt_response
+    prompt: |
+      Why does storing heterogeneous async blocks in a vector often require pinning boxed futures?
+    answer: |
+      Each async block has its own anonymous future type, and some futures must not move after being polled. `Pin<Box<dyn Future<Output = T>>>` gives a common trait-object type while keeping each future pinned in place.
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - diagnostic
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch17-async-traits-010
+    type: prompt_response
+    prompt: |
+      Do you usually have to manually pin a future before writing `.await`?
+    answer: |
+      No. Awaiting a future directly handles the required pinning for that await expression. Manual pinning becomes visible when storing or polling futures yourself.
+    tags:
+      - rust-book
+      - ch17
+      - async-traits
+      - misconception
+    provenance:
+      source_file: ch17_async_traits.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "A Closer Look at the Traits for Async"
+      source: rust-book/src/ch17-05-traits-for-async.md
+      card_type: misconception
+      compile_status: concept_only

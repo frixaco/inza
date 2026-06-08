@@ -1,0 +1,104 @@
+defaults: 
+  deck: kaishi-1-5k
+  answer_mode: reveal
+notes: 
+  - id: kaishi-1501-評価
+    type: prompt_response
+    prompt: 
+      - role: main
+        text: 評価
+        language: ja
+        media: 
+          - kind: audio
+            src: assets/audio/0b188509d19da1fe5e5ca6b8e24e02b9-7e5eb59e916687cb0d6cc3f5ff419fdedb913234.mp3
+            role: main
+            label: Word Audio
+      - role: context
+        label: Sentence
+        runs: 
+          - 最近、彼の
+          - text: 評価
+            marks: 
+              - strong
+          - が上がった。
+        language: ja
+        media: 
+          - kind: audio
+            src: assets/audio/cda4373b9195480d8f83aced69336870-e50b78e4eb50f2b50deb84d8b4655a4bd3f0f696.mp3
+            role: context
+            label: Sentence Audio
+    answer: 
+      - role: main
+        label: Word Meaning
+        text: "evaluation, appraisal, recognition"
+        language: en
+      - role: support
+        label: Word Reading
+        text: ひょうか
+        language: ja
+      - role: support
+        label: Word Furigana
+        runs: 
+          - text: 評
+            above: ひょう
+          - " "
+          - text: 価
+            above: か
+        language: ja
+      - role: context
+        label: Sentence Meaning
+        text: "He's been receiving more recognition lately."
+        language: en
+      - role: support
+        label: Sentence Furigana
+        runs: 
+          - text: 最
+            above: さい
+          - " "
+          - text: 近
+            above: きん
+          - "、 "
+          - text: 彼
+            above: かれ
+          - の
+          - text: 評
+            marks: 
+              - strong
+            above: ひょう
+          - text: " "
+            marks: 
+              - strong
+          - text: 価
+            marks: 
+              - strong
+            above: か
+          - "が "
+          - text: 上
+            above: あ
+          - がった。
+        language: ja
+      - role: support
+        label: Pitch Accent
+        runs: 
+          - text: ヒョ
+            above: ￣
+            below: ＼
+          - ーカ
+        language: ja
+      - role: support
+        label: Frequency
+        text: "2156"
+      - role: support
+        label: Picture
+        media: 
+          - kind: image
+            src: assets/images/review_man_star4.webp
+            role: support
+            label: Picture
+            alt: レビュアーのイラスト（男性4）
+    provenance: 
+      importer: stuff/convert-kaishi-to-open-deck.ts
+      anki_note_id: 1709477898129
+      anki_guid: "Lr`R&.v:e%"
+      anki_note_type: Kaishi 1.5k
+      anki_mod: 1714298668

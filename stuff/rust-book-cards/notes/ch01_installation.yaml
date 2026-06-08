@@ -1,0 +1,149 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch01-installation-001
+    type: prompt_response
+    prompt: |
+      Which command checks whether Rust is installed and shows the compiler version?
+    answer: |
+      `rustc --version`.
+    tags:
+      - rust-book
+      - ch01
+      - installation
+      - api_recall
+    provenance:
+      source_file: ch01_installation.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: Installation
+      source: rust-book/src/ch01-01-installation.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch01-installation-002
+    type: prompt_response
+    prompt: |
+      What does `rustup update` do in the Rust installation workflow?
+    answer: |
+      It updates the installed Rust toolchains managed by `rustup`.
+    tags:
+      - rust-book
+      - ch01
+      - installation
+      - api_recall
+    provenance:
+      source_file: ch01_installation.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: Installation
+      source: rust-book/src/ch01-01-installation.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch01-installation-003
+    type: prompt_response
+    prompt: |
+      Which command removes Rust and `rustup` from a machine?
+    answer: |
+      `rustup self uninstall`.
+    tags:
+      - rust-book
+      - ch01
+      - installation
+      - api_recall
+    provenance:
+      source_file: ch01_installation.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: Installation
+      source: rust-book/src/ch01-01-installation.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch01-installation-004
+    type: prompt_response
+    prompt: |
+      In Rust Book command examples, should you type the leading `$` or `>` prompt character?
+    answer: |
+      No. `$` and `>` mark shell prompts; they show where a command begins. Lines without a prompt usually show command output.
+    tags:
+      - rust-book
+      - ch01
+      - installation
+      - concept_boundary
+    provenance:
+      source_file: ch01_installation.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: Installation
+      source: rust-book/src/ch01-01-installation.md
+      card_type: concept_boundary
+      compile_status: non_rust
+  - id: rust-book-ch01-installation-005
+    type: prompt_response
+    prompt: |
+      Why might a new Rust installation still need a C compiler or platform tools?
+    answer: |
+      Rust needs a linker to combine compiled outputs into an executable. Installing a C compiler or platform tools usually provides a linker, and some Rust packages also depend on C code.
+    tags:
+      - rust-book
+      - ch01
+      - installation
+      - concept_boundary
+    provenance:
+      source_file: ch01_installation.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: Installation
+      source: rust-book/src/ch01-01-installation.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch01-installation-006
+    type: prompt_response
+    prompt: |
+      Which command opens the locally installed Rust documentation?
+    answer: |
+      `rustup doc`.
+    tags:
+      - rust-book
+      - ch01
+      - installation
+      - api_recall
+    provenance:
+      source_file: ch01_installation.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: Installation
+      source: rust-book/src/ch01-01-installation.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch01-installation-007
+    type: prompt_response
+    prompt: |
+      Why do the Rust Book examples still work with newer stable Rust versions even if some output changes?
+    answer: |
+      Rust's stability guarantees preserve compiling code on stable Rust. Error messages and warnings may change, so output text is less stable than the language behavior.
+    tags:
+      - rust-book
+      - ch01
+      - installation
+      - concept_boundary
+    provenance:
+      source_file: ch01_installation.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: Installation
+      source: rust-book/src/ch01-01-installation.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch01-installation-008
+    type: prompt_response
+    prompt: |
+      What does `cargo add rand@0.8.5 trpl@0.2.0` do in the Rust Book's offline setup?
+    answer: |
+      It downloads and caches those dependencies ahead of time so later Cargo commands can use `--offline` instead of trying the network.
+    tags:
+      - rust-book
+      - ch01
+      - installation
+      - api_recall
+    provenance:
+      source_file: ch01_installation.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: Installation
+      source: rust-book/src/ch01-01-installation.md
+      card_type: api_recall
+      compile_status: non_rust

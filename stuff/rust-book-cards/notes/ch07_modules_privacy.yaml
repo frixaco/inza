@@ -1,0 +1,173 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch07-modules-privacy-001
+    type: prompt_response
+    prompt: |
+      What crate structure does a module tree define?
+    answer: |
+      It defines the nested path structure of items in a crate and controls what code is in scope.
+    tags:
+      - rust-book
+      - ch07
+      - modules-privacy
+      - definition
+    provenance:
+      source_file: ch07_modules_privacy.yaml
+      chapter: "Chapter 7: Packages, Crates, and Modules"
+      section: "Control Scope and Privacy with Modules"
+      source: rust-book/src/ch07-02-defining-modules-to-control-scope-and-privacy.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch07-modules-privacy-002
+    type: prompt_response
+    prompt: |
+      What syntax declares a module named `front_of_house` inline?
+    answer: |
+      ```rust
+      mod front_of_house {
+          mod hosting {
+              fn add_to_waitlist() {}
+          }
+      }
+      ```
+    tags:
+      - rust-book
+      - ch07
+      - modules-privacy
+      - syntax
+    provenance:
+      source_file: ch07_modules_privacy.yaml
+      chapter: "Chapter 7: Packages, Crates, and Modules"
+      section: "Control Scope and Privacy with Modules"
+      source: rust-book/src/ch07-02-defining-modules-to-control-scope-and-privacy.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch07-modules-privacy-003
+    type: prompt_response
+    prompt: |
+      What is Rust's default privacy rule for modules and items?
+    answer: |
+      Items are private to their parent modules by default. Use `pub` to expose an item to ancestor modules.
+    tags:
+      - rust-book
+      - ch07
+      - modules-privacy
+      - invariant
+    provenance:
+      source_file: ch07_modules_privacy.yaml
+      chapter: "Chapter 7: Packages, Crates, and Modules"
+      section: "Control Scope and Privacy with Modules"
+      source: rust-book/src/ch07-02-defining-modules-to-control-scope-and-privacy.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch07-modules-privacy-004
+    type: prompt_response
+    prompt: |
+      Does `pub mod hosting` automatically make every function inside `hosting` public?
+    answer: |
+      No. Making the module public exposes the module path, but each item inside still needs `pub` if callers should use it.
+    tags:
+      - rust-book
+      - ch07
+      - modules-privacy
+      - misconception
+    provenance:
+      source_file: ch07_modules_privacy.yaml
+      chapter: "Chapter 7: Packages, Crates, and Modules"
+      section: "Control Scope and Privacy with Modules"
+      source: rust-book/src/ch07-02-defining-modules-to-control-scope-and-privacy.md
+      card_type: misconception
+      compile_status: concept_only
+  - id: rust-book-ch07-modules-privacy-005
+    type: prompt_response
+    prompt: |
+      What does `mod garden;` in a crate root make the compiler do?
+    answer: |
+      It declares a `garden` module and makes the compiler look for its source in `src/garden.rs` or `src/garden/mod.rs`.
+    tags:
+      - rust-book
+      - ch07
+      - modules-privacy
+      - definition
+    provenance:
+      source_file: ch07_modules_privacy.yaml
+      chapter: "Chapter 7: Packages, Crates, and Modules"
+      section: "Control Scope and Privacy with Modules"
+      source: rust-book/src/ch07-02-defining-modules-to-control-scope-and-privacy.md
+      card_type: definition
+      compile_status: non_rust
+  - id: rust-book-ch07-modules-privacy-006
+    type: prompt_response
+    prompt: |
+      Where does Rust look for `mod vegetables;` declared inside `src/garden.rs`?
+    answer: |
+      In `src/garden/vegetables.rs` or `src/garden/vegetables/mod.rs`.
+    tags:
+      - rust-book
+      - ch07
+      - modules-privacy
+      - api_recall
+    provenance:
+      source_file: ch07_modules_privacy.yaml
+      chapter: "Chapter 7: Packages, Crates, and Modules"
+      section: "Control Scope and Privacy with Modules"
+      source: rust-book/src/ch07-02-defining-modules-to-control-scope-and-privacy.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch07-modules-privacy-007
+    type: prompt_response
+    prompt: |
+      What is the root of every crate's module tree called?
+    answer: |
+      The implicit root module is named `crate`.
+    tags:
+      - rust-book
+      - ch07
+      - modules-privacy
+      - definition
+    provenance:
+      source_file: ch07_modules_privacy.yaml
+      chapter: "Chapter 7: Packages, Crates, and Modules"
+      section: "Control Scope and Privacy with Modules"
+      source: rust-book/src/ch07-02-defining-modules-to-control-scope-and-privacy.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch07-modules-privacy-008
+    type: prompt_response
+    prompt: |
+      What is the difference between sibling, parent, and child modules?
+    answer: |
+      A child module is nested inside a parent module. Sibling modules are defined in the same parent module.
+    tags:
+      - rust-book
+      - ch07
+      - modules-privacy
+      - comparison
+    provenance:
+      source_file: ch07_modules_privacy.yaml
+      chapter: "Chapter 7: Packages, Crates, and Modules"
+      section: "Control Scope and Privacy with Modules"
+      source: rust-book/src/ch07-02-defining-modules-to-control-scope-and-privacy.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch07-modules-privacy-009
+    type: prompt_response
+    prompt: |
+      Why use modules instead of leaving all code in one file?
+    answer: |
+      Modules group related definitions, name relationships between code, control scope, and choose which implementation details are public or private.
+    tags:
+      - rust-book
+      - ch07
+      - modules-privacy
+      - project_architecture
+    provenance:
+      source_file: ch07_modules_privacy.yaml
+      chapter: "Chapter 7: Packages, Crates, and Modules"
+      section: "Control Scope and Privacy with Modules"
+      source: rust-book/src/ch07-02-defining-modules-to-control-scope-and-privacy.md
+      card_type: project_architecture
+      compile_status: concept_only

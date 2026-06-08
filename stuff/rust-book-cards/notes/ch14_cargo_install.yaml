@@ -1,0 +1,59 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch14-cargo-install-001
+    type: prompt_response
+    prompt: |
+      What target does `cargo install` install from a Rust package?
+    answer: |
+      Binary crates from Crates.io or another source, placing executables in Cargo's bin directory.
+    tags:
+      - rust-book
+      - ch14
+      - cargo-install
+      - api_recall
+    provenance:
+      source_file: ch14_cargo_install.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Installing Binaries with cargo install"
+      source: rust-book/src/ch14-04-installing-binaries.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch14-cargo-install-002
+    type: prompt_response
+    prompt: |
+      Can `cargo install` install a library crate for use as a dependency?
+    answer: |
+      No. It installs executable binaries; library dependencies are added to `Cargo.toml`.
+    tags:
+      - rust-book
+      - ch14
+      - cargo-install
+      - concept_boundary
+    provenance:
+      source_file: ch14_cargo_install.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Installing Binaries with cargo install"
+      source: rust-book/src/ch14-04-installing-binaries.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch14-cargo-install-003
+    type: prompt_response
+    prompt: |
+      What must be true for an installed command to run from the shell?
+    answer: |
+      Cargo's bin directory, commonly `$HOME/.cargo/bin`, must be on the `PATH`.
+    tags:
+      - rust-book
+      - ch14
+      - cargo-install
+      - invariant
+    provenance:
+      source_file: ch14_cargo_install.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Installing Binaries with cargo install"
+      source: rust-book/src/ch14-04-installing-binaries.md
+      card_type: invariant
+      compile_status: non_rust

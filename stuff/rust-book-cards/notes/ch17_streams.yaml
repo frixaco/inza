@@ -1,0 +1,180 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch17-streams-001
+    type: prompt_response
+    prompt: |
+      What async sequence does a Rust stream represent?
+    answer: |
+      An asynchronous sequence of values, like an iterator whose next item may require waiting.
+    tags:
+      - rust-book
+      - ch17
+      - streams
+      - definition
+    provenance:
+      source_file: ch17_streams.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Streams: Futures in Sequence"
+      source: rust-book/src/ch17-04-streams.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch17-streams-002
+    type: prompt_response
+    prompt: |
+      How is a stream different from an iterator?
+    answer: |
+      An iterator's `next` is synchronous. A stream's next item is produced asynchronously and may be pending.
+    tags:
+      - rust-book
+      - ch17
+      - streams
+      - comparison
+    provenance:
+      source_file: ch17_streams.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Streams: Futures in Sequence"
+      source: rust-book/src/ch17-04-streams.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch17-streams-003
+    type: prompt_response
+    prompt: |
+      What method is commonly used to get the next item from a stream in the book examples?
+    answer: |
+      `next().await`, with the relevant stream extension trait in scope.
+    tags:
+      - rust-book
+      - ch17
+      - streams
+      - api_recall
+    provenance:
+      source_file: ch17_streams.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Streams: Futures in Sequence"
+      source: rust-book/src/ch17-04-streams.md
+      card_type: api_recall
+      compile_status: concept_only
+  - id: rust-book-ch17-streams-004
+    type: prompt_response
+    prompt: |
+      Why can `stream.next().await` fail to compile even when the stream value exists?
+    answer: |
+      The `next` helper is supplied by the `StreamExt` extension trait, so that trait must be in scope.
+    tags:
+      - rust-book
+      - ch17
+      - streams
+      - diagnostic
+    provenance:
+      source_file: ch17_streams.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Streams: Futures in Sequence"
+      source: rust-book/src/ch17-04-streams.md
+      card_type: diagnostic
+      compile_status: concept_only
+  - id: rust-book-ch17-streams-005
+    type: prompt_response
+    prompt: |
+      What is the boundary between `Stream` and `StreamExt`?
+    answer: |
+      `Stream` defines the low-level asynchronous sequence interface. `StreamExt` provides higher-level helper methods such as `next` and other iterator-like utilities.
+    tags:
+      - rust-book
+      - ch17
+      - streams
+      - comparison
+    provenance:
+      source_file: ch17_streams.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Streams: Futures in Sequence"
+      source: rust-book/src/ch17-04-streams.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch17-streams-006
+    type: prompt_response
+    prompt: |
+      Are `Stream` and `StreamExt` part of Rust's standard library in the book?
+    answer: |
+      No. The book uses ecosystem-provided stream traits through `trpl`; they are common async abstractions but not standard-library traits.
+    tags:
+      - rust-book
+      - ch17
+      - streams
+      - concept_boundary
+    provenance:
+      source_file: ch17_streams.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Streams: Futures in Sequence"
+      source: rust-book/src/ch17-04-streams.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch17-streams-007
+    type: prompt_response
+    prompt: |
+      What does `while let Some(value) = stream.next().await` handle during stream iteration?
+    answer: |
+      `next().await` yields `Some(item)` while the stream has values and `None` when the stream is finished, matching the shape of iterator-style loops.
+    tags:
+      - rust-book
+      - ch17
+      - streams
+      - prediction
+    provenance:
+      source_file: ch17_streams.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Streams: Futures in Sequence"
+      source: rust-book/src/ch17-04-streams.md
+      card_type: prediction
+      compile_status: concept_only
+  - id: rust-book-ch17-streams-008
+    type: prompt_response
+    prompt: |
+      What practical problems does the book connect to streams?
+    answer: |
+      Streams are useful for asynchronous sequences such as messages over time, throttled events, timeouts over multiple operations, or limiting repeated network calls.
+    tags:
+      - rust-book
+      - ch17
+      - streams
+      - definition
+    provenance:
+      source_file: ch17_streams.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Streams: Futures in Sequence"
+      source: rust-book/src/ch17-04-streams.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch17-streams-009
+    type: prompt_response
+    prompt: |
+      What is the essential low-level shape of a `Stream` trait?
+    answer: |
+      ```rust
+      use std::pin::Pin;
+      use std::task::{Context, Poll};
+      
+      trait Stream {
+          type Item;
+      
+          fn poll_next(
+              self: Pin<&mut Self>,
+              cx: &mut Context<'_>,
+          ) -> Poll<Option<Self::Item>>;
+      }
+      ```
+      It is like combining `Iterator`'s item sequence with `Future`'s readiness over time.
+    tags:
+      - rust-book
+      - ch17
+      - streams
+      - syntax
+    provenance:
+      source_file: ch17_streams.yaml
+      chapter: "Chapter 17: Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams"
+      section: "Streams: Futures in Sequence"
+      source: rust-book/src/ch17-04-streams.md
+      card_type: syntax
+      compile_status: compiles

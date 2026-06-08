@@ -1,0 +1,448 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch10-traits-001
+    type: prompt_response
+    prompt: |
+      What shared behavior does a Rust trait define?
+    answer: |
+      A trait defines shared behavior by specifying method signatures and optionally default method bodies.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - definition
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-002
+    type: prompt_response
+    prompt: |
+      What syntax implements a trait for a type?
+    answer: |
+      ```rust
+      trait Summary { fn summarize(&self) -> String; }
+      struct NewsArticle;
+      impl Summary for NewsArticle {
+          fn summarize(&self) -> String { String::from("article") }
+      }
+      ```
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - syntax
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch10-traits-003
+    type: prompt_response
+    prompt: |
+      What is the orphan rule for trait implementations?
+    answer: |
+      You can implement a trait for a type only if the trait or the type is local to your crate.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - invariant
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-004
+    type: prompt_response
+    prompt: |
+      What is the difference between `impl Trait` in a parameter and a named generic type parameter?
+    answer: |
+      `impl Trait` is concise for short bounds. A named generic is needed when multiple parameters must have the same concrete type or when bounds get complex.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - comparison
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-005
+    type: prompt_response
+    prompt: |
+      What is the difference between returning `impl Trait` and returning a trait object?
+    answer: |
+      `impl Trait` returns one hidden concrete type chosen by the function. A trait object can represent multiple concrete types through dynamic dispatch.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - comparison
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-006
+    type: prompt_response
+    prompt: |
+      When is a `where` clause clearer than inline trait bounds?
+    answer: |
+      Use a `where` clause to keep signatures readable when generic bounds are long or numerous.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - concept_boundary
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-007
+    type: prompt_response
+    prompt: |
+      What must be in scope for code in another crate to call a trait method?
+    answer: |
+      The trait itself must be brought into scope, along with the type value being used.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - api_recall
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: api_recall
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-008
+    type: prompt_response
+    prompt: |
+      What is a default implementation in a trait?
+    answer: |
+      A method body supplied by the trait itself, which implementors may use as-is or override.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - definition
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-009
+    type: prompt_response
+    prompt: |
+      Can an overriding trait method call the trait's default implementation of that same method?
+    answer: |
+      No. The Rust Book notes that this is not possible.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - misconception
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: misconception
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-010
+    type: prompt_response
+    prompt: |
+      What syntax requires one parameter type to implement both `Summary` and `Display`?
+    answer: |
+      ```rust
+      use std::fmt::Display;
+      
+      trait Summary {}
+      
+      fn notify<T: Summary + Display>(item: &T) {}
+      ```
+      Use `+` in the bound to require both traits.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - syntax
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch10-traits-011
+    type: prompt_response
+    prompt: |
+      Why can a function returning `impl Summary` not return either `NewsArticle` or `SocialPost` depending on a condition?
+    answer: |
+      ```rust
+      trait Summary {}
+      struct NewsArticle;
+      struct SocialPost;
+      impl Summary for NewsArticle {}
+      impl Summary for SocialPost {}
+      
+      fn returns_summarizable(switch: bool) -> impl Summary {
+          if switch { NewsArticle } else { SocialPost }
+      }
+      ```
+      `impl Trait` in return position hides one concrete return type chosen by the function. Returning different concrete types requires another design, such as a trait object.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - diagnostic
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: diagnostic
+      compile_status: expected_failure
+  - id: rust-book-ch10-traits-012
+    type: prompt_response
+    prompt: |
+      Which kind of trait implementation applies to any type satisfying a bound?
+    answer: |
+      ```rust
+      let s = 3.to_string();
+      ```
+      Blanket implementation applies a trait to any type that satisfies certain trait bounds, such as implementing `ToString` for all types that implement `Display`.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - definition
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: definition
+      compile_status: compiles
+  - id: rust-book-ch10-traits-013
+    type: prompt_response
+    prompt: |
+      What syntax declares a required trait method without a default body?
+    answer: |
+      ```rust
+      trait Summary {
+          fn summarize(&self) -> String;
+      }
+      ```
+      The semicolon marks a required method signature with no body.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - syntax
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch10-traits-014
+    type: prompt_response
+    prompt: |
+      Can a default trait method call another required method in the same trait?
+    answer: |
+      Yes.
+      ```rust
+      trait Summary {
+          fn summarize_author(&self) -> String;
+      
+          fn summarize(&self) -> String {
+              format!("(Read more from {}...)", self.summarize_author())
+          }
+      }
+      ```
+      Implementors can provide only `summarize_author` and inherit `summarize`.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - concept_boundary
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: concept_boundary
+      compile_status: compiles
+  - id: rust-book-ch10-traits-015
+    type: prompt_response
+    prompt: |
+      How do these parameter forms differ: `fn notify(a: &impl Summary, b: &impl Summary)` and `fn notify<T: Summary>(a: &T, b: &T)`?
+    answer: |
+      The `impl Summary` form allows `a` and `b` to be different concrete types that both implement `Summary`. The named generic `T` form requires both arguments to have the same concrete type.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - comparison
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-016
+    type: prompt_response
+    prompt: |
+      What is the `impl Trait` syntax for a parameter that must implement both `Summary` and `Display`?
+    answer: |
+      Use `+` inside the `impl Trait` parameter:
+      ```rust
+      use std::fmt::Display;
+      
+      trait Summary {
+          fn summarize(&self) -> String;
+      }
+      
+      fn notify(item: &(impl Summary + Display)) {
+          println!("{}", item.summarize());
+          println!("{item}");
+      }
+      ```
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - syntax
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch10-traits-017
+    type: prompt_response
+    prompt: |
+      What does the same multi-bound trait requirement look like with a `where` clause?
+    answer: |
+      ```rust
+      use std::fmt::{Debug, Display};
+      
+      fn some_function<T, U>(t: &T, u: &U) -> String
+      where
+          T: Display + Clone,
+          U: Clone + Debug,
+      {
+          format!("{t} {u:?}")
+      }
+      ```
+      `where` clauses keep long bounds readable.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - syntax
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch10-traits-018
+    type: prompt_response
+    prompt: |
+      What syntax conditionally implements methods only for generic types with certain trait bounds?
+    answer: |
+      ```rust
+      use std::fmt::Display;
+      
+      struct Pair<T> {
+          x: T,
+          y: T,
+      }
+      
+      impl<T: Display + PartialOrd> Pair<T> {
+          fn cmp_display(&self) {
+              if self.x >= self.y {
+                  println!("The largest member is x = {}", self.x);
+              } else {
+                  println!("The largest member is y = {}", self.y);
+              }
+          }
+      }
+      ```
+      `cmp_display` exists only for `Pair<T>` where `T: Display + PartialOrd`.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - syntax
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch10-traits-019
+    type: prompt_response
+    prompt: |
+      Why does Rust have the orphan rule for trait implementations?
+    answer: |
+      It preserves coherence: no two crates can create conflicting implementations for the same trait and type combination.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - invariant
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch10-traits-020
+    type: prompt_response
+    prompt: |
+      Why do trait bounds make generic code using methods compile?
+    answer: |
+      A bound tells the compiler that every allowed concrete type has the required behavior. Without the bound, Rust cannot assume a generic `T` has methods or operators such as `summarize`, `clone`, or `>`.
+    tags:
+      - rust-book
+      - ch10
+      - traits
+      - diagnostic
+    provenance:
+      source_file: ch10_traits.yaml
+      chapter: "Chapter 10: Generic Types, Traits, and Lifetimes"
+      section: "Defining Shared Behavior with Traits"
+      source: rust-book/src/ch10-02-traits.md
+      card_type: diagnostic
+      compile_status: concept_only

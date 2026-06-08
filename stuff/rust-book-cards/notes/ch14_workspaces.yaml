@@ -1,0 +1,152 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch14-workspaces-001
+    type: prompt_response
+    prompt: |
+      What does a Cargo workspace let related packages share?
+    answer: |
+      A set of related packages that share one `Cargo.lock` and output directory.
+    tags:
+      - rust-book
+      - ch14
+      - workspaces
+      - definition
+    provenance:
+      source_file: ch14_workspaces.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Cargo Workspaces"
+      source: rust-book/src/ch14-03-cargo-workspaces.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch14-workspaces-002
+    type: prompt_response
+    prompt: |
+      What top-level TOML key lists workspace member packages?
+    answer: |
+      ```toml
+      [workspace]
+      members = ["adder", "add_one"]
+      ```
+    tags:
+      - rust-book
+      - ch14
+      - workspaces
+      - syntax
+    provenance:
+      source_file: ch14_workspaces.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Cargo Workspaces"
+      source: rust-book/src/ch14-03-cargo-workspaces.md
+      card_type: syntax
+      compile_status: non_rust
+  - id: rust-book-ch14-workspaces-003
+    type: prompt_response
+    prompt: |
+      Why use a workspace for related crates?
+    answer: |
+      It lets crates be developed together while keeping their package boundaries and dependencies explicit.
+    tags:
+      - rust-book
+      - ch14
+      - workspaces
+      - project_architecture
+    provenance:
+      source_file: ch14_workspaces.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Cargo Workspaces"
+      source: rust-book/src/ch14-03-cargo-workspaces.md
+      card_type: project_architecture
+      compile_status: concept_only
+  - id: rust-book-ch14-workspaces-004
+    type: prompt_response
+    prompt: |
+      How are dependencies managed in workspace member crates?
+    answer: |
+      Each member still declares its own dependencies, but the workspace shares one lockfile and target directory.
+    tags:
+      - rust-book
+      - ch14
+      - workspaces
+      - comparison
+    provenance:
+      source_file: ch14_workspaces.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Cargo Workspaces"
+      source: rust-book/src/ch14-03-cargo-workspaces.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch14-workspaces-005
+    type: prompt_response
+    prompt: |
+      Does Cargo assume crates in the same workspace depend on each other?
+    answer: |
+      No. Workspace members must still declare dependencies on each other in their own `Cargo.toml` files.
+    tags:
+      - rust-book
+      - ch14
+      - workspaces
+      - invariant
+    provenance:
+      source_file: ch14_workspaces.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Cargo Workspaces"
+      source: rust-book/src/ch14-03-cargo-workspaces.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch14-workspaces-006
+    type: prompt_response
+    prompt: |
+      How do you run one package in a workspace?
+    answer: |
+      Use `-p` with the package name, such as `cargo run -p adder`.
+    tags:
+      - rust-book
+      - ch14
+      - workspaces
+      - api_recall
+    provenance:
+      source_file: ch14_workspaces.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Cargo Workspaces"
+      source: rust-book/src/ch14-03-cargo-workspaces.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch14-workspaces-007
+    type: prompt_response
+    prompt: |
+      How do you run tests for one package in a workspace?
+    answer: |
+      Use `cargo test -p package_name`, such as `cargo test -p add_one`.
+    tags:
+      - rust-book
+      - ch14
+      - workspaces
+      - api_recall
+    provenance:
+      source_file: ch14_workspaces.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Cargo Workspaces"
+      source: rust-book/src/ch14-03-cargo-workspaces.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch14-workspaces-008
+    type: prompt_response
+    prompt: |
+      What does one shared workspace `Cargo.lock` imply for external dependency versions?
+    answer: |
+      Workspace members that use the same external dependency use one resolved version when their version requirements are compatible.
+    tags:
+      - rust-book
+      - ch14
+      - workspaces
+      - invariant
+    provenance:
+      source_file: ch14_workspaces.yaml
+      chapter: "Chapter 14: More about Cargo and Crates.io"
+      section: "Cargo Workspaces"
+      source: rust-book/src/ch14-03-cargo-workspaces.md
+      card_type: invariant
+      compile_status: concept_only

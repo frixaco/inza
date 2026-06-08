@@ -1,0 +1,239 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch03-functions-001
+    type: prompt_response
+    prompt: |
+      What syntax declares a function with one `i32` parameter?
+    answer: |
+      ```rust
+      fn another_function(x: i32) {
+          println!("The value of x is: {x}");
+      }
+      ```
+      Function parameter types must be declared.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - syntax
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch03-functions-002
+    type: prompt_response
+    prompt: |
+      What is the difference between a statement and an expression in Rust?
+    answer: |
+      A statement performs an action and does not return a value. An expression evaluates to a value.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - comparison
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch03-functions-003
+    type: prompt_response
+    prompt: |
+      What does this block expression assign to `y`?
+      
+      ```rust
+      fn main() {
+          let y = {
+              let x = 3;
+              x + 1
+          };
+      }
+      ```
+    answer: |
+      `y` is `4`. The block is an expression, and its final expression has no semicolon.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - prediction
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: prediction
+      compile_status: compiles
+  - id: rust-book-ch03-functions-004
+    type: prompt_response
+    prompt: |
+      Why does this fail?
+      
+      ```rust
+      fn five() -> i32 {
+          5;
+      }
+      ```
+    answer: |
+      The semicolon turns `5` into a statement, so the function body evaluates to `()`, not `i32`. Remove the semicolon.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - diagnostic
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: diagnostic
+      compile_status: expected_failure
+  - id: rust-book-ch03-functions-005
+    type: prompt_response
+    prompt: |
+      What naming convention does Rust use for function names?
+    answer: |
+      Rust convention is snake case: lowercase words separated by underscores, such as `another_function`.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - syntax
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: syntax
+      compile_status: concept_only
+  - id: rust-book-ch03-functions-006
+    type: prompt_response
+    prompt: |
+      Does Rust require a function to be defined before it is called in the file?
+    answer: |
+      No. Rust does not care where functions are defined in the file, as long as they are in a scope visible to the caller.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - misconception
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: misconception
+      compile_status: concept_only
+  - id: rust-book-ch03-functions-007
+    type: prompt_response
+    prompt: |
+      What syntax declares a function with two typed parameters?
+    answer: |
+      ```rust
+      fn print_labeled_measurement(value: i32, unit_label: char) {
+          println!("The measurement is: {value}{unit_label}");
+      }
+      ```
+      Each parameter must have its own type annotation.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - syntax
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch03-functions-008
+    type: prompt_response
+    prompt: |
+      Why does this fail?
+      
+      ```rust
+      fn main() {
+          let x = (let y = 6);
+      }
+      ```
+    answer: |
+      `let y = 6` is a statement, not an expression, so it does not produce a value for `x` to bind to.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - diagnostic
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: diagnostic
+      compile_status: expected_failure
+  - id: rust-book-ch03-functions-009
+    type: prompt_response
+    prompt: |
+      Which common Rust constructs evaluate to values in the functions chapter?
+    answer: |
+      Function calls, macro calls, literals, and block expressions evaluate to values. A `let` binding is a statement, not an expression.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - definition
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch03-functions-010
+    type: prompt_response
+    prompt: |
+      What syntax declares a function that returns an `i32`?
+    answer: |
+      ```rust
+      fn plus_one(x: i32) -> i32 {
+          x + 1
+      }
+      ```
+      Return types are written after `->`, and the final expression is returned implicitly.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - syntax
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch03-functions-011
+    type: prompt_response
+    prompt: |
+      When does the book use explicit `return` versus an implicit final expression?
+    answer: |
+      `return value;` can return early from a function, but most Rust functions return the final expression implicitly.
+    tags:
+      - rust-book
+      - ch03
+      - functions
+      - concept_boundary
+    provenance:
+      source_file: ch03_functions.yaml
+      chapter: "Chapter 3: Common Programming Concepts"
+      section: Functions
+      source: rust-book/src/ch03-03-how-functions-work.md
+      card_type: concept_boundary
+      compile_status: concept_only

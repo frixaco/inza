@@ -1,0 +1,321 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch08-hash-maps-001
+    type: prompt_response
+    prompt: |
+      Which type stores key-value pairs in the Rust Book's hash map examples?
+    answer: |
+      `std::collections::HashMap<K, V>`.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - api_recall
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: api_recall
+      compile_status: concept_only
+  - id: rust-book-ch08-hash-maps-002
+    type: prompt_response
+    prompt: |
+      What is the basic pattern for inserting into a `HashMap`?
+    answer: |
+      ```rust
+      use std::collections::HashMap;
+      let mut scores = HashMap::new();
+      scores.insert(String::from("Blue"), 10);
+      ```
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - syntax
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch08-hash-maps-003
+    type: prompt_response
+    prompt: |
+      What happens to owned `String` keys and values inserted into a `HashMap`?
+    answer: |
+      ```rust
+      use std::collections::HashMap;
+      
+      fn main() {
+          let field_name = String::from("Favorite color");
+          let field_value = String::from("Blue");
+          let mut map = HashMap::new();
+          map.insert(field_name, field_value);
+          println!("{field_name}");
+      }
+      ```
+      They are moved into the map. The original bindings cannot be used afterward unless the values were cloned.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - prediction
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: prediction
+      compile_status: expected_failure
+  - id: rust-book-ch08-hash-maps-004
+    type: prompt_response
+    prompt: |
+      Which method inserts a value only if a key has no value yet?
+    answer: |
+      `entry(key).or_insert(value)` returns a mutable reference to the value for that key.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - api_recall
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: api_recall
+      compile_status: concept_only
+  - id: rust-book-ch08-hash-maps-005
+    type: prompt_response
+    prompt: |
+      How do you update a word count stored in a `HashMap<String, i32>`?
+    answer: |
+      ```rust
+      use std::collections::HashMap;
+      
+      let text = "hello world wonderful world";
+      let mut map = HashMap::new();
+      
+      for word in text.split_whitespace() {
+          let count = map.entry(word).or_insert(0);
+          *count += 1;
+      }
+      ```
+      `or_insert` gives `&mut i32`, so dereferencing updates the stored value.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - concept_boundary
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: concept_boundary
+      compile_status: compiles
+  - id: rust-book-ch08-hash-maps-006
+    type: prompt_response
+    prompt: |
+      Is `HashMap` included in Rust's prelude?
+    answer: |
+      No. Bring it into scope with `use std::collections::HashMap;`.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - misconception
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: misconception
+      compile_status: concept_only
+  - id: rust-book-ch08-hash-maps-007
+    type: prompt_response
+    prompt: |
+      What does `scores.get(&team_name)` return for a `HashMap<String, i32>`?
+    answer: |
+      It returns `Option<&i32>`: `Some(&score)` if the key exists, or `None` if it does not.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - api_recall
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: api_recall
+      compile_status: concept_only
+  - id: rust-book-ch08-hash-maps-008
+    type: prompt_response
+    prompt: |
+      What happens if you insert a new value for a key that already exists in a `HashMap`?
+    answer: |
+      The new value replaces the old value for that key. A hash map can have only one value for each unique key.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - prediction
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: prediction
+      compile_status: concept_only
+  - id: rust-book-ch08-hash-maps-009
+    type: prompt_response
+    prompt: |
+      What order does iterating over a `HashMap` produce key-value pairs in?
+    answer: |
+      The iteration order is arbitrary and should not be relied on.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - prediction
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: prediction
+      compile_status: concept_only
+  - id: rust-book-ch08-hash-maps-010
+    type: prompt_response
+    prompt: |
+      If a `HashMap` stores references, what lifetime condition must hold?
+    answer: |
+      The referenced values must remain valid for at least as long as the hash map uses those references.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - invariant
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: invariant
+      compile_status: concept_only
+  - id: rust-book-ch08-hash-maps-011
+    type: prompt_response
+    prompt: |
+      What tradeoff does the default `HashMap` hasher make?
+    answer: |
+      The default SipHash-based hasher favors resistance to hash-table denial-of-service attacks over being the fastest possible hasher.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - comparison
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch08-hash-maps-012
+    type: prompt_response
+    prompt: |
+      How can you turn a missing hash map lookup into a default value?
+    answer: |
+      ```rust
+      use std::collections::HashMap;
+      
+      fn main() {
+          let mut scores = HashMap::new();
+          scores.insert(String::from("Blue"), 10);
+      
+          let team_name = String::from("Blue");
+          let score = scores.get(&team_name).copied().unwrap_or(0);
+          println!("{score}");
+      }
+      ```
+      `get` returns `Option<&V>`; `copied` changes this example to `Option<i32>`.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - syntax
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch08-hash-maps-013
+    type: prompt_response
+    prompt: |
+      What syntax iterates over key-value pairs in a `HashMap`?
+    answer: |
+      ```rust
+      use std::collections::HashMap;
+      
+      fn main() {
+          let mut scores = HashMap::new();
+          scores.insert(String::from("Blue"), 10);
+          scores.insert(String::from("Yellow"), 50);
+      
+          for (key, value) in &scores {
+              println!("{key}: {value}");
+          }
+      }
+      ```
+      The iteration order is arbitrary.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - syntax
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch08-hash-maps-014
+    type: prompt_response
+    prompt: |
+      What exact pattern updates a word count through `entry` and `or_insert`?
+    answer: |
+      ```rust
+      use std::collections::HashMap;
+      
+      fn main() {
+          let text = "hello world wonderful world";
+          let mut map = HashMap::new();
+      
+          for word in text.split_whitespace() {
+              let count = map.entry(word).or_insert(0);
+              *count += 1;
+          }
+      }
+      ```
+      `or_insert` returns `&mut V`, so `*count += 1` changes the stored value.
+    tags:
+      - rust-book
+      - ch08
+      - hash-maps
+      - syntax
+    provenance:
+      source_file: ch08_hash_maps.yaml
+      chapter: "Chapter 8: Common Collections"
+      section: "Storing Keys with Associated Values in Hash Maps"
+      source: rust-book/src/ch08-03-hash-maps.md
+      card_type: syntax
+      compile_status: compiles

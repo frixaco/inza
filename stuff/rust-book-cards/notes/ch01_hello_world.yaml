@@ -1,0 +1,136 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch01-hello-world-001
+    type: prompt_response
+    prompt: |
+      What is the minimal Rust `main` function that prints `Hello, world!`?
+    answer: |
+      ```rust
+      fn main() {
+          println!("Hello, world!");
+      }
+      ```
+      `main` is the program entry point, and `println!` is a macro call.
+    tags:
+      - rust-book
+      - ch01
+      - hello-world
+      - syntax
+    provenance:
+      source_file: ch01_hello_world.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, World!"
+      source: rust-book/src/ch01-02-hello-world.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch01-hello-world-002
+    type: prompt_response
+    prompt: |
+      In `println!("Hello, world!");`, what does the `!` mean?
+    answer: |
+      It means `println!` is a macro invocation, not an ordinary function call.
+    tags:
+      - rust-book
+      - ch01
+      - hello-world
+      - syntax
+    provenance:
+      source_file: ch01_hello_world.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, World!"
+      source: rust-book/src/ch01-02-hello-world.md
+      card_type: syntax
+      compile_status: concept_only
+  - id: rust-book-ch01-hello-world-003
+    type: prompt_response
+    prompt: |
+      Which command compiles `main.rs` directly with the Rust compiler?
+    answer: |
+      `rustc main.rs`.
+    tags:
+      - rust-book
+      - ch01
+      - hello-world
+      - api_recall
+    provenance:
+      source_file: ch01_hello_world.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, World!"
+      source: rust-book/src/ch01-02-hello-world.md
+      card_type: api_recall
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-world-004
+    type: prompt_response
+    prompt: |
+      What file extension should Rust source files use, and what naming convention does the book recommend for multiword filenames?
+    answer: |
+      Rust source files use `.rs`. For multiword names, use underscores, such as `hello_world.rs`.
+    tags:
+      - rust-book
+      - ch01
+      - hello-world
+      - syntax
+    provenance:
+      source_file: ch01_hello_world.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, World!"
+      source: rust-book/src/ch01-02-hello-world.md
+      card_type: syntax
+      compile_status: non_rust
+  - id: rust-book-ch01-hello-world-005
+    type: prompt_response
+    prompt: |
+      What makes `fn main()` special in an executable Rust program?
+    answer: |
+      `main` is the entry point: it is the first code that runs in every executable Rust program.
+    tags:
+      - rust-book
+      - ch01
+      - hello-world
+      - definition
+    provenance:
+      source_file: ch01_hello_world.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, World!"
+      source: rust-book/src/ch01-02-hello-world.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch01-hello-world-006
+    type: prompt_response
+    prompt: |
+      What does the semicolon mean in `println!("Hello, world!");`?
+    answer: |
+      The semicolon terminates the expression statement. Most Rust statements end with semicolons.
+    tags:
+      - rust-book
+      - ch01
+      - hello-world
+      - syntax
+    provenance:
+      source_file: ch01_hello_world.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, World!"
+      source: rust-book/src/ch01-02-hello-world.md
+      card_type: syntax
+      compile_status: concept_only
+  - id: rust-book-ch01-hello-world-007
+    type: prompt_response
+    prompt: |
+      What does it mean that Rust is ahead-of-time compiled?
+    answer: |
+      Rust compiles source code into an executable before running it. Someone can run that executable without having Rust installed.
+    tags:
+      - rust-book
+      - ch01
+      - hello-world
+      - comparison
+    provenance:
+      source_file: ch01_hello_world.yaml
+      chapter: "Chapter 1: Getting Started"
+      section: "Hello, World!"
+      source: rust-book/src/ch01-02-hello-world.md
+      card_type: comparison
+      compile_status: concept_only

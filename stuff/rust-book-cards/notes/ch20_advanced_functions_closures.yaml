@@ -1,0 +1,182 @@
+defaults:
+  deck: rust-book
+  language: en
+  answer_mode: reveal
+notes:
+  - id: rust-book-ch20-advanced-functions-closures-001
+    type: prompt_response
+    prompt: |
+      What is the type of a function item coerced to a function pointer?
+    answer: |
+      `fn`, as in `fn(i32) -> i32`.
+    tags:
+      - rust-book
+      - ch20
+      - advanced-functions-closures
+      - definition
+    provenance:
+      source_file: ch20_advanced_functions_closures.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: "Advanced Functions and Closures"
+      source: rust-book/src/ch20-04-advanced-functions-and-closures.md
+      card_type: definition
+      compile_status: concept_only
+  - id: rust-book-ch20-advanced-functions-closures-002
+    type: prompt_response
+    prompt: |
+      How do function pointers differ from closures?
+    answer: |
+      Function pointers can point to functions and implement all three closure traits, but they cannot capture environment values.
+    tags:
+      - rust-book
+      - ch20
+      - advanced-functions-closures
+      - comparison
+    provenance:
+      source_file: ch20_advanced_functions_closures.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: "Advanced Functions and Closures"
+      source: rust-book/src/ch20-04-advanced-functions-and-closures.md
+      card_type: comparison
+      compile_status: concept_only
+  - id: rust-book-ch20-advanced-functions-closures-003
+    type: prompt_response
+    prompt: |
+      When should a parameter use `fn` instead of a generic `Fn` bound?
+    answer: |
+      Use `fn` when you specifically need a function pointer, often for C interop. Use `Fn` bounds to accept closures and functions.
+    tags:
+      - rust-book
+      - ch20
+      - advanced-functions-closures
+      - concept_boundary
+    provenance:
+      source_file: ch20_advanced_functions_closures.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: "Advanced Functions and Closures"
+      source: rust-book/src/ch20-04-advanced-functions-and-closures.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch20-advanced-functions-closures-004
+    type: prompt_response
+    prompt: |
+      Why can enum variant constructors be passed to iterator adapters like functions?
+    answer: |
+      Tuple struct and enum variant constructors are function-like values, so they can be used as mapping functions.
+    tags:
+      - rust-book
+      - ch20
+      - advanced-functions-closures
+      - concept_boundary
+    provenance:
+      source_file: ch20_advanced_functions_closures.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: "Advanced Functions and Closures"
+      source: rust-book/src/ch20-04-advanced-functions-and-closures.md
+      card_type: concept_boundary
+      compile_status: concept_only
+  - id: rust-book-ch20-advanced-functions-closures-005
+    type: prompt_response
+    prompt: |
+      How can a function return a closure?
+    answer: |
+      ```rust
+      fn returns_closure() -> Box<dyn Fn(i32) -> i32> {
+          Box::new(|x| x + 1)
+      }
+      ```
+      Return a trait object such as `Box<dyn Fn(...) -> ...>`, or use `impl Fn(...) -> ...` when returning one concrete closure type.
+    tags:
+      - rust-book
+      - ch20
+      - advanced-functions-closures
+      - syntax
+    provenance:
+      source_file: ch20_advanced_functions_closures.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: "Advanced Functions and Closures"
+      source: rust-book/src/ch20-04-advanced-functions-and-closures.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch20-advanced-functions-closures-006
+    type: prompt_response
+    prompt: |
+      What does a parameter of function pointer type look like?
+    answer: |
+      ```rust
+      fn add_one(x: i32) -> i32 {
+          x + 1
+      }
+      
+      fn do_twice(f: fn(i32) -> i32, arg: i32) -> i32 {
+          f(arg) + f(arg)
+      }
+      
+      fn main() {
+          assert_eq!(do_twice(add_one, 5), 12);
+      }
+      ```
+      `fn(i32) -> i32` is a function pointer type.
+    tags:
+      - rust-book
+      - ch20
+      - advanced-functions-closures
+      - syntax
+    provenance:
+      source_file: ch20_advanced_functions_closures.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: "Advanced Functions and Closures"
+      source: rust-book/src/ch20-04-advanced-functions-and-closures.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch20-advanced-functions-closures-007
+    type: prompt_response
+    prompt: |
+      What does using an enum variant constructor as a mapping function look like?
+    answer: |
+      ```rust
+      enum Status {
+          Value(u32),
+      }
+      
+      fn main() {
+          let list: Vec<Status> = (0u32..3).map(Status::Value).collect();
+          assert_eq!(list.len(), 3);
+      }
+      ```
+      Tuple-like enum variant constructors can be used like function items.
+    tags:
+      - rust-book
+      - ch20
+      - advanced-functions-closures
+      - syntax
+    provenance:
+      source_file: ch20_advanced_functions_closures.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: "Advanced Functions and Closures"
+      source: rust-book/src/ch20-04-advanced-functions-and-closures.md
+      card_type: syntax
+      compile_status: compiles
+  - id: rust-book-ch20-advanced-functions-closures-008
+    type: prompt_response
+    prompt: |
+      What is the simple syntax for returning one concrete closure type?
+    answer: |
+      ```rust
+      fn returns_closure() -> impl Fn(i32) -> i32 {
+          |x| x + 1
+      }
+      ```
+      `impl Fn` works when the function returns one concrete closure type.
+    tags:
+      - rust-book
+      - ch20
+      - advanced-functions-closures
+      - syntax
+    provenance:
+      source_file: ch20_advanced_functions_closures.yaml
+      chapter: "Chapter 20: Advanced Features"
+      section: "Advanced Functions and Closures"
+      source: rust-book/src/ch20-04-advanced-functions-and-closures.md
+      card_type: syntax
+      compile_status: compiles
