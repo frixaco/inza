@@ -28,7 +28,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>inza</string>
-				<string>com.inza.mobile</string>
+				<string>com.frixa.inza</string>
 			</array>
 		</dict>
 		<dict>

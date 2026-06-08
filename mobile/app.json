@@ -1,15 +1,18 @@
 {
   "expo": {
     "name": "Inza",
-    "slug": "inza-mobile",
+    "slug": "inza",
     "scheme": "inza",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "bundleIdentifier": "com.inza.mobile",
-      "supportsTablet": true
+      "bundleIdentifier": "com.frixa.inza",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.inza.mobile",
@@ -20,6 +23,11 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
+    },
+    "extra": {
+      "eas": {
+        "projectId": "960be864-7ef6-4f40-a39f-67ea6b2bfbdc"
+      }
     }
   }
 }
