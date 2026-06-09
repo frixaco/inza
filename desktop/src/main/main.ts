@@ -3,6 +3,9 @@ import { pathToFileURL } from "node:url";
 
 import { BrowserWindow, app, nativeTheme, session } from "electron";
 
+// Enable experimental web platform features for CSS corner-shape support.
+app.commandLine.appendSwitch("enable-features", "ExperimentalWebPlatformFeatures");
+
 const localDevHostnames = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
 const devServerUrl = getLocalDevServerUrl(process.env["VITE_DEV_SERVER_URL"]);
 const devServerOrigin = devServerUrl ? new URL(devServerUrl).origin : undefined;
@@ -23,14 +26,14 @@ async function createMainWindow() {
   const mainWindow = new BrowserWindow({
     width: 640,
     height: 800,
-    minWidth: 640,
-    minHeight: 800,
+    minWidth: 300,
+    minHeight: 400,
     titleBarStyle: "hidden",
-    trafficLightPosition: { x: 17, y: 11 },
+    trafficLightPosition: { x: 11, y: 9 },
     titleBarOverlay: {
       color: isDark ? "#1c1917" : "#f6f4ef",
       symbolColor: isDark ? "#e7e5e4" : "#1f1d18",
-      height: 32,
+      height: 30,
     },
     title: "Inza",
     backgroundColor: isDark ? "#1c1917" : "#f6f4ef",
