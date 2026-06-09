@@ -7,8 +7,8 @@ import { cn } from "./utils";
    ──────────────────────────────── */
 const MIN_WIDTH = 150;
 const MAX_WIDTH = 400;
-const DEFAULT_WIDTH = 218;
-const STICK_THRESHOLD = 20;
+const DEFAULT_WIDTH = 250;
+const STICK_THRESHOLD = 40;
 
 /* ────────────────────────────────
    Sample data
@@ -266,13 +266,11 @@ function IconGear({ className }: { className?: string }) {
    ──────────────────────────────── */
 function SidebarSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mt-4">
-      <div className="px-3 pb-1.5">
-        <span className="text-xs font-semibold tracking-wide text-stone-500 uppercase dark:text-stone-500">
-          {title}
-        </span>
-      </div>
-      <div className="space-y-0.5 px-2">{children}</div>
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-semibold tracking-wide text-stone-500 dark:text-stone-500">
+        {title}
+      </span>
+      <div className="flex flex-col gap-0.5">{children}</div>
     </div>
   );
 }
@@ -294,7 +292,7 @@ function SidebarItem({
     <button
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm font-medium transition-colors",
+        "flex w-full items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left text-sm font-medium transition-colors corner-squircle",
         active
           ? "bg-blue-600 text-white"
           : "text-stone-700 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:bg-stone-800/60",
@@ -329,13 +327,16 @@ function SidebarDeckItem({
     <button
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm font-medium transition-colors",
+        "flex w-full items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left text-sm font-medium transition-colors corner-squircle",
         active
           ? "bg-blue-600 text-white"
           : "text-stone-700 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:bg-stone-800/60",
       )}
     >
-      <span className="size-1.5 shrink-0 rounded-full" style={{ backgroundColor: deck.tint }} />
+      <span
+        className="size-1.5 shrink-0 rounded-full corner-squircle"
+        style={{ backgroundColor: deck.tint }}
+      />
       <span className="flex-1 truncate">{deck.name}</span>
       <span
         className={cn(
@@ -352,6 +353,7 @@ function SidebarDeckItem({
 function Sidebar({ onCollapsedChange }: { onCollapsedChange?: (collapsed: boolean) => void }) {
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [selectedId, setSelectedId] = useState<string>("today");
   const isDraggingRef = useRef(false);
   const isCollapsedRef = useRef(false);
   const dragStartRef = useRef<{ x: number; width: number }>({ x: 0, width: 0 });
@@ -410,7 +412,7 @@ function Sidebar({ onCollapsedChange }: { onCollapsedChange?: (collapsed: boolea
           const stickDelta = currentX - anchor;
 
           if (stickDelta <= -STICK_THRESHOLD) {
-            widthRef.current = 6;
+            widthRef.current = 0;
             setWidth(6);
             setIsCollapsed(true);
             isCollapsedRef.current = true;
@@ -458,47 +460,91 @@ function Sidebar({ onCollapsedChange }: { onCollapsedChange?: (collapsed: boolea
   }, []);
 
   return (
-    <div className="relative flex" style={{ width }}>
+    <div className={cn("relative flex", isCollapsed && "absolute left-0 z-20 h-full")} style={{ width }}>
       {!isCollapsed && (
-        <aside
-          className="flex h-full flex-1 flex-col overflow-hidden rounded-xl border border-white/75 bg-stone-50 shadow-lg shadow-stone-400/10 dark:border-white/10 dark:bg-stone-900 dark:shadow-stone-950/20"
-          style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
-        >
+        <aside className="flex h-full flex-1 flex-col overflow-hidden bg-stone-200 dark:bg-stone-900 dark:shadow-stone-950/20">
           {/* Top spacer for traffic lights */}
-          <div className="shrink-0" style={{ height: 44 }} />
+          <div
+            className="shrink-0"
+            style={
+              {
+                height: 42,
+                WebkitAppRegion: "drag",
+              } as React.CSSProperties
+            }
+          />
 
-          <div className="flex flex-1 flex-col overflow-y-auto px-2 pb-4">
+          <div className="flex flex-1 flex-col overflow-y-auto px-3 pb-4 gap-2">
             <SidebarSection title="Review">
-              <SidebarItem icon={IconSun} label="Today" count={STATS.due} active />
-              <SidebarItem icon={IconPlayCircle} label="Study Queue" count={124} />
-              <SidebarItem icon={IconList} label="Browse" />
-              <SidebarItem icon={IconWand} label="Create" />
+              <SidebarItem
+                icon={IconSun}
+                label="Today"
+                count={STATS.due}
+                active={selectedId === "today"}
+                onClick={() => setSelectedId("today")}
+              />
+              <SidebarItem
+                icon={IconPlayCircle}
+                label="Study Queue"
+                count={124}
+                active={selectedId === "study-queue"}
+                onClick={() => setSelectedId("study-queue")}
+              />
+              <SidebarItem
+                icon={IconList}
+                label="Browse"
+                active={selectedId === "browse"}
+                onClick={() => setSelectedId("browse")}
+              />
+              <SidebarItem
+                icon={IconWand}
+                label="Create"
+                active={selectedId === "create"}
+                onClick={() => setSelectedId("create")}
+              />
             </SidebarSection>
 
             <SidebarSection title="Decks">
               {DECKS.map((deck) => (
-                <SidebarDeckItem key={deck.id} deck={deck} />
+                <SidebarDeckItem
+                  key={deck.id}
+                  deck={deck}
+                  active={selectedId === deck.id}
+                  onClick={() => setSelectedId(deck.id)}
+                />
               ))}
             </SidebarSection>
 
             <SidebarSection title="System">
-              <SidebarItem icon={IconChart} label="Stats" />
-              <SidebarItem icon={IconCloud} label="Sync" />
-              <SidebarItem icon={IconGear} label="Settings" />
+              <SidebarItem
+                icon={IconChart}
+                label="Stats"
+                active={selectedId === "stats"}
+                onClick={() => setSelectedId("stats")}
+              />
+              <SidebarItem
+                icon={IconCloud}
+                label="Sync"
+                active={selectedId === "sync"}
+                onClick={() => setSelectedId("sync")}
+              />
+              <SidebarItem
+                icon={IconGear}
+                label="Settings"
+                active={selectedId === "settings"}
+                onClick={() => setSelectedId("settings")}
+              />
             </SidebarSection>
           </div>
         </aside>
       )}
+
       <div
-        className={cn(
-          "absolute top-0 right-0 bottom-0 z-10 w-1 cursor-col-resize",
-          isCollapsed && "w-3.5",
-        )}
-        style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+        className={cn("absolute top-0 right-0 bottom-0 z-10 w-1 cursor-col-resize bg-transparent")}
         onMouseDown={handleMouseDown}
       >
         {isCollapsed && (
-          <div className="absolute top-1/2 left-1/2 h-15 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-stone-500/30" />
+          <div className="absolute top-1/2 left-1/2 h-15 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-stone-500/30 corner-squircle" />
         )}
       </div>
     </div>
@@ -510,34 +556,39 @@ function Sidebar({ onCollapsedChange }: { onCollapsedChange?: (collapsed: boolea
    ──────────────────────────────── */
 function TodayView({ isCollapsed }: { isCollapsed: boolean }) {
   return (
-    <div className="flex h-full flex-col">
+    <main
+      className={cn(
+        "relative flex flex-1 flex-col gap-2 overflow-hidden px-3 py-2 shadow-[-2px_0_4px_rgba(0,0,0,0.05)]",
+        {
+          "shadow-none": isCollapsed,
+        },
+      )}
+    >
       {/* Top toolbar */}
       <div
-        className={cn("z-10 flex shrink-0 items-center gap-2 px-2 pt-0.5", {
-          "pl-24": isCollapsed,
+        className={cn("z-10 flex shrink-0 items-center justify-end gap-2", {
+          "pl-16": isCollapsed,
         })}
       >
-        <button className="flex size-6 items-center justify-center rounded-full text-stone-500 transition-colors hover:bg-stone-200/50 hover:text-stone-800 dark:text-stone-400 dark:hover:bg-stone-800/50 dark:hover:text-stone-200">
+        <button className="flex size-7 items-center justify-center rounded-full text-stone-500 transition-colors corner-squircle hover:bg-stone-200/50 hover:text-stone-800 dark:text-stone-400 dark:hover:bg-stone-800/50 dark:hover:text-stone-200">
           <IconRefresh className="size-4.5" />
         </button>
-        <div className="relative flex-1">
+        <div className="relative h-7 text-sm">
           <IconSearch className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-stone-400 dark:text-stone-500" />
           <input
             type="text"
             placeholder="Decks, cards, tags"
-            className="h-6 w-full max-w-52 rounded-lg border border-stone-200 bg-stone-100/80 pr-3 pl-9 text-sm text-stone-900 placeholder:text-stone-400 focus:border-blue-500 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500"
+            className="size-full max-w-48 rounded-xl border border-stone-200 bg-stone-100/80 pr-3 pl-9 text-stone-900 corner-squircle placeholder:text-stone-400 focus:border-blue-500 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500"
           />
         </div>
       </div>
 
       {/* Scrollable content */}
       <div
-        className={cn("flex flex-1 flex-col overflow-y-auto px-2 pb-4", {
-          "px-1": isCollapsed,
-        })}
+        className="flex flex-1 flex-col overflow-y-auto"
       >
         {/* Deck table */}
-        <div className="mt-3 rounded-lg border border-stone-200/60 bg-stone-100/40 dark:border-white/10 dark:bg-stone-900/60">
+        <div className="rounded-xl border border-stone-200/60 bg-stone-100/40 corner-squircle dark:border-white/10 dark:bg-stone-900/60">
           {/* Header */}
           <div
             className="grid items-center border-b border-stone-200/60 px-4 py-2 text-xs font-semibold tracking-wide text-stone-500 uppercase dark:border-white/10 dark:text-stone-500"
@@ -561,7 +612,7 @@ function TodayView({ isCollapsed }: { isCollapsed: boolean }) {
             >
               <div className="flex items-center gap-2.5">
                 <span
-                  className="size-2 shrink-0 rounded-full"
+                  className="size-2 shrink-0 rounded-full corner-squircle"
                   style={{ backgroundColor: deck.tint }}
                 />
                 <div className="min-w-0">
@@ -584,7 +635,7 @@ function TodayView({ isCollapsed }: { isCollapsed: boolean }) {
           ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -595,11 +646,9 @@ function App() {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex h-full rounded-xl bg-stone-100 p-2 text-stone-950 dark:bg-stone-900 dark:text-stone-100">
+    <div className="relative flex h-full bg-stone-50 text-stone-950 dark:bg-stone-900 dark:text-stone-100">
       <Sidebar onCollapsedChange={setIsCollapsed} />
-      <main className="flex-1 overflow-hidden rounded-xl bg-stone-50 shadow-lg shadow-stone-400/10 dark:bg-stone-900 dark:shadow-stone-950/20">
-        <TodayView isCollapsed={isCollapsed} />
-      </main>
+      <TodayView isCollapsed={isCollapsed} />
     </div>
   );
 }
