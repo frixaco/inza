@@ -460,7 +460,10 @@ function Sidebar({ onCollapsedChange }: { onCollapsedChange?: (collapsed: boolea
   }, []);
 
   return (
-    <div className={cn("relative flex", isCollapsed && "absolute left-0 z-20 h-full")} style={{ width }}>
+    <div
+      className={cn("relative flex", isCollapsed && "absolute left-0 z-20 h-full")}
+      style={{ width }}
+    >
       {!isCollapsed && (
         <aside className="flex h-full flex-1 flex-col overflow-hidden bg-stone-200 dark:bg-stone-900 dark:shadow-stone-950/20">
           {/* Top spacer for traffic lights */}
@@ -474,7 +477,7 @@ function Sidebar({ onCollapsedChange }: { onCollapsedChange?: (collapsed: boolea
             }
           />
 
-          <div className="flex flex-1 flex-col overflow-y-auto px-3 pb-4 gap-2">
+          <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-3 pb-4">
             <SidebarSection title="Review">
               <SidebarItem
                 icon={IconSun}
@@ -584,9 +587,7 @@ function TodayView({ isCollapsed }: { isCollapsed: boolean }) {
       </div>
 
       {/* Scrollable content */}
-      <div
-        className="flex flex-1 flex-col overflow-y-auto"
-      >
+      <div className="flex flex-1 flex-col overflow-y-auto">
         {/* Deck table */}
         <div className="rounded-xl border border-stone-200/60 bg-stone-100/40 corner-squircle dark:border-white/10 dark:bg-stone-900/60">
           {/* Header */}
