@@ -6,12 +6,14 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.frixa.inza",
       "supportsTablet": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIFileSharingEnabled": true,
+        "LSSupportsOpeningDocumentsInPlace": true
       }
     },
     "android": {
@@ -28,6 +30,7 @@
       "eas": {
         "projectId": "960be864-7ef6-4f40-a39f-67ea6b2bfbdc"
       }
-    }
+    },
+    "plugins": ["expo-audio"]
   }
 }
