@@ -1,7 +1,35 @@
-node_modules
-.DS_Store
+# dependencies
+node_modules/
+
+# local deck fixtures
 *.apkg
+
+# output
 dist/
-.expo/
+out/
 .build/
-ios/Pods/
+*.tgz
+
+# coverage
+coverage/
+*.lcov
+
+# logs
+logs/
+*.log
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# environment
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# caches
+.cache/
+*.tsbuildinfo
+
+# editors / OS
+.idea/
+.DS_Store

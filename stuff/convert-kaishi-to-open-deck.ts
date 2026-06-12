@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { copyFile, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { parseApkg, type Note } from "./parser/parse_anki.ts";
+import { parseApkg, type Note } from "./parse_anki.ts";
 
 type InlineMark = "strong" | "emphasis" | "code" | "strike" | "highlight";
 type InlineRun =
@@ -57,7 +57,7 @@ type OpenNote = {
   };
 };
 
-const defaultDeckPath = "stuff/parser/Kaishi-1.5k-v2.4.apkg";
+const defaultDeckPath = "stuff/Kaishi-1.5k-v2.4.apkg";
 const defaultOutputDir = "stuff/kaishi-open-deck";
 const importWorkDir = ".tmp-kaishi-open-deck-import";
 const notesPerFile = 250;
