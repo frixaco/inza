@@ -1,0 +1,8 @@
+- list all added decks where added means it has been imported from a open deck zip file; app does not care about original zip file after import and rely only on in-memory/remote data.
+- create, edit, delete decks within the app (no zip file import).
+- browse all notes in a deck - view full note content, edit and search them.
+- notes can be fully edited, deleted, suspended and obviously reviewed.
+- decks settings can be changed locally and globally just like in Anki.
+- show daily, weekly, monthly stats as numbers/graphs.
+- sync full deck data, settings, stats, etc..
+- use Anki's FSRS SDK: support scheduler AND optimizer.
