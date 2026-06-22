@@ -17,8 +17,8 @@ app responsibilities.
 
 ## Non-Goals
 
-- No deck-authored HTML templates.
-- No deck-authored CSS.
+- No HTML templates.
+- No CSS.
 - No JavaScript as the default extension point.
 - No required database.
 - No hidden binary package format.

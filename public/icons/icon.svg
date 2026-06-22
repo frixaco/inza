@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title>Inza app icon</title>
+  <desc>A minimal stacked flashcard mark for the Inza study app.</desc>
+  <rect width="512" height="512" rx="112" fill="#111827" />
+  <g transform="rotate(-7 256 256)">
+    <rect x="141" y="102" width="230" height="304" rx="38" fill="#1f2937" />
+    <rect
+      x="141"
+      y="102"
+      width="230"
+      height="304"
+      rx="38"
+      fill="none"
+      stroke="#475569"
+      stroke-width="12"
+    />
+  </g>
+  <rect x="128" y="96" width="256" height="320" rx="42" fill="#f8fafc" />
+  <rect x="184" y="172" width="144" height="18" rx="9" fill="#111827" />
+  <rect x="172" y="226" width="168" height="16" rx="8" fill="#94a3b8" />
+  <circle cx="200" cy="320" r="18" fill="#16a34a" />
+  <circle cx="256" cy="320" r="18" fill="#2563eb" />
+  <circle cx="312" cy="320" r="18" fill="#dc2626" />
+</svg>
