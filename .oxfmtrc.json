@@ -1,25 +1,9 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": ["dist/**", "stuff/kaishi-open-deck/**"],
+  "singleQuote": true,
+  "semi": false,
   "sortTailwindcss": {
-    "functions": ["cn"],
-    "stylesheet": "desktop/src/renderer/style.css"
-  },
-  "ignorePatterns": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/.expo/**",
-    "**/.build/**",
-    "mobile/android/**",
-    "mobile/ios/**",
-    "**/*.md",
-    "**/*.yaml",
-    "**/*.yml",
-    "bun.lock",
-    "kaishi-open-deck/**",
-    "stuff/kaishi-open-deck/**",
-    "stuff/rust-book/**",
-    "stuff/rust-book-cards/**",
-    "rust-book-cards/**",
-    "rust-book/**"
-  ]
+    "stylesheet": "./src/index.css"
+  }
 }
