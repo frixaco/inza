@@ -1,23 +1,32 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type {
-  ContentBlock,
-  InlineMark,
-  InlineRun,
-  MediaRef,
-  NoteContent,
-  PromptResponseNote,
-} from './notes'
+import type { DeckNote } from './notes'
 
 type NoteProps = {
   isOpen: boolean
-  note: PromptResponseNote
+  note: DeckNote
   setToggledNoteID: Dispatch<SetStateAction<string | null>>
 }
 
-const sampleAudioURL = 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3'
-
 export function Note({ isOpen, note, setToggledNoteID }: NoteProps) {
-  console.log(isOpen)
+  let prompt: string
+  let answer: string
+
+  switch (note.type) {
+    case 'prompt_response':
+      prompt = note.prompt
+      answer = note.answer
+      break
+    case 'cloze':
+      prompt = note.text.replace(/\{\{[^:}]+::([^}]+)\}\}/g, '[…]')
+      answer = Array.from(note.text.matchAll(/\{\{[^:}]+::([^}]+)\}\}/g), (match) => match[1]).join(
+        ', ',
+      )
+      break
+    case 'occlusion':
+      prompt = note.image.alt
+      answer = note.masks.map((mask) => mask.answer).join(', ')
+      break
+  }
 
   return (
     <article
@@ -28,8 +37,8 @@ export function Note({ isOpen, note, setToggledNoteID }: NoteProps) {
       }}
     >
       <div className="flex flex-col gap-1">
-        <p className={`text-lg ${isOpen ? '' : 'truncate'}`}>{note.prompt}</p>
-        <p className={isOpen ? '' : 'line-clamp-2'}>{note.answer}</p>
+        <p className={`text-lg whitespace-pre-wrap ${isOpen ? '' : 'truncate'}`}>{prompt}</p>
+        <p className={`whitespace-pre-wrap ${isOpen ? '' : 'line-clamp-2'}`}>{answer}</p>
       </div>
 
       {isOpen ? <div className="flex flex-col gap-6"></div> : null}

@@ -1,9 +1,15 @@
 @import 'tailwindcss';
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+}
 
 :root {
   color-scheme: light dark;
   /* Extra room above the iOS home indicator where rounded corners can clip content. */
   --bottom-corner-clearance: 1.5rem;
+  --primary: light-dark(var(--color-blue-300), var(--color-blue-700));
+  --primary-foreground: light-dark(var(--color-gray-950), var(--color-gray-50));
 }
 
 @utility no-spinner {

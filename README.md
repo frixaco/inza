@@ -1,7 +1,33 @@
 # Inza
 
-Inza is a deck-format and app-prototype workspace for a modern Anki
-alternative.
+## MVP
+
+Prove one complete local loop:
+
+```text
+choose Open Deck directory -> import -> review -> schedule -> reload -> resume
+```
+
+1. Parse `deck.yaml`, `notes/*.yaml`, and local media from a selected directory.
+2. Accept Markdown strings for `prompt_response`, `cloze`, and `occlusion`.
+3. Store decks, notes, cards, media, review events, and scheduling state in Dexie.
+4. Read the deck list and review queue from Dexie.
+5. Grade reviews through the Anki FSRS SDK and save the updated state.
+6. Verify that imported data and scheduling state survive a browser restart.
+
+Format documents:
+
+- [`OPEN-DECK_MVP_FORMAT.md`](OPEN-DECK_MVP_FORMAT.md) is the strict MVP/v1
+  schema. Every defined field is required.
+- [`OPEN-DECK_FORMAT.md`](OPEN-DECK_FORMAT.md) preserves the full post-MVP
+  format.
+
+Deferred until this loop works: content blocks and inline runs, ZIP and URL
+imports, authoring, settings, search, statistics, optimization, PWA packaging,
+accounts, servers, and sync.
+
+Inza is currently a local deck-format and app-prototype workspace for a modern
+Anki alternative.
 
 ## Parser
 
@@ -16,11 +42,24 @@ Current split:
 Keep that boundary intact. `parse_anki.ts` should stay import-safe and must not
 perform CLI work as a side effect.
 
+## Package Manager
+
+Use Aube through mise for dependency and script management:
+
+```bash
+aube install
+aube add <package>
+aube remove <package>
+aube run <script>
+```
+
+Do not use npm, pnpm, Yarn, or Bun to change dependencies or the lockfile. Use
+Bun only to run the parser and its tests directly.
+
 ## Parser Rules
 
-- Use Bun-first commands from the repository root.
-- Prefer `bun run check`, `bun test stuff`, `bun run typecheck`, and
-  `bun stuff/index.ts ...`.
+- Run package scripts with Aube from the repository root.
+- Run parser entry points and tests directly with Bun.
 - Add dependencies only when they clearly remove more complexity than they add.
 - Preserve support for `collection.anki2`, `collection.anki21`, and
   `collection.anki21b`.
@@ -34,10 +73,10 @@ output JSON compatibility impact.
 ## Commands
 
 ```bash
-bun run check
-bun run test
-bun run typecheck
-bun run parse
+aube run build
+aube run lint
+aube run format:check
+bun test stuff
 ```
 
 For CLI-affecting parser changes, smoke test with a local `.apkg` fixture:

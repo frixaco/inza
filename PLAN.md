@@ -2,242 +2,160 @@
 
 ## Purpose
 
-Build Inza as one responsive, installable web app for creating, editing,
-syncing, and reviewing Open Deck flashcards.
+Build the smallest local app that can import an Open Deck, review its cards, and
+resume with the same schedule after a browser restart.
 
-This plan is a guide for learning and engineering the system, not a recipe.
-Prefer small prototypes, written decisions, and measured behavior over copying a
-large architecture into place all at once.
+The first release proves this loop:
 
-## Product Scope
+```text
+choose directory -> import deck -> study card -> schedule review -> reload -> resume
+```
 
-- Import Open Deck ZIP files.
-- Create, edit, delete, list, and configure decks.
-- Create, edit, delete, suspend, browse, search, and review notes.
-- Support global and per-deck review settings.
-- Use Anki's FSRS SDK for scheduling and parameter optimization.
-- Show daily, weekly, and monthly review statistics.
-- Sync decks, notes, settings, scheduling state, review history, and statistics.
-- Support full offline browsing, searching, editing, and reviewing.
+Anything that does not prove this loop is later work.
 
-## Stack Direction
+## MVP Exit State
 
-- React responsive PWA for desktop and mobile.
-- Vite for the React app.
-- One Bun server for the built app, Better Auth, sync endpoints, and media
-  endpoints. Keep it as one deployable app, not separate frontend and API
-  services.
-- PostgreSQL as the authoritative server database.
-- Better Auth for authentication; do not build authentication from scratch.
-- Dexie over IndexedDB for local structured data.
-- Cloudflare R2 for synced media bytes.
-- FSRS scheduling and optimization on the user's device.
-- Plain TypeScript. Do not introduce Effect, a sync framework, Next.js, or a
-  separate API service.
+The MVP is complete when a user can:
 
-Add after the first local/offline data model works:
+1. Choose one Open Deck directory.
+2. See the imported deck in the deck list.
+3. Review every supported note type with its local media.
+4. Grade a card through the FSRS scheduler.
+5. Close and reopen the app without losing the deck or schedule.
 
-- Explicit media prefetching beyond ordinary browser caching.
-- Web Worker optimization if FSRS optimization blocks the UI in practice.
+## MVP Scope
 
-Treat this stack as a working hypothesis. Change it only when a prototype shows
-that a requirement is meaningfully harder than expected.
+### Deck input
 
-## Engineering Principles
+- Import a directory with `deck.yaml`, `notes/*.yaml`, and local assets.
+- Load note files in stable lexical path order.
+- Follow the exact required-only schema in
+  [`OPEN-DECK_MVP_FORMAT.md`](OPEN-DECK_MVP_FORMAT.md).
+- Support `prompt_response`, `cloze`, and rectangular `occlusion` notes.
+- Accept Markdown strings for learner-facing text.
+- Require `media` on prompt-response and cloze notes; an empty array means no
+  media.
+- Require `src` and `alt` for images, and `src` and `label` for audio and video.
+- Reject missing, unknown, optional, or post-MVP fields with the note ID and file
+  path.
 
-- Build the smallest complete path first: one deck, one note type, one review,
-  one sync.
-- Keep server, local store, and UI responsibilities explicit.
-- Make all sync writes idempotent.
-- Preserve review history from every device.
-- Prefer append-only history plus rebuildable derived state.
-- Make every offline state visible to the user.
-- Avoid generic sync frameworks, broad abstractions, and clever schema tricks
-  until repeated concrete cases justify them.
-- Write down decisions when they change the data model, conflict behavior, or
-  user-visible guarantees.
+The full design remains in [`OPEN-DECK_FORMAT.md`](OPEN-DECK_FORMAT.md) for
+post-MVP work. The current Kaishi conversion uses that full format, so it must
+be flattened or replaced with one strict MVP-compatible fixture before it can
+test this path.
 
-## Phase 1: Understand The Domain
+### Local app
 
-Goal: know exactly what Inza is syncing before building sync.
+- Store decks, notes, cards, review events, scheduling state, and media bytes in
+  Dexie over IndexedDB.
+- Read the deck list and review queue from Dexie, not bundled sample data.
+- Render Markdown and local media during review.
+- Use the Anki FSRS SDK for each review grade.
+- Persist the updated card state and review event in one local transaction.
+- Recover the same state after reload.
 
-Research and decide:
+### Interface
 
-- What is a deck, note, card, review state, review event, setting, statistic,
-  and media object?
-- Which records are mutable?
-- Which records are append-only?
-- Which fields belong to Open Deck content versus Inza app state?
-- How does one note produce one or more reviewable cards?
-- What happens to scheduling history when a note is edited?
+- Deck import.
+- Deck list with due counts.
+- Review screen with reveal and grade actions.
+- Visible import, storage, and media errors.
 
-Prototype:
+## Deferred Until The MVP Loop Works
 
-- Load one existing Open Deck fixture.
-- Render enough content to review it.
-- Manually create one review event and one current card state.
+### Authoring and organization
 
-Exit when:
+- Deck and note creation, editing, deletion, suspension, browsing, and search.
+- Global and per-deck settings.
+- Typed answers.
+- Content blocks, inline runs, block roles, and block-level media.
 
-- The core nouns are named consistently in docs and code.
-- You can explain which state is content, which state is scheduling, and which
-  state is derived.
+### Import, export, and presentation
 
-## Phase 2: Local-First App Skeleton
-
-Goal: prove the app can function from local browser data.
-
-Research and decide:
-
-- What belongs in Dexie?
-- What belongs in browser cache or OPFS instead of Dexie?
-- How much data can be stored safely on target browsers?
-- How does the app detect missing, partial, or outdated local data?
-
-Prototype:
-
-- Store decks, notes, cards, settings, review events, and current review state
-  locally.
-- Browse, search, edit, and review without a server.
-- Show whether local data is synced, pending, or unavailable.
-
-Exit when:
-
-- Full offline editing and reviewing work for a small deck.
-- The app can restart and recover the same local state.
-- Quota and persistence failures have visible user-facing states.
-
-## Phase 3: Server Authority
-
-Goal: add a simple durable server without changing the local app mental model.
-
-Research and decide:
-
-- How should PostgreSQL represent the same nouns as the local store?
-- What constraints prevent impossible states?
-- Which server changes need a monotonic sequence for sync?
-- How do Better Auth users and sessions connect to Inza users, devices, and
-  ownership?
-
-Prototype:
-
-- Add Better Auth.
-- Upload local mutations to the server.
-- Download server changes into the local store.
-- Keep media metadata in PostgreSQL and media bytes in R2.
-
-Exit when:
-
-- One client can create, edit, review, sync, clear local data, and restore from
-  the server.
-- Every accepted mutation can be safely retried.
-
-## Phase 4: Sync And Conflict Behavior
-
-Goal: implement Anki-style category-specific merging, not a generic magic sync
-system.
-
-Research and decide:
-
-- How does Anki merge review logs, cards, notes, and structural changes?
-- Which Inza changes are always mergeable?
-- Which changes use newer-compatible-record-wins?
-- Which changes require explicit replacement or user intervention?
-- How are duplicate mutations detected?
-- How is convergence tested when clients sync in different orders?
-
-Rules to preserve:
-
-- Review events are append-only and merged from all clients.
-- Mutable records use revisions and deterministic conflict rules.
-- Incompatible structural changes are rare and explicit.
-- Statistics are derived from synced review events and rebuildable aggregates.
-
-Prototype:
-
-- Simulate two offline clients reviewing the same card.
-- Simulate two offline clients editing the same note.
-- Simulate delete versus edit.
-- Sync the same scenarios in different orders and compare final server state.
-
-Exit when:
-
-- The conflict rules are documented.
-- The same set of mutations converges to the same result regardless of upload
-  order.
-- Review history is never lost during normal sync.
-
-## Phase 5: FSRS And Statistics
-
-Goal: integrate scheduling without hiding important state.
-
-Research and decide:
-
-- Which FSRS package/API is appropriate for browser use?
-- What exact data does scheduling need per card?
-- What exact history does optimization need?
-- When should optimization run, and how does the user cancel or retry it?
-- Which statistics are raw events versus derived aggregates?
-
-Prototype:
-
-- Run scheduling on review.
-- Run optimization on-device without freezing the UI.
-- Rebuild daily aggregates from review events.
-
-Exit when:
-
-- Scheduling is deterministic for the same inputs.
-- Optimization can fail or be interrupted without corrupting review state.
-- Daily, weekly, and monthly stats can be rebuilt from history.
-
-## Phase 6: Import, Export, And Recovery
-
-Goal: make data portable before the app becomes too clever.
-
-Research and decide:
-
-- How should Open Deck ZIP import handle duplicates, partial failure, and media?
-- What should an Inza backup include beyond Open Deck content?
-- How does account deletion remove database records and R2 media?
-- How are orphaned media objects detected and cleaned up?
-
-Prototype:
-
-- Import one Open Deck ZIP into local data.
-- Sync imported content to the server.
-- Export Open Deck content.
-- Export an Inza backup with app state.
-
-Exit when:
-
-- Import either completes cleanly or leaves no broken deck behind.
-- A user can recover their synced data on a fresh browser profile.
-
-## Do Not Build Yet
-
+- ZIP and URL import.
+- Export and backup flows.
+- Formula rendering, syntax highlighting, and advanced Markdown extensions.
+- Exact imported Anki layout or template preservation.
 - Native desktop or mobile apps.
-- Marketplace or public deck sharing.
-- Collaboration.
-- AI card generation.
-- Full Anki import as a product feature.
+
+### Accounts and sync
+
+- Authentication and accounts.
+- Bun server, PostgreSQL, and Cloudflare R2.
+- Cross-device sync, conflict resolution, and recovery from server state.
+- Collaboration, public sharing, and a deck marketplace.
+
+### Scheduling and reporting
+
+- FSRS parameter optimization.
+- Review setting controls beyond one fixed default.
+- Daily, weekly, and monthly statistics.
+- Advanced media prefetching or Web Workers.
+
+### Packaging and extras
+
+- Installable PWA work beyond the Vite app.
 - Realtime WebSockets.
+- AI card generation.
 - Advanced fuzzy search.
-- Sophisticated media prefetching.
-- A general-purpose sync framework.
-- Effect.
+- A general-purpose sync framework or Effect.
 
-## Open Questions
+## Build Order
 
-- What exact subset of Anki settings is required for the complete product?
-- Should note editing preserve existing card scheduling by default?
-- What is the first supported import path: Open Deck only, or Open Deck plus
-  selected Anki parser research?
-- What are the storage quotas and warning thresholds for downloaded decks?
-- What user-facing language explains sync conflicts without exposing internals?
+### 1. Directory loader
 
-## Current Constraint
+- Parse `deck.yaml` and `notes/*.yaml`.
+- Validate exact object shapes, IDs, note types, required fields, and safe asset
+  paths.
+- Reject unknown and post-MVP fields with the note ID and file path.
+- Load one strict MVP-compatible fixture.
 
-Offline changes must remain usable until synchronized. Synchronization must be
-idempotent, preserve review history from multiple clients, and converge to the
-same server state regardless of upload order.
+Exit when the loader returns one deck with notes and media or one useful error.
+
+### 2. Local store
+
+- Add the minimum Dexie tables for decks, notes, cards, review events, and media.
+- Import one directory in one transaction.
+- Replace the bundled `DECKS` and `NOTES` data in the UI with Dexie reads.
+
+Exit when an imported deck survives reload and appears in the deck list.
+
+### 3. Review loop
+
+- Build reviewable cards for all three note types.
+- Render Markdown and media.
+- Pass each grade to FSRS.
+- Save the review event and next card state together.
+
+Exit when a grade changes the due state and that state survives reload.
+
+### 4. MVP hardening
+
+- Exercise missing files, invalid YAML, duplicate IDs, unsafe asset paths, missing
+  media, and storage failure.
+- Keep the previous local state when an import fails.
+- Show the failure to the user.
+
+Exit when the full MVP path works with a real directory and failures do not leave
+partial decks.
+
+## Stack For This Phase
+
+- React and Vite.
+- Plain TypeScript.
+- Dexie over IndexedDB.
+- Anki FSRS SDK on the user's device.
+- One browser app. No server yet.
+
+Add another service, dependency, worker, or abstraction only when the MVP path
+cannot work without it.
+
+## Later Product Direction
+
+After the MVP loop works, add features in this order only as needed:
+
+1. ZIP import and basic authoring.
+2. Settings, browse/search, statistics, and export.
+3. Authentication and one-client backup/restore.
+4. Multi-client sync and explicit conflict behavior.
+5. Optimization and presentation features proven necessary by real decks.
