@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type Dispatch, type SetStateAction } from 'react'
-import { DECKS } from './decks'
-import { NOTES } from './notes'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db, dbReady } from './db'
 import { Note } from './note'
 
 type Tab = 'decks' | 'study' | 'settings' | 'browse' | 'edit'
@@ -34,11 +34,30 @@ const defaultGlobalSettings: GlobalSettings = {
 
 function App() {
   const { tab, setTab } = useNav()
-  const [decks, setDecks] = useState(DECKS)
+  const decks = useLiveQuery(
+    async () => {
+      await dbReady
+      return db.decks.toArray()
+    },
+    [],
+    [],
+  )
   const [toggledDeckID, setToggledDeckID] = useState<string | null>(null)
   const [selectedDeckID, setSelectedDeckID] = useState<string | null>(null)
   const [globalSettings, setGlobalSettings] = useState(defaultGlobalSettings)
-  const notes = NOTES
+  const [dirty, setDirty] = useState(true)
+  const [showAddDeck, setShowAddDeck] = useState(false)
+
+  const notes = useLiveQuery(
+    async () => {
+      await dbReady
+      return selectedDeckID
+        ? db.notes.where('deckId').equals(selectedDeckID).toArray()
+        : db.notes.toArray()
+    },
+    [selectedDeckID],
+    [],
+  )
 
   const isActive = (id: string) => toggledDeckID === id
   const selectedDeck = decks.find((deck) => deck.id === selectedDeckID) ?? decks[0]
@@ -51,18 +70,14 @@ function App() {
   }
 
   const resetDeckProgress = (deckID: string) => {
-    setDecks((current) =>
-      current.map((deck) =>
-        deck.id === deckID
-          ? {
-              ...deck,
-              done: 0,
-              due: 0,
-              todo: deck.done + deck.due + deck.todo,
-            }
-          : deck,
-      ),
-    )
+    const deck = decks.find((item) => item.id === deckID)
+    if (!deck) return
+
+    void db.decks.update(deckID, {
+      done: 0,
+      due: 0,
+      todo: deck.done + deck.due + deck.todo,
+    })
   }
 
   const NumberSetting = ({
@@ -311,7 +326,43 @@ function App() {
         >
           Settings
         </button>
+        <button
+          className="border border-gray-300 px-6 py-4 text-sm"
+          onClick={(e) => {
+            e.stopPropagation()
+            setShowAddDeck((p) => !p)
+          }}
+        >
+          +
+        </button>
       </div>
+
+      {showAddDeck ? (
+        <div className="flex flex-col gap-2 border border-dashed border-gray-300 px-6 py-4">
+          <input
+            {...{ webkitdirectory: '' }}
+            id="dirInput"
+            name="dirInput"
+            type="file"
+            onChange={(e) => {
+              const files = Array.from(e.currentTarget.files ?? [])
+              const root = files[0]?.webkitRelativePath.split('/')[0]
+              const isDeck =
+                files.some((file) => file.webkitRelativePath === `${root}/deck.yaml`) &&
+                files.some(
+                  (file) =>
+                    file.webkitRelativePath.startsWith(`${root}/notes/`) &&
+                    file.webkitRelativePath.endsWith('.yaml'),
+                )
+
+              e.currentTarget.setCustomValidity(
+                isDeck ? '' : 'Choose an Open Deck directory with deck.yaml and notes/*.yaml.',
+              )
+              e.currentTarget.reportValidity()
+            }}
+          />
+        </div>
+      ) : null}
 
       {/* Only this middle panel scrolls; the page shell stays fixed. */}
       <div className="flex min-h-0 flex-1 scrollbar-thin flex-col gap-2 overflow-y-auto overscroll-none">
@@ -339,7 +390,7 @@ function App() {
             {isActive(d.id) ? (
               <div className="flex items-center justify-between gap-2">
                 <button
-                  className="bg-blue-300 px-8 py-2 text-sm"
+                  className="bg-primary px-8 py-2 text-sm text-primary-foreground"
                   onClick={(e) => {
                     e.stopPropagation()
                     setTab('study')
@@ -349,6 +400,15 @@ function App() {
                 </button>
 
                 <div className="flex items-center gap-2">
+                  <button
+                    className={`border border-gray-300 px-4 py-2 text-sm ${dirty ? 'bg-primary text-primary-foreground' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setDirty(false)
+                    }}
+                  >
+                    Sync
+                  </button>
                   <button
                     className="border border-gray-300 px-4 py-2 text-sm"
                     onClick={(e) => {
@@ -363,6 +423,7 @@ function App() {
                     className="border border-gray-300 px-4 py-2 text-sm"
                     onClick={(e) => {
                       e.stopPropagation()
+                      setSelectedDeckID(d.id)
                       setTab('browse')
                     }}
                   >

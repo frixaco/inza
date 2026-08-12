@@ -1,5 +1,7 @@
 # Open Deck Format
 
+> **Post-MVP specification.** Inza MVP/v1 uses the strict required-only subset in [`OPEN-DECK_MVP_FORMAT.md`](OPEN-DECK_MVP_FORMAT.md).
+
 This document defines a human-readable deck format for flashcard decks that can
 live as either a directory or a zip archive. The design goal is to support a
 large range of Anki-like decks without copying Anki's HTML/CSS/template model
@@ -471,7 +473,7 @@ layer into the deck format.
 
 ### Example: Code Diagnostic
 
-```yaml
+````yaml
 - id: rust-double-mut-borrow
   type: prompt_response
   prompt: |
@@ -495,7 +497,7 @@ layer into the deck format.
 
     - Thinking the error is caused by `println!` formatting.
     - Thinking the borrow ends immediately after `r1` is created.
-```
+````
 
 ### Example: Math Problem
 
