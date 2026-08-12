@@ -114,9 +114,10 @@ Exit when the loader returns one deck with notes and media or one useful error.
 
 ### 2. Local store
 
-- Add the minimum Dexie tables for decks, notes, cards, review events, and media.
-- Import one directory in one transaction.
-- Replace the bundled `DECKS` and `NOTES` data in the UI with Dexie reads.
+- Keep decks, notes, media, cards, review events, and scheduling state in Dexie.
+- Commit each validated note file and media file with updated byte progress.
+- Render import progress from Dexie through React live queries.
+- Remove partial records after failure or an interrupted import.
 
 Exit when an imported deck survives reload and appears in the deck list.
 

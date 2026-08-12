@@ -1,26 +1,51 @@
 import Dexie, { type EntityTable } from 'dexie'
-import { DECKS, type Deck } from './decks'
-import { NOTES, type DeckNote } from './notes'
+import type { DeckNote } from './notes'
 
-export type StoredNote = DeckNote & { deckId: Deck['id'] }
+type StoredDeck = {
+  id: string
+  name: string
+  done: number
+  due: number
+  todo: number
+  importStatus: 'importing' | 'ready'
+  importedBytes: number
+  totalBytes: number
+}
+
+type StoredNote = DeckNote & {
+  noteId: string
+  deckId: string
+}
+
+type StoredMedia = {
+  id: string
+  deckId: string
+  path: string
+  blob: Blob
+}
 
 export const db = new Dexie('inza') as Dexie & {
-  decks: EntityTable<Deck, 'id'>
+  decks: EntityTable<StoredDeck, 'id'>
   notes: EntityTable<StoredNote, 'id'>
+  media: EntityTable<StoredMedia, 'id'>
 }
 
 db.version(1).stores({
   decks: 'id',
   notes: 'id, deckId',
+  media: 'id, deckId',
 })
 
-export const dbReady = db.open().then(async () => {
-  if ((await db.decks.count()) > 0) return
+export async function deleteDeck(deckId: string) {
+  await db.transaction('rw', db.decks, db.notes, db.media, async () => {
+    await db.notes.where('deckId').equals(deckId).delete()
+    await db.media.where('deckId').equals(deckId).delete()
+    await db.decks.delete(deckId)
+  })
+}
 
-  await db.transaction('rw', db.decks, db.notes, () =>
-    Promise.all([
-      db.decks.bulkAdd(DECKS),
-      db.notes.bulkAdd(NOTES.map((note) => ({ ...note, deckId: DECKS[0].id }))),
-    ]),
-  )
+export const dbReady = db.open().then(async () => {
+  for (const deck of await db.decks.toArray()) {
+    if (deck.importStatus === 'importing') await deleteDeck(deck.id)
+  }
 })

@@ -1,83 +1,80 @@
-export type MediaRef =
-  | { kind: 'image'; src: string; alt: string }
-  | { kind: 'audio' | 'video'; src: string; label: string }
+import * as v from 'valibot'
 
-type BaseNote = {
-  id: string
-}
+const RequiredStringSchema = v.pipe(v.string(), v.nonEmpty())
 
-export type PromptResponseNote = BaseNote & {
-  type: 'prompt_response'
-  prompt: string
-  answer: string
-  media: MediaRef[]
-}
+const MediaSchema = v.variant('kind', [
+  v.strictObject({
+    kind: v.literal('image'),
+    src: RequiredStringSchema,
+    alt: RequiredStringSchema,
+  }),
+  v.strictObject({
+    kind: v.literal('audio'),
+    src: RequiredStringSchema,
+    label: RequiredStringSchema,
+  }),
+  v.strictObject({
+    kind: v.literal('video'),
+    src: RequiredStringSchema,
+    label: RequiredStringSchema,
+  }),
+])
 
-export type ClozeNote = BaseNote & {
-  type: 'cloze'
-  text: string
-  media: MediaRef[]
-}
+const RectSchema = v.strictObject({
+  kind: v.literal('rect'),
+  x: v.pipe(v.number(), v.finite()),
+  y: v.pipe(v.number(), v.finite()),
+  w: v.pipe(
+    v.number(),
+    v.finite(),
+    v.check((value) => value > 0, 'Width must be greater than zero.'),
+  ),
+  h: v.pipe(
+    v.number(),
+    v.finite(),
+    v.check((value) => value > 0, 'Height must be greater than zero.'),
+  ),
+})
 
-export type OcclusionNote = BaseNote & {
-  type: 'occlusion'
-  image: {
-    src: string
-    alt: string
-  }
-  masks: Array<{
-    id: string
-    answer: string
-    shape: {
-      kind: 'rect'
-      x: number
-      y: number
-      w: number
-      h: number
-    }
-  }>
-}
+export const DeckNoteSchema = v.variant('type', [
+  v.strictObject({
+    id: RequiredStringSchema,
+    type: v.literal('prompt_response'),
+    prompt: RequiredStringSchema,
+    answer: RequiredStringSchema,
+    media: v.array(MediaSchema),
+  }),
+  v.strictObject({
+    id: RequiredStringSchema,
+    type: v.literal('cloze'),
+    text: v.pipe(
+      RequiredStringSchema,
+      v.regex(/\{\{[^:}]+::[^}]+\}\}/, 'A cloze marker is required.'),
+    ),
+    media: v.array(MediaSchema),
+  }),
+  v.strictObject({
+    id: RequiredStringSchema,
+    type: v.literal('occlusion'),
+    image: v.strictObject({
+      src: RequiredStringSchema,
+      alt: RequiredStringSchema,
+    }),
+    masks: v.pipe(
+      v.array(
+        v.strictObject({
+          id: RequiredStringSchema,
+          answer: RequiredStringSchema,
+          shape: RectSchema,
+        }),
+      ),
+      v.minLength(1),
+      v.check(
+        (masks) => new Set(masks.map((mask) => mask.id)).size === masks.length,
+        'Mask IDs must be unique.',
+      ),
+    ),
+  }),
+])
 
-export type DeckNote = PromptResponseNote | ClozeNote | OcclusionNote
-
-export const NOTES: DeckNote[] = [
-  {
-    id: 'kaishi-0002-私',
-    type: 'prompt_response',
-    prompt: '私\n\n**Sentence:** 私はアンです。',
-    answer: 'I (polite, general)\n\n**Reading:** わたし\n\n**Sentence:** I am Ann.',
-    media: [
-      {
-        kind: 'audio',
-        src: 'assets/audio/私_ワタシ━_0_NHK-2016.mp3',
-        label: 'Word audio',
-      },
-      {
-        kind: 'image',
-        src: 'assets/images/jikosyoukai_man-0f017c07b9f1048ff29830827e8503a6984504f6.webp',
-        alt: 'A man introducing himself',
-      },
-    ],
-  },
-  {
-    id: 'rust-ownership-cloze',
-    type: 'cloze',
-    text: 'In Rust, each value has {{c1::one owner}} at a time.',
-    media: [],
-  },
-  {
-    id: 'knee-ligaments',
-    type: 'occlusion',
-    image: {
-      src: 'assets/images/knee.png',
-      alt: 'Knee ligament diagram',
-    },
-    masks: [
-      {
-        id: 'acl',
-        answer: 'Anterior cruciate ligament',
-        shape: { kind: 'rect', x: 510, y: 320, w: 180, h: 70 },
-      },
-    ],
-  },
-]
+export type DeckNote = v.InferOutput<typeof DeckNoteSchema>

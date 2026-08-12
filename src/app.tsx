@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, type Dispatch, type SetStateAction } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, dbReady } from './db'
+import { importDeck } from './import-deck'
 import { Note } from './note'
 
 type Tab = 'decks' | 'study' | 'settings' | 'browse' | 'edit'
@@ -47,13 +48,13 @@ function App() {
   const [globalSettings, setGlobalSettings] = useState(defaultGlobalSettings)
   const [dirty, setDirty] = useState(true)
   const [showAddDeck, setShowAddDeck] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
 
   const notes = useLiveQuery(
     async () => {
       await dbReady
-      return selectedDeckID
-        ? db.notes.where('deckId').equals(selectedDeckID).toArray()
-        : db.notes.toArray()
+      return selectedDeckID ? db.notes.where('deckId').equals(selectedDeckID).toArray() : []
     },
     [selectedDeckID],
     [],
@@ -78,6 +79,25 @@ function App() {
       due: 0,
       todo: deck.done + deck.due + deck.todo,
     })
+  }
+
+  const loadDeck = async (input: HTMLInputElement) => {
+    setImportError(null)
+    setImporting(true)
+    input.setCustomValidity('')
+
+    try {
+      await importDeck(Array.from(input.files ?? []))
+      input.value = ''
+      setShowAddDeck(false)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      setImportError(message)
+      input.setCustomValidity(message)
+      input.reportValidity()
+    } finally {
+      setImporting(false)
+    }
   }
 
   const NumberSetting = ({
@@ -341,26 +361,13 @@ function App() {
         <div className="flex flex-col gap-2 border border-dashed border-gray-300 px-6 py-4">
           <input
             {...{ webkitdirectory: '' }}
+            disabled={importing}
             id="dirInput"
             name="dirInput"
             type="file"
-            onChange={(e) => {
-              const files = Array.from(e.currentTarget.files ?? [])
-              const root = files[0]?.webkitRelativePath.split('/')[0]
-              const isDeck =
-                files.some((file) => file.webkitRelativePath === `${root}/deck.yaml`) &&
-                files.some(
-                  (file) =>
-                    file.webkitRelativePath.startsWith(`${root}/notes/`) &&
-                    file.webkitRelativePath.endsWith('.yaml'),
-                )
-
-              e.currentTarget.setCustomValidity(
-                isDeck ? '' : 'Choose an Open Deck directory with deck.yaml and notes/*.yaml.',
-              )
-              e.currentTarget.reportValidity()
-            }}
+            onChange={(event) => void loadDeck(event.currentTarget)}
           />
+          {importError ? <p className="text-sm text-red-700">{importError}</p> : null}
         </div>
       ) : null}
 
@@ -387,7 +394,21 @@ function App() {
               </div>
             </div>
 
-            {isActive(d.id) ? (
+            {d.importStatus === 'importing' ? (
+              <div className="flex items-center gap-3">
+                <progress
+                  aria-label={`Importing ${d.name}`}
+                  className="flex-1"
+                  max={d.totalBytes}
+                  value={d.importedBytes}
+                />
+                <span className="text-sm">
+                  {d.totalBytes ? Math.round((d.importedBytes / d.totalBytes) * 100) : 0}%
+                </span>
+              </div>
+            ) : null}
+
+            {isActive(d.id) && d.importStatus === 'ready' ? (
               <div className="flex items-center justify-between gap-2">
                 <button
                   className="bg-primary px-8 py-2 text-sm text-primary-foreground"

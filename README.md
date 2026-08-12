@@ -9,11 +9,12 @@ choose Open Deck directory -> import -> review -> schedule -> reload -> resume
 ```
 
 1. Parse `deck.yaml`, `notes/*.yaml`, and local media from a selected directory.
-2. Accept Markdown strings for `prompt_response`, `cloze`, and `occlusion`.
-3. Store decks, notes, cards, media, review events, and scheduling state in Dexie.
-4. Read the deck list and review queue from Dexie.
-5. Grade reviews through the Anki FSRS SDK and save the updated state.
-6. Verify that imported data and scheduling state survive a browser restart.
+2. Validate and store each note file and media file incrementally in Dexie.
+3. Show import progress from Dexie through React live queries.
+4. Accept Markdown strings for `prompt_response`, `cloze`, and `occlusion`.
+5. Read the deck list and review queue from Dexie.
+6. Grade reviews through the Anki FSRS SDK and save the updated state.
+7. Verify that imported data and scheduling state survive a browser restart.
 
 Format documents:
 
