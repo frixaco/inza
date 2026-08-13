@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type Dispatch, type SetStateAction
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, dbReady } from './db'
 import { importDeck } from './import-deck'
-import { Note } from './note'
+import { Note, NoteContent } from './note'
 
 type Tab = 'decks' | 'study' | 'settings' | 'browse' | 'edit'
 type NavContextValue = {
@@ -50,15 +50,6 @@ function App() {
   const [showAddDeck, setShowAddDeck] = useState(false)
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
-
-  const notes = useLiveQuery(
-    async () => {
-      await dbReady
-      return selectedDeckID ? db.notes.where('deckId').equals(selectedDeckID).toArray() : []
-    },
-    [selectedDeckID],
-    [],
-  )
 
   const isActive = (id: string) => toggledDeckID === id
   const selectedDeck = decks.find((deck) => deck.id === selectedDeckID) ?? decks[0]
@@ -142,6 +133,11 @@ function App() {
   )
 
   const Browse = () => {
+    const notes = useLiveQuery(
+      () => (selectedDeckID ? db.notes.where('deckId').equals(selectedDeckID).toArray() : []),
+      [selectedDeckID],
+      [],
+    )
     const [toggledNoteID, setToggledNoteID] = useState<string | null>(null)
     return (
       <>
@@ -287,9 +283,14 @@ function App() {
 
   const Study = () => {
     const [front, setFront] = useState(true)
-    const reveal = () => {
-      setFront((p) => !p)
-    }
+    const [noteIndex, setNoteIndex] = useState(0)
+    const note = useLiveQuery(
+      () =>
+        selectedDeckID
+          ? db.notes.where('deckId').equals(selectedDeckID).offset(noteIndex).first()
+          : undefined,
+      [selectedDeckID, noteIndex],
+    )
 
     return (
       <>
@@ -305,30 +306,38 @@ function App() {
           </button>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 overflow-y-auto overscroll-none">
-          {front ? <p>Wha's thing y thigny that?</p> : <p>That's it those these then</p>}
-        </div>
+        {note ? (
+          <NoteContent note={note} revealed={!front} />
+        ) : (
+          <div className="flex flex-1 items-center justify-center">No notes</div>
+        )}
 
-        <div className="flex flex-col gap-4">
-          {front ? (
-            <button
-              className="flex-1 bg-gray-300 px-6 py-4 text-sm"
-              onClick={(e) => {
-                e.stopPropagation()
-                reveal()
-              }}
-            >
-              {front ? 'Show back' : 'Show front'}
-            </button>
-          ) : (
-            <div className="flex gap-4">
-              <button className="flex-1 bg-green-300 px-6 py-4 text-sm">Easy</button>
-              <button className="flex-1 bg-blue-300 px-6 py-4 text-sm">Good</button>
-              <button className="flex-1 bg-orange-300 px-6 py-4 text-sm">Hard</button>
-              <button className="flex-1 bg-red-300 px-6 py-4 text-sm">Again</button>
-            </div>
-          )}
-        </div>
+        {note ? (
+          <div className="flex flex-col gap-4">
+            {front ? (
+              <button
+                className="flex-1 bg-gray-300 px-6 py-4 text-sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setFront(false)
+                }}
+              >
+                Show back
+              </button>
+            ) : (
+              <button
+                className="flex-1 bg-blue-300 px-6 py-4 text-sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setNoteIndex((current) => (current + 1) % selectedDeck.todo)
+                  setFront(true)
+                }}
+              >
+                Next
+              </button>
+            )}
+          </div>
+        ) : null}
       </>
     )
   }
@@ -414,6 +423,7 @@ function App() {
                   className="bg-primary px-8 py-2 text-sm text-primary-foreground"
                   onClick={(e) => {
                     e.stopPropagation()
+                    setSelectedDeckID(d.id)
                     setTab('study')
                   }}
                 >
