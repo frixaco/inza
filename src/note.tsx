@@ -1,5 +1,35 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type { DeckNote } from './notes'
+import { Renderer, marked } from 'marked'
+
+const escapeHtml = (value: string) =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+
+const renderer = new Renderer()
+renderer.html = ({ text }) => escapeHtml(text)
+renderer.link = ({ href, title, tokens }) => {
+  const text = renderer.parser.parseInline(tokens)
+  const hasSafeProtocol = !/^[a-z][a-z\d+.-]*:/i.test(href) || /^(https?:|mailto:)/i.test(href)
+  if (!hasSafeProtocol) return text
+
+  return `<a href="${escapeHtml(href)}"${title ? ` title="${escapeHtml(title)}"` : ''}>${text}</a>`
+}
+
+function Markdown({ children, className }: { children: string; className: string }) {
+  return (
+    <div
+      className={className}
+      dangerouslySetInnerHTML={{
+        __html: marked.parse(children, { async: false, renderer }),
+      }}
+    />
+  )
+}
 
 type NoteProps = {
   isOpen: boolean
@@ -37,8 +67,8 @@ export function Note({ isOpen, note, setToggledNoteID }: NoteProps) {
       }}
     >
       <div className="flex flex-col gap-1">
-        <p className={`text-lg whitespace-pre-wrap ${isOpen ? '' : 'truncate'}`}>{prompt}</p>
-        <p className={`whitespace-pre-wrap ${isOpen ? '' : 'line-clamp-2'}`}>{answer}</p>
+        <Markdown className={`text-lg ${isOpen ? '' : 'truncate'}`}>{prompt}</Markdown>
+        <Markdown className={isOpen ? '' : 'line-clamp-2'}>{answer}</Markdown>
       </div>
 
       {isOpen ? <div className="flex flex-col gap-6"></div> : null}
