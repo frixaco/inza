@@ -17,6 +17,7 @@
     "@open-spaced-repetition/binding-wasm32-wasi": "^0.5.0",
     "dexie": "4.4.4",
     "dexie-react-hooks": "4.4.0",
+    "marked": "^18.0.9",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "ts-fsrs": "^5.4.1",
