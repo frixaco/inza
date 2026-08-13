@@ -388,6 +388,7 @@ function App() {
 
   const Study = () => {
     const card = studyCards[cardIndex]
+    const variantId = card?.variantId
     const note = useLiveQuery(() => (card ? db.notes.get(card.noteId) : undefined), [card?.noteId])
 
     const review = async (card: StoredCard, grade: Grade) => {
@@ -438,7 +439,7 @@ function App() {
         {reviewComplete ? (
           <div className="flex flex-1 items-center justify-center">Review complete</div>
         ) : note ? (
-          <NoteContent note={note} revealed={!front} />
+          <NoteContent note={note} revealed={!front} variantId={variantId} />
         ) : null}
 
         {!reviewComplete && card && note ? (

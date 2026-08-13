@@ -22,6 +22,7 @@ export type StoredCard = {
   id: string
   noteId: string
   deckId: string
+  variantId: string
   fsrsCard: Card
 }
 
@@ -59,6 +60,7 @@ export function createStoredCards(note: StoredNote): StoredCard[] {
     id: JSON.stringify([note.deckId, note.noteId, variantId]),
     noteId: note.id,
     deckId: note.deckId,
+    variantId,
     fsrsCard: createEmptyCard(),
   }))
 }

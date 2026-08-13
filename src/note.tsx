@@ -75,11 +75,13 @@ type StoredNote = DeckNote & { deckId: string }
 type NoteContentProps = {
   note: StoredNote
   revealed: boolean
+  variantId?: string
 }
 
 function OcclusionContent({
   note,
   revealed,
+  variantId,
 }: NoteContentProps & { note: Extract<StoredNote, { type: 'occlusion' }> }) {
   const url = useMediaUrl(note.deckId, note.image.src)
   const [imageSize, setImageSize] = useState({ width: 1, height: 1 })
@@ -108,7 +110,7 @@ function OcclusionContent({
             {note.masks.map((mask) => (
               <rect
                 key={mask.id}
-                fill={revealed ? 'transparent' : 'black'}
+                fill={!revealed && mask.id === variantId ? 'black' : 'transparent'}
                 height={mask.shape.h}
                 stroke="black"
                 width={mask.shape.w}
@@ -119,12 +121,16 @@ function OcclusionContent({
           </svg>
         </div>
       ) : null}
-      {revealed ? note.masks.map((mask) => <Markdown key={mask.id}>{mask.answer}</Markdown>) : null}
+      {revealed
+        ? note.masks
+            .filter((mask) => variantId === undefined || mask.id === variantId)
+            .map((mask) => <Markdown key={mask.id}>{mask.answer}</Markdown>)
+        : null}
     </>
   )
 }
 
-export function NoteContent({ note, revealed }: NoteContentProps) {
+export function NoteContent({ note, revealed, variantId }: NoteContentProps) {
   let content
 
   switch (note.type) {
@@ -143,7 +149,10 @@ export function NoteContent({ note, revealed }: NoteContentProps) {
       content = (
         <>
           <Markdown className="text-lg">
-            {note.text.replace(/\{\{[^:}]+::([^}]+)\}\}/g, revealed ? '$1' : '[…]')}
+            {note.text.replace(
+              /\{\{([^:}]+)::([^}]+)\}\}/g,
+              (_marker, id, answer) => (revealed || id !== variantId ? answer : '[…]'),
+            )}
           </Markdown>
           {note.media.map((media) => (
             <Media key={`${media.kind}:${media.src}`} note={note} media={media} />
@@ -152,7 +161,7 @@ export function NoteContent({ note, revealed }: NoteContentProps) {
       )
       break
     case 'occlusion':
-      content = <OcclusionContent note={note} revealed={revealed} />
+      content = <OcclusionContent note={note} revealed={revealed} variantId={variantId} />
       break
   }
 
