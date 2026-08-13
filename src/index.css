@@ -3,7 +3,7 @@
   font-family: system-ui, sans-serif;
   line-height: 1.5;
   /* Extra room above the iOS home indicator where rounded corners can clip content. */
-  --bottom-corner-clearance: 1.5rem;
+  --bottom-corner-clearance: 1.3rem;
   --primary: light-dark(#93c5fd, #1d4ed8);
   --primary-foreground: light-dark(#030712, #f9fafb);
 }

@@ -255,6 +255,17 @@ function App() {
     const [toggledNoteID, setToggledNoteID] = useState<string | null>(null)
     return (
       <>
+
+        <div {...stylex.props(styles.scrollPanel)}>
+          {notes.map((n) => (
+            <Note
+              key={n.id}
+              isOpen={toggledNoteID === n.id}
+              setToggledNoteID={setToggledNoteID}
+              note={n}
+            />
+          ))}
+        </div>
         <div {...stylex.props(styles.row, styles.spaceBetween, styles.semibold)}>
           <button
             {...stylex.props(styles.button)}
@@ -267,34 +278,12 @@ function App() {
           </button>
           <button {...stylex.props(styles.button)}>Delete</button>
         </div>
-
-        <div {...stylex.props(styles.scrollPanel)}>
-          {notes.map((n) => (
-            <Note
-              key={n.id}
-              isOpen={toggledNoteID === n.id}
-              setToggledNoteID={setToggledNoteID}
-              note={n}
-            />
-          ))}
-        </div>
       </>
     )
   }
 
   const Settings = () => (
     <>
-      <div {...stylex.props(styles.row, styles.semibold)}>
-        <button
-          {...stylex.props(styles.button)}
-          onClick={(e) => {
-            e.stopPropagation()
-            setTab('decks')
-          }}
-        >
-          Back
-        </button>
-      </div>
 
       <div {...stylex.props(styles.pane)}>
         <h1 {...stylex.props(styles.heading)}>Settings</h1>
@@ -329,12 +318,7 @@ function App() {
           </button>
         </div>
       </div>
-    </>
-  )
-
-  const Edit = () => (
-    <>
-      <div {...stylex.props(styles.row, styles.spaceBetween, styles.semibold)}>
+      <div {...stylex.props(styles.row, styles.semibold)}>
         <button
           {...stylex.props(styles.button)}
           onClick={(e) => {
@@ -344,13 +328,12 @@ function App() {
         >
           Back
         </button>
-        <button
-          {...stylex.props(styles.button, styles.primary)}
-          onClick={() => void db.decks.update(selectedDeck.id, deckSettingsDraft)}
-        >
-          Save
-        </button>
       </div>
+    </>
+  )
+
+  const Edit = () => (
+    <>
 
       <div {...stylex.props(styles.pane)}>
         <h1 {...stylex.props(styles.heading)}>{selectedDeck.name}</h1>
@@ -393,6 +376,23 @@ function App() {
           </button>
         </div>
       </div>
+      <div {...stylex.props(styles.row, styles.spaceBetween, styles.semibold)}>
+        <button
+          {...stylex.props(styles.button)}
+          onClick={(e) => {
+            e.stopPropagation()
+            setTab('decks')
+          }}
+        >
+          Back
+        </button>
+        <button
+          {...stylex.props(styles.button, styles.primary)}
+          onClick={() => void db.decks.update(selectedDeck.id, deckSettingsDraft)}
+        >
+          Save
+        </button>
+      </div>
     </>
   )
 
@@ -434,17 +434,6 @@ function App() {
 
     return (
       <>
-        <div {...stylex.props(styles.row, styles.semibold)}>
-          <button
-            {...stylex.props(styles.button)}
-            onClick={(e) => {
-              e.stopPropagation()
-              setTab('decks')
-            }}
-          >
-            Back
-          </button>
-        </div>
 
         {reviewComplete ? (
           <div {...stylex.props(styles.centered)}>Review complete</div>
@@ -506,34 +495,23 @@ function App() {
             )}
           </div>
         ) : null}
+        <div {...stylex.props(styles.row, styles.semibold)}>
+          <button
+            {...stylex.props(styles.button)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setTab('decks')
+            }}
+          >
+            Back
+          </button>
+        </div>
       </>
     )
   }
 
   const Deck = () => (
     <>
-      <div {...stylex.props(styles.row, styles.semibold)}>
-        <button {...stylex.props(styles.button)}>Account</button>
-        <button
-          {...stylex.props(styles.button)}
-          onClick={(e) => {
-            e.stopPropagation()
-            setGlobalSettingsDraft(globalSettings)
-            setTab('settings')
-          }}
-        >
-          Settings
-        </button>
-        <button
-          {...stylex.props(styles.button)}
-          onClick={(e) => {
-            e.stopPropagation()
-            setShowAddDeck((p) => !p)
-          }}
-        >
-          +
-        </button>
-      </div>
 
       {showAddDeck ? (
         <div {...stylex.props(styles.addDeck)}>
@@ -647,6 +625,28 @@ function App() {
           </div>
         ))}
       </div>
+      <div {...stylex.props(styles.row, styles.semibold)}>
+        <button {...stylex.props(styles.button)}>Account</button>
+        <button
+          {...stylex.props(styles.button)}
+          onClick={(e) => {
+            e.stopPropagation()
+            setGlobalSettingsDraft(globalSettings)
+            setTab('settings')
+          }}
+        >
+          Settings
+        </button>
+        <button
+          {...stylex.props(styles.button)}
+          onClick={(e) => {
+            e.stopPropagation()
+            setShowAddDeck((p) => !p)
+          }}
+        >
+          +
+        </button>
+      </div>
     </>
   )
 
@@ -716,7 +716,7 @@ const styles = stylex.create({
     borderStyle: 'solid',
     borderWidth: 1,
     fontSize: '0.875rem',
-    paddingBlock: '1rem',
+    paddingBlock: '0.5rem',
     paddingInline: '1.5rem',
   },
   buttonGroup: {
@@ -821,10 +821,7 @@ const styles = stylex.create({
     maxWidth: '36rem',
     overflow: 'hidden',
     paddingInline: '0.75rem',
-    paddingTop: {
-      default: 0,
-      '@media (min-width: 768px)': '1rem',
-    },
+    paddingTop: 'max(1rem, calc(env(safe-area-inset-top) + 2rem))',
   },
   numberInput: {
     borderColor: '#d1d5db',
@@ -855,7 +852,7 @@ const styles = stylex.create({
   ratingButton: {
     flex: 1,
     fontSize: '0.875rem',
-    paddingBlock: '1rem',
+    paddingBlock: '0.5rem',
     paddingInline: '1.5rem',
   },
   ratingRow: {
