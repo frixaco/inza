@@ -1,36 +1,25 @@
 import * as stylex from '@stylexjs/stylex'
 import type { StyleXStyles } from '@stylexjs/stylex'
-import { Renderer, marked } from 'marked'
 import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from './db'
 import type { DeckNote } from './notes'
 
-const escapeHtml = (value: string) =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-
-const renderer = new Renderer()
-renderer.html = ({ text }) => escapeHtml(text)
-renderer.link = ({ href, title, tokens }) => {
-  const text = renderer.parser.parseInline(tokens)
-  const hasSafeProtocol = !/^[a-z][a-z\d+.-]*:/i.test(href) || /^(https?:|mailto:)/i.test(href)
-  if (!hasSafeProtocol) return text
-
-  return `<a href="${escapeHtml(href)}"${title ? ` title="${escapeHtml(title)}"` : ''}>${text}</a>`
+function contentText(html: string, selector?: string) {
+  const body = new DOMParser().parseFromString(html, 'text/html').body
+  const content = (selector && body.querySelector(selector)) || body
+  for (const block of content.querySelectorAll('br,dd,div,dt,h1,h2,h3,h4,h5,h6,li,p'))
+    block.append(' ')
+  return content.textContent?.replace(/\s+/g, ' ').trim() ?? ''
 }
 
-function Markdown({ children, xstyle }: { children: string; xstyle?: StyleXStyles }) {
+function Content({ children, xstyle }: { children: string; xstyle?: StyleXStyles }) {
   return (
     <div
+      ref={(element) =>
+        (element as (HTMLDivElement & { setHTML(html: string): void }) | null)?.setHTML(children)
+      }
       {...stylex.props(xstyle)}
-      dangerouslySetInnerHTML={{
-        __html: marked.parse(children, { async: false, renderer }),
-      }}
     />
   )
 }
@@ -126,7 +115,7 @@ function OcclusionContent({
       {revealed
         ? note.masks
             .filter((mask) => variantId === undefined || mask.id === variantId)
-            .map((mask) => <Markdown key={mask.id}>{mask.answer}</Markdown>)
+            .map((mask) => <Content key={mask.id}>{mask.answer}</Content>)
         : null}
     </>
   )
@@ -139,22 +128,22 @@ export function NoteContent({ note, revealed, variantId }: NoteContentProps) {
     case 'prompt_response':
       content = (
         <>
-          <Markdown xstyle={styles.textLarge}>{note.prompt}</Markdown>
+          <Content xstyle={styles.textLarge}>{note.prompt}</Content>
           {note.media.map((media) => (
             <Media key={`${media.kind}:${media.src}`} note={note} media={media} />
           ))}
-          {revealed ? <Markdown>{note.answer}</Markdown> : null}
+          {revealed ? <Content>{note.answer}</Content> : null}
         </>
       )
       break
     case 'cloze':
       content = (
         <>
-          <Markdown xstyle={styles.textLarge}>
+          <Content xstyle={styles.textLarge}>
             {note.text.replace(/\{\{([^:}]+)::([^}]+)\}\}/g, (_marker, id, answer) =>
               revealed || id !== variantId ? answer : '[…]',
             )}
-          </Markdown>
+          </Content>
           {note.media.map((media) => (
             <Media key={`${media.kind}:${media.src}`} note={note} media={media} />
           ))}
@@ -168,7 +157,6 @@ export function NoteContent({ note, revealed, variantId }: NoteContentProps) {
 
   return <div {...stylex.props(styles.noteContent)}>{content}</div>
 }
-
 export function Note({
   isOpen,
   note,
@@ -180,11 +168,10 @@ export function Note({
 }) {
   const preview =
     note.type === 'prompt_response'
-      ? note.prompt
+      ? contentText(note.prompt, 'p')
       : note.type === 'cloze'
-        ? note.text.replace(/\{\{[^:}]+::([^}]+)\}\}/g, '$1')
+        ? contentText(note.text.replace(/\{\{[^:}]+::([^}]+)\}\}/g, '$1'))
         : note.image.alt
-
   return (
     <article
       {...stylex.props(styles.note)}
@@ -196,7 +183,7 @@ export function Note({
       {isOpen ? (
         <NoteContent note={note} revealed />
       ) : (
-        <Markdown xstyle={styles.preview}>{preview}</Markdown>
+        <span {...stylex.props(styles.preview)}>{preview}</span>
       )}
     </article>
   )
@@ -244,11 +231,10 @@ const styles = stylex.create({
     maxWidth: '100%',
   },
   preview: {
-    WebkitBoxOrient: 'vertical',
-    WebkitLineClamp: 2,
-    display: '-webkit-box',
     overflow: 'hidden',
     textAlign: 'start',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   textLarge: {
     fontSize: '1.125rem',

@@ -32,7 +32,7 @@ The MVP is complete when a user can:
 - Follow the exact required-only schema in
   [`OPEN-DECK_MVP_FORMAT.md`](OPEN-DECK_MVP_FORMAT.md).
 - Support `prompt_response`, `cloze`, and rectangular `occlusion` notes.
-- Accept Markdown strings for learner-facing text.
+- Accept sanitized HTML strings for learner-facing text.
 - Require `media` on prompt-response and cloze notes; an empty array means no
   media.
 - Require `src` and `alt` for images, and `src` and `label` for audio and video.
@@ -49,7 +49,7 @@ test this path.
 - Store decks, notes, cards, review events, scheduling state, and media bytes in
   Dexie over IndexedDB.
 - Read the deck list and review queue from Dexie, not bundled sample data.
-- Render Markdown and local media during review.
+- Render sanitized HTML and local media during review.
 - Use the Anki FSRS SDK for each review grade.
 - Persist the updated card state and review event in one local transaction.
 - Recover the same state after reload.
@@ -74,7 +74,7 @@ test this path.
 
 - ZIP and URL import.
 - Export and backup flows.
-- Formula rendering, syntax highlighting, and advanced Markdown extensions.
+- Formula rendering and syntax highlighting.
 - Exact imported Anki layout or template preservation.
 - Native desktop or mobile apps.
 
@@ -124,7 +124,7 @@ Exit when an imported deck survives reload and appears in the deck list.
 ### 3. Review loop
 
 - Build reviewable cards for all three note types.
-- Render Markdown and media.
+- Render sanitized HTML and media.
 - Pass each grade to FSRS.
 - Save the review event and next card state together.
 

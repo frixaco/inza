@@ -3,7 +3,7 @@ import { createContext, useContext, useState, type Dispatch, type SetStateAction
 import Dexie from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { createEmptyCard, Rating, State, type Grade } from 'ts-fsrs'
-import { db, dbReady, defaultGlobalSettings, type StoredCard } from './db'
+import { db, dbReady, defaultGlobalSettings, deleteDeck, type StoredCard } from './db'
 import { importDeck } from './import-deck'
 import { Note, NoteContent } from './note'
 import { useFsrs } from './use-fsrs'
@@ -44,41 +44,43 @@ function App() {
       const studyDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
 
       return Promise.all(
-        (await db.decks.toArray()).map(async (deck) => {
-          const newStudied = deck.studyDay === studyDay ? deck.newStudied : 0
-          const reviewsStudied = deck.studyDay === studyDay ? deck.reviewsStudied : 0
-          const reviewLimit = Math.max(
-            0,
-            Math.floor(deck.maxReviewsPerDay ?? globalSettings.maxReviewsPerDay) -
-              newStudied -
-              reviewsStudied,
-          )
-          const newLimit = Math.max(
-            0,
-            Math.floor(deck.newCardsPerDay ?? globalSettings.newCardsPerDay) - newStudied,
-          )
-          const dueCards = await db.cards
-            .where('[deckId+fsrsCard.due]')
-            .between([deck.id, Dexie.minKey], [deck.id, now], true, true)
-            .filter(({ fsrsCard }) => fsrsCard.state !== State.New)
-            .limit(reviewLimit)
-            .toArray()
-          const newCards = await db.cards
-            .where('[deckId+fsrsCard.state]')
-            .equals([deck.id, State.New])
-            .limit(Math.min(newLimit, reviewLimit - dueCards.length))
-            .count()
+        (await db.decks.toArray())
+          .filter((deck) => deck.importStatus === 'ready')
+          .map(async (deck) => {
+            const newStudied = deck.studyDay === studyDay ? deck.newStudied : 0
+            const reviewsStudied = deck.studyDay === studyDay ? deck.reviewsStudied : 0
+            const reviewLimit = Math.max(
+              0,
+              Math.floor(deck.maxReviewsPerDay ?? globalSettings.maxReviewsPerDay) -
+                newStudied -
+                reviewsStudied,
+            )
+            const newLimit = Math.max(
+              0,
+              Math.floor(deck.newCardsPerDay ?? globalSettings.newCardsPerDay) - newStudied,
+            )
+            const dueCards = await db.cards
+              .where('[deckId+fsrsCard.due]')
+              .between([deck.id, Dexie.minKey], [deck.id, now], true, true)
+              .filter(({ fsrsCard }) => fsrsCard.state !== State.New)
+              .limit(reviewLimit)
+              .toArray()
+            const newCards = await db.cards
+              .where('[deckId+fsrsCard.state]')
+              .equals([deck.id, State.New])
+              .limit(Math.min(newLimit, reviewLimit - dueCards.length))
+              .count()
 
-          return {
-            ...deck,
-            learn: dueCards.filter(
-              ({ fsrsCard }) =>
-                fsrsCard.state === State.Learning || fsrsCard.state === State.Relearning,
-            ).length,
-            new: newCards,
-            review: dueCards.filter(({ fsrsCard }) => fsrsCard.state === State.Review).length,
-          }
-        }),
+            return {
+              ...deck,
+              learn: dueCards.filter(
+                ({ fsrsCard }) =>
+                  fsrsCard.state === State.Learning || fsrsCard.state === State.Relearning,
+              ).length,
+              new: newCards,
+              review: dueCards.filter(({ fsrsCard }) => fsrsCard.state === State.Review).length,
+            }
+          }),
       )
     },
     [globalSettings],
@@ -92,7 +94,10 @@ function App() {
   const [reviewComplete, setReviewComplete] = useState(false)
   const [dirty, setDirty] = useState(true)
   const [showAddDeck, setShowAddDeck] = useState(false)
-  const [importing, setImporting] = useState(false)
+  const [importProgress, setImportProgress] = useState<{
+    importedBytes: number
+    totalBytes: number
+  } | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
   const [globalSettingsDraft, setGlobalSettingsDraft] = useState(globalSettings)
   const [deckSettingsDraft, setDeckSettingsDraft] = useState({
@@ -116,12 +121,18 @@ function App() {
   }
 
   const loadDeck = async (input: HTMLInputElement) => {
+    const files = Array.from(input.files ?? [])
     setImportError(null)
-    setImporting(true)
+    setImportProgress({
+      importedBytes: 0,
+      totalBytes: files.reduce((sum, file) => sum + file.size, 0),
+    })
     input.setCustomValidity('')
 
     try {
-      await importDeck(Array.from(input.files ?? []))
+      await importDeck(files, (importedBytes, totalBytes) =>
+        setImportProgress({ importedBytes, totalBytes }),
+      )
       input.value = ''
       setShowAddDeck(false)
     } catch (error) {
@@ -130,7 +141,7 @@ function App() {
       input.setCustomValidity(message)
       input.reportValidity()
     } finally {
-      setImporting(false)
+      setImportProgress(null)
     }
   }
 
@@ -323,7 +334,7 @@ function App() {
 
   const Edit = () => (
     <>
-      <div {...stylex.props(styles.row, styles.semibold)}>
+      <div {...stylex.props(styles.row, styles.spaceBetween, styles.semibold)}>
         <button
           {...stylex.props(styles.button)}
           onClick={(e) => {
@@ -332,6 +343,12 @@ function App() {
           }}
         >
           Back
+        </button>
+        <button
+          {...stylex.props(styles.button, styles.primary)}
+          onClick={() => void db.decks.update(selectedDeck.id, deckSettingsDraft)}
+        >
+          Save
         </button>
       </div>
 
@@ -360,10 +377,10 @@ function App() {
         />
         <div {...stylex.props(styles.row, styles.topMargin)}>
           <button
-            {...stylex.props(styles.button, styles.primary)}
-            onClick={() => void db.decks.update(selectedDeck.id, deckSettingsDraft)}
+            {...stylex.props(styles.button, styles.danger)}
+            onClick={() => void deleteDeck(selectedDeck.id).then(() => setTab('decks'))}
           >
-            Save
+            Delete deck
           </button>
           <button
             {...stylex.props(styles.button, styles.danger)}
@@ -520,14 +537,30 @@ function App() {
 
       {showAddDeck ? (
         <div {...stylex.props(styles.addDeck)}>
-          <input
-            {...{ webkitdirectory: '' }}
-            disabled={importing}
-            id="dirInput"
-            name="dirInput"
-            type="file"
-            onChange={(event) => void loadDeck(event.currentTarget)}
-          />
+          {importProgress ? (
+            <div {...stylex.props(styles.importRow)}>
+              <progress
+                aria-label="Importing deck"
+                {...stylex.props(styles.grow)}
+                max={importProgress.totalBytes}
+                value={importProgress.importedBytes}
+              />
+              <span {...stylex.props(styles.progressPercent, styles.textSmall)}>
+                {importProgress.totalBytes
+                  ? Math.round((importProgress.importedBytes / importProgress.totalBytes) * 100)
+                  : 0}
+                %
+              </span>
+            </div>
+          ) : (
+            <input
+              {...{ webkitdirectory: '' }}
+              id="dirInput"
+              name="dirInput"
+              type="file"
+              onChange={(event) => void loadDeck(event.currentTarget)}
+            />
+          )}
           {importError ? <p {...stylex.props(styles.error)}>{importError}</p> : null}
         </div>
       ) : null}
@@ -561,21 +594,7 @@ function App() {
               </div>
             </div>
 
-            {d.importStatus === 'importing' ? (
-              <div {...stylex.props(styles.importRow)}>
-                <progress
-                  aria-label={`Importing ${d.name}`}
-                  {...stylex.props(styles.grow)}
-                  max={d.totalBytes}
-                  value={d.importedBytes}
-                />
-                <span {...stylex.props(styles.textSmall)}>
-                  {d.totalBytes ? Math.round((d.importedBytes / d.totalBytes) * 100) : 0}%
-                </span>
-              </div>
-            ) : null}
-
-            {isActive(d.id) && d.importStatus === 'ready' ? (
+            {isActive(d.id) ? (
               <div {...stylex.props(styles.deckActions)}>
                 <button
                   {...stylex.props(styles.primaryButton)}
@@ -788,6 +807,11 @@ const styles = stylex.create({
     alignItems: 'center',
     display: 'flex',
     gap: '0.75rem',
+  },
+  progressPercent: {
+    flex: '0 0 4ch',
+    fontVariantNumeric: 'tabular-nums',
+    textAlign: 'end',
   },
   main: {
     display: 'flex',
