@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import { createEmptyCard, type Card } from 'ts-fsrs'
 import type { DeckNote } from './notes'
 
 type StoredDeck = {
@@ -10,11 +11,21 @@ type StoredDeck = {
   importStatus: 'importing' | 'ready'
   importedBytes: number
   totalBytes: number
+  studyDay: number
+  newStudied: number
+  reviewsStudied: number
 }
 
-type StoredNote = DeckNote & {
+export type StoredNote = DeckNote & {
   noteId: string
   deckId: string
+}
+
+export type StoredCard = {
+  id: string
+  noteId: string
+  deckId: string
+  fsrsCard: Card
 }
 
 type StoredMedia = {
@@ -27,18 +38,38 @@ type StoredMedia = {
 export const db = new Dexie('inza') as Dexie & {
   decks: EntityTable<StoredDeck, 'id'>
   notes: EntityTable<StoredNote, 'id'>
+  cards: EntityTable<StoredCard, 'id'>
   media: EntityTable<StoredMedia, 'id'>
 }
 
 db.version(1).stores({
   decks: 'id',
   notes: 'id, deckId',
+  cards: 'id, deckId, [deckId+fsrsCard.state], [deckId+fsrsCard.due]',
   media: 'id, deckId',
 })
 
+export function createStoredCards(note: StoredNote): StoredCard[] {
+  // A cloze ID can appear more than once; create one card variant for each unique {{id::content}} ID.
+  const variantIds =
+    note.type === 'prompt_response'
+      ? ['']
+      : note.type === 'cloze'
+        ? [...new Set([...note.text.matchAll(/\{\{([^:}]+)::[^}]+\}\}/g)].map((match) => match[1]))]
+        : note.masks.map(({ id }) => id)
+
+  return variantIds.map((variantId) => ({
+    id: JSON.stringify([note.deckId, note.noteId, variantId]),
+    noteId: note.id,
+    deckId: note.deckId,
+    fsrsCard: createEmptyCard(),
+  }))
+}
+
 export async function deleteDeck(deckId: string) {
-  await db.transaction('rw', db.decks, db.notes, db.media, async () => {
+  await db.transaction('rw', db.decks, db.notes, db.cards, db.media, async () => {
     await db.notes.where('deckId').equals(deckId).delete()
+    await db.cards.where('deckId').equals(deckId).delete()
     await db.media.where('deckId').equals(deckId).delete()
     await db.decks.delete(deckId)
   })
@@ -46,6 +77,7 @@ export async function deleteDeck(deckId: string) {
 
 export const dbReady = db.open().then(async () => {
   for (const deck of await db.decks.toArray()) {
+    // TODO: handle better
     if (deck.importStatus === 'importing') await deleteDeck(deck.id)
   }
 })

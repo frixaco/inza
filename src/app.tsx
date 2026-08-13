@@ -1,8 +1,11 @@
 import { createContext, useContext, useState, type Dispatch, type SetStateAction } from 'react'
+import Dexie from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, dbReady } from './db'
+import { createEmptyCard, Rating, State, type Grade } from 'ts-fsrs'
+import { db, dbReady, type StoredCard } from './db'
 import { importDeck } from './import-deck'
 import { Note, NoteContent } from './note'
+import { useFsrs } from './use-fsrs'
 
 type Tab = 'decks' | 'study' | 'settings' | 'browse' | 'edit'
 type NavContextValue = {
@@ -35,6 +38,7 @@ const defaultGlobalSettings: GlobalSettings = {
 
 function App() {
   const { tab, setTab } = useNav()
+  const scheduler = useFsrs()
   const decks = useLiveQuery(
     async () => {
       await dbReady
@@ -46,6 +50,10 @@ function App() {
   const [toggledDeckID, setToggledDeckID] = useState<string | null>(null)
   const [selectedDeckID, setSelectedDeckID] = useState<string | null>(null)
   const [globalSettings, setGlobalSettings] = useState(defaultGlobalSettings)
+  const [studyCards, setStudyCards] = useState<StoredCard[]>([])
+  const [front, setFront] = useState(true)
+  const [cardIndex, setCardIndex] = useState(0)
+  const [reviewComplete, setReviewComplete] = useState(false)
   const [dirty, setDirty] = useState(true)
   const [showAddDeck, setShowAddDeck] = useState(false)
   const [importing, setImporting] = useState(false)
@@ -61,14 +69,18 @@ function App() {
     setGlobalSettings((current) => ({ ...current, [key]: value }))
   }
 
-  const resetDeckProgress = (deckID: string) => {
-    const deck = decks.find((item) => item.id === deckID)
-    if (!deck) return
-
-    void db.decks.update(deckID, {
-      done: 0,
-      due: 0,
-      todo: deck.done + deck.due + deck.todo,
+  const resetDeckProgress = async (deckID: string) => {
+    const todo = await db.cards.where('deckId').equals(deckID).count()
+    await db.transaction('rw', db.decks, db.cards, async () => {
+      await db.cards.where('deckId').equals(deckID).modify({ fsrsCard: createEmptyCard() })
+      await db.decks.update(deckID, {
+        done: 0,
+        due: 0,
+        todo,
+        studyDay: 0,
+        newStudied: 0,
+        reviewsStudied: 0,
+      })
     })
   }
 
@@ -89,6 +101,63 @@ function App() {
     } finally {
       setImporting(false)
     }
+  }
+
+  const startStudy = async (deckID: string) => {
+    const now = new Date()
+    const studyDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+    const deck = await db.decks.get(deckID)
+    if (!deck) throw new Error(`Deck ${deckID} does not exist`)
+    const newStudied = deck.studyDay === studyDay ? deck.newStudied : 0
+    const reviewsStudied = deck.studyDay === studyDay ? deck.reviewsStudied : 0
+    const reviewLimit = Math.max(
+      0,
+      Math.floor(globalSettings.maxReviewsPerDay) - newStudied - reviewsStudied,
+    )
+    const newLimit = Math.max(0, Math.floor(globalSettings.newCardsPerDay) - newStudied)
+    const dueCards = await db.cards
+      .where('[deckId+fsrsCard.due]')
+      .between([deckID, Dexie.minKey], [deckID, now], true, true)
+      .filter(({ fsrsCard }) => fsrsCard.state !== State.New)
+      .limit(reviewLimit)
+      .toArray()
+    const newCards = await db.cards
+      .where('[deckId+fsrsCard.state]')
+      .equals([deckID, State.New])
+      .limit(Math.min(newLimit, reviewLimit - dueCards.length))
+      .toArray()
+
+    // Match Anki's default by spreading new cards evenly through the review queue.
+    const cards: StoredCard[] = []
+    const ratio = (dueCards.length + 1) / (newCards.length + 1)
+    let dueIndex = 0
+    let newIndex = 0
+    while (dueIndex < dueCards.length || newIndex < newCards.length) {
+      const takeNew =
+        newIndex < newCards.length &&
+        (dueIndex === dueCards.length || (newIndex + 1) * ratio < dueIndex + 1)
+      cards.push(takeNew ? newCards[newIndex++] : dueCards[dueIndex++])
+    }
+
+    setStudyCards(cards)
+    setFront(true)
+    setCardIndex(0)
+    setReviewComplete(cards.length === 0)
+    setSelectedDeckID(deckID)
+    setTab('study')
+  }
+
+  const devReset = async () => {
+    localStorage.clear()
+    sessionStorage.clear()
+    await db.delete()
+    await Promise.all((await caches.keys()).map((name) => caches.delete(name)))
+    await Promise.all(
+      (await navigator.serviceWorker.getRegistrations()).map((registration) =>
+        registration.unregister(),
+      ),
+    )
+    location.reload()
   }
 
   const NumberSetting = ({
@@ -199,6 +268,12 @@ function App() {
           label="Auto-sync"
           onChange={(value) => updateGlobalSetting('autoSync', value)}
         />
+        <button
+          className="border border-red-300 px-6 py-4 text-sm text-red-700"
+          onClick={() => void devReset()}
+        >
+          Dev Reset
+        </button>
       </div>
     </>
   )
@@ -282,15 +357,39 @@ function App() {
   }
 
   const Study = () => {
-    const [front, setFront] = useState(true)
-    const [noteIndex, setNoteIndex] = useState(0)
-    const note = useLiveQuery(
-      () =>
-        selectedDeckID
-          ? db.notes.where('deckId').equals(selectedDeckID).offset(noteIndex).first()
-          : undefined,
-      [selectedDeckID, noteIndex],
-    )
+    const card = studyCards[cardIndex]
+    const note = useLiveQuery(() => (card ? db.notes.get(card.noteId) : undefined), [card?.noteId])
+
+    const review = async (card: StoredCard, grade: Grade) => {
+      const now = new Date()
+      const studyDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+      const { card: fsrsCard } = scheduler.next(card.fsrsCard, now, grade)
+      await db.transaction('rw', db.cards, db.decks, async () => {
+        await db.cards.update(card.id, { fsrsCard })
+        await db.decks
+          .where('id')
+          .equals(card.deckId)
+          .modify((deck) => {
+            if (deck.studyDay !== studyDay) {
+              deck.studyDay = studyDay
+              deck.newStudied = 0
+              deck.reviewsStudied = 0
+            }
+            if (card.fsrsCard.state === State.New) {
+              deck.newStudied++
+            } else {
+              deck.reviewsStudied++
+            }
+          })
+      })
+
+      if (cardIndex === studyCards.length - 1) {
+        setReviewComplete(true)
+      } else {
+        setCardIndex((current) => current + 1)
+        setFront(true)
+      }
+    }
 
     return (
       <>
@@ -306,17 +405,17 @@ function App() {
           </button>
         </div>
 
-        {note ? (
+        {reviewComplete ? (
+          <div className="flex flex-1 items-center justify-center">Review complete</div>
+        ) : note ? (
           <NoteContent note={note} revealed={!front} />
-        ) : (
-          <div className="flex flex-1 items-center justify-center">No notes</div>
-        )}
+        ) : null}
 
-        {note ? (
+        {!reviewComplete && card && note ? (
           <div className="flex flex-col gap-4">
             {front ? (
               <button
-                className="flex-1 bg-gray-300 px-6 py-4 text-sm"
+                className="flex-1 border border-gray-300 px-6 py-4 text-sm"
                 onClick={(e) => {
                   e.stopPropagation()
                   setFront(false)
@@ -325,16 +424,44 @@ function App() {
                 Show back
               </button>
             ) : (
-              <button
-                className="flex-1 bg-blue-300 px-6 py-4 text-sm"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setNoteIndex((current) => (current + 1) % selectedDeck.todo)
-                  setFront(true)
-                }}
-              >
-                Next
-              </button>
+              <div className="flex flex-nowrap gap-2">
+                <button
+                  className="flex-1 bg-red-300 px-6 py-4 text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    void review(card, Rating.Again)
+                  }}
+                >
+                  Again
+                </button>
+                <button
+                  className="flex-1 bg-orange-300 px-6 py-4 text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    void review(card, Rating.Hard)
+                  }}
+                >
+                  Hard
+                </button>
+                <button
+                  className="flex-1 bg-blue-300 px-6 py-4 text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    void review(card, Rating.Good)
+                  }}
+                >
+                  Good
+                </button>
+                <button
+                  className="flex-1 bg-green-300 px-6 py-4 text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    void review(card, Rating.Easy)
+                  }}
+                >
+                  Easy
+                </button>
+              </div>
             )}
           </div>
         ) : null}
@@ -423,8 +550,7 @@ function App() {
                   className="bg-primary px-8 py-2 text-sm text-primary-foreground"
                   onClick={(e) => {
                     e.stopPropagation()
-                    setSelectedDeckID(d.id)
-                    setTab('study')
+                    void startStudy(d.id)
                   }}
                 >
                   Study

@@ -1,6 +1,6 @@
 import * as v from 'valibot'
 import { parse } from 'yaml'
-import { db, dbReady, deleteDeck } from './db'
+import { createStoredCards, db, dbReady, deleteDeck } from './db'
 import { DeckNoteSchema } from './notes'
 
 const RequiredStringSchema = v.pipe(v.string(), v.nonEmpty())
@@ -71,6 +71,9 @@ export async function importDeck(files: File[]) {
     importStatus: 'importing',
     importedBytes,
     totalBytes,
+    studyDay: 0,
+    newStudied: 0,
+    reviewsStudied: 0,
   })
 
   try {
@@ -109,10 +112,12 @@ export async function importDeck(files: File[]) {
         }
       })
 
+      const cards = notes.flatMap(createStoredCards)
       importedBytes += file.size
-      await db.transaction('rw', db.decks, db.notes, async () => {
+      await db.transaction('rw', db.decks, db.notes, db.cards, async () => {
         await db.notes.bulkAdd(notes)
-        await db.decks.update(manifest.id, { importedBytes, todo: noteIds.size })
+        await db.cards.bulkAdd(cards)
+        await db.decks.update(manifest.id, { importedBytes, todo: cards.length })
       })
     }
 
