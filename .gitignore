@@ -2,5 +2,7 @@ node_modules
 dist
 .DS_Store
 
+*.apkg
 kaishi-open-deck
 kaishi-open-deck-mvp
+kaishi-open-deck-mvp-html

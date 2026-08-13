@@ -36,7 +36,10 @@ async function parseYaml(file: File) {
   }
 }
 
-export async function importDeck(files: File[]) {
+export async function importDeck(
+  files: File[],
+  onProgress: (importedBytes: number, totalBytes: number) => void,
+) {
   await dbReady
   const root = files[0]?.webkitRelativePath.split('/')[0]
   if (!root || files.some((file) => !file.webkitRelativePath.startsWith(`${root}/`))) {
@@ -72,6 +75,7 @@ export async function importDeck(files: File[]) {
     newStudied: 0,
     reviewsStudied: 0,
   })
+  onProgress(importedBytes, totalBytes)
 
   try {
     const assetPaths = new Set(
@@ -116,6 +120,7 @@ export async function importDeck(files: File[]) {
         await db.cards.bulkAdd(cards)
         await db.decks.update(manifest.id, { importedBytes })
       })
+      onProgress(importedBytes, totalBytes)
     }
 
     for (const file of assetFiles) {
@@ -131,9 +136,11 @@ export async function importDeck(files: File[]) {
         await db.media.add(media)
         await db.decks.update(manifest.id, { importedBytes })
       })
+      onProgress(importedBytes, totalBytes)
     }
 
     await db.decks.update(manifest.id, { importStatus: 'ready', importedBytes: totalBytes })
+    onProgress(totalBytes, totalBytes)
     return manifest.id
   } catch (error) {
     await deleteDeck(manifest.id)

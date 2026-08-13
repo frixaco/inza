@@ -4,24 +4,22 @@
 
 This document defines a human-readable deck format for flashcard decks that can
 live as either a directory or a zip archive. The design goal is to support a
-large range of Anki-like decks without copying Anki's HTML/CSS/template model
-into the authoring format.
+large range of Anki-like decks without copying Anki's templates, CSS, or
+JavaScript into the authoring format.
 
 The core rule is simple:
 
 > Deck files describe learning content and intent. The app owns rendering.
 
-That means a deck can say "this is the term", "this is the sentence", "this is
-audio", "this answer should be typed", or "this region is hidden". It should not
-say "make a centered div with 72px text and this CSS class". Pretty defaults,
-platform-specific layout, accessibility, dark mode, and responsive behavior are
-app responsibilities.
+Learner-facing text is safe semantic HTML because Open Deck targets a web app.
+HTML describes paragraphs, emphasis, links, code, tables, ruby text, and math.
+It does not control layout or styling. Pretty defaults, accessibility, dark
+mode, and responsive behavior remain app responsibilities.
 
 ## Non-Goals
 
-- No HTML templates.
-- No CSS.
-- No JavaScript as the default extension point.
+- No full HTML documents or card templates.
+- No deck-authored CSS or JavaScript.
 - No required database.
 - No hidden binary package format.
 - No attempt to preserve every imported deck layout exactly.
@@ -143,25 +141,12 @@ Keep review fields focused on what the learner sees or what the scheduler needs.
 Authoring history, import details, and source file paths belong in `provenance`,
 not in the core note shape.
 
-### Review Behavior
+### HTML Content
 
-Review behavior describes how the learner answers without defining layout.
-
-```yaml
-answer_mode: reveal | typed
-```
-
-Recommended default:
-
-```yaml
-answer_mode: reveal
-```
-
-### Content
-
-Visible content should use either Markdown text or a small list of generic
-content blocks. Use Markdown text for ordinary cards. Use blocks when a card has
-several learner-facing pieces that should not be flattened into one blob.
+Visible content uses either an HTML fragment string or a small list of generic
+content blocks. Plain text is valid HTML content. Use one string for ordinary
+cards. Use blocks when a card has several learner-facing pieces that need
+separate roles, labels, languages, or media.
 
 Simple string:
 
@@ -169,23 +154,20 @@ Simple string:
 prompt: What is ownership?
 ```
 
-Markdown block:
+HTML fragment:
 
-````yaml
+```yaml
 prompt: |
-  What happens when this code runs?
-
-  ```rust
-  println!("{}", [1, 2, 3][1]);
-  ```
-````
+  <p>What happens when this code runs?</p>
+  <pre><code data-language="rust">println!(&quot;{}&quot;, [1, 2, 3][1]);</code></pre>
+```
 
 Block list:
 
 ```yaml
 prompt:
   - role: main
-    text: "\u79c1"
+    html: <ruby>私<rt>わたし</rt></ruby>
     language: ja
     media:
       - kind: audio
@@ -194,7 +176,7 @@ prompt:
 
   - role: context
     label: Sentence
-    text: "\u79c1\u306f\u30a2\u30f3\u3067\u3059\u3002"
+    html: 私はアンです。
     language: ja
     media:
       - kind: audio
@@ -207,19 +189,14 @@ Block fields:
 ```yaml
 role: main | context | support | note
 label: string
-text: markdown-string
-runs: [inline-run]
+html: html-fragment
 language: language-code
 media: [media-ref]
 ```
 
-A block must contain at least one of `text`, `runs`, or `media`. Use `text` for
-ordinary Markdown. Use `runs` only when a card needs small inline relationships
-that Markdown cannot express cleanly, such as text above or below an exact span.
-Do not set both `text` and `runs` on the same block.
-
-Use media on a block when the file belongs to that specific piece of content,
-such as word audio, sentence audio, or an example image.
+A block must contain `html` or a non-empty `media` list. Use media on a block
+when the file belongs to that specific piece of content, such as word audio,
+sentence audio, or an example image.
 
 `role` tells the renderer the weight of the block, not its subject matter:
 
@@ -232,38 +209,48 @@ such as word audio, sentence audio, or an example image.
 distinguishing "Reading", "Frequency", "Source sentence", or "Compiler error".
 Labels are deck content, not renderer commands.
 
-Readers may render a block list as native grouped text, as labeled rows, or as
-plain Markdown-like sections. The app decides layout, spacing, script rendering,
-inline above/below text, and emphasis.
+Readers render each block's HTML inside an app-owned block component. The app
+decides block layout, spacing, labels, language handling, and visual weight.
 
-### Inline Runs
+### Safe HTML
 
-Inline runs are plain text spans with small generic presentation hints. They are
-not a template language, annotation engine, or subject-matter model. They store
-what appears attached to text, not why.
+Content may use these semantic HTML elements:
 
-```yaml
-runs:
-  - Plain text before
-  - text: "\u79c1"
-    above: "\u308f\u305f\u3057"
-    marks: [strong]
-  - "\u306f\u30a2\u30f3\u3067\u3059\u3002"
+```text
+p br hr h1 h2 h3 h4 h5 h6 div span blockquote pre code
+strong b em i s del mark small sub sup kbd samp var
+ul ol li dl dt dd table caption thead tbody tfoot tr th td
+a ruby rt rp
 ```
 
-Run fields:
+Content may also use these MathML elements:
 
-```yaml
-text: string
-marks: [strong | emphasis | code | strike | highlight]
-above: string
-below: string
-link: url
+```text
+math mrow mi mn mo mtext mspace mfrac msqrt mroot
+msub msup msubsup munder mover munderover
+mtable mtr mtd mpadded mphantom
 ```
 
-Run `text`, `above`, and `below` are plain text, not Markdown. Use Markdown
-`text` blocks for paragraphs, code fences, lists, formulas, and ordinary links.
-Use `runs` only for the small cases where the exact span matters.
+Allowed attributes are:
+
+- `lang`, `dir`, and `title`.
+- `href` on `a`.
+- `start`, `reversed`, and `type` on `ol`; `value` on `li`.
+- `colspan`, `rowspan`, and `scope` on table cells.
+- `data-language` on `code`.
+- `data-cloze` and `data-hint` on cloze `span` elements.
+- `display` on `math`; `mathvariant` on MathML elements.
+
+Links must use `https:`, `http:`, or `mailto:` URLs. Readers must reject every
+unlisted element or attribute, full HTML documents, comments, CSS, event
+handlers, scripts, forms, frames, embedded objects, and media elements. Images,
+audio, and video use structured media references so readers can validate and
+load deck assets.
+
+A reader must parse and validate every fragment during import. It must reject
+unsafe HTML instead of silently changing deck content. It must sanitize the
+validated fragment again before inserting it into the page. Deck HTML must never
+be assigned to an executable script, style, URL, or event-handler context.
 
 ### Media References
 
@@ -310,7 +297,7 @@ folding a shape. Model that as ordinary media first.
 ```yaml
 answer:
   - role: main
-    text: "\u4f60"
+    html: 你
     language: zh-Hans
     media:
       - kind: video
@@ -379,10 +366,7 @@ references:
   type: prompt_response
   prompt:
     - role: main
-      runs:
-        - text: "\u60aa"
-          above: "\u308f\u308b"
-        - "\u3044"
+      html: <ruby>悪<rt>わる</rt></ruby>い
       language: ja
       media:
         - kind: audio
@@ -390,7 +374,7 @@ references:
           label: Word audio
     - role: context
       label: Sentence
-      text: "\u3042\u306e\u4eba\u306f\u60aa\u3044\u4eba\u3067\u3059\u3002"
+      html: あの人は悪い人です。
       language: ja
       media:
         - kind: audio
@@ -399,13 +383,13 @@ references:
   answer:
     - role: main
       label: Meaning
-      text: bad
+      html: bad
     - role: support
       label: Reading
-      text: warui
+      html: warui
     - role: support
       label: Sentence meaning
-      text: That person is a bad person.
+      html: That person is a bad person.
     - role: support
       label: Illustration
       media:
@@ -454,7 +438,7 @@ layer into the deck format.
   answer:
     - role: main
       label: Artist
-      text: Max Ernst
+      html: Max Ernst
 
 - id: artwork-ernst-title
   type: prompt_response
@@ -468,36 +452,32 @@ layer into the deck format.
   answer:
     - role: main
       label: Title
-      text: Europe After the Rain II
+      html: Europe After the Rain II
 ```
 
 ### Example: Code Diagnostic
 
-````yaml
+```yaml
 - id: rust-double-mut-borrow
   type: prompt_response
   prompt: |
-    Why does this fail?
-
-    ```rust
-    fn main() {
-        let mut s = String::from("hello");
-        let r1 = &mut s;
-        let r2 = &mut s;
-        println!("{r1}, {r2}");
-    }
-    ```
+    <p>Why does this fail?</p>
+    <pre><code data-language="rust">fn main() {
+        let mut s = String::from(&quot;hello&quot;);
+        let r1 = &amp;mut s;
+        let r2 = &amp;mut s;
+        println!(&quot;{r1}, {r2}&quot;);
+    }</code></pre>
   answer: |
-    It creates two simultaneous mutable references to `s`.
-
-    Rust allows either one mutable reference or any number of immutable
-    references, but not overlapping mutable references.
-
-    Common mistakes:
-
-    - Thinking the error is caused by `println!` formatting.
-    - Thinking the borrow ends immediately after `r1` is created.
-````
+    <p>It creates two simultaneous mutable references to <code>s</code>.</p>
+    <p>Rust allows either one mutable reference or any number of immutable
+    references, but not overlapping mutable references.</p>
+    <p>Common mistakes:</p>
+    <ul>
+      <li>Thinking the error is caused by <code>println!</code> formatting.</li>
+      <li>Thinking the borrow ends immediately after <code>r1</code> is created.</li>
+    </ul>
+```
 
 ### Example: Math Problem
 
@@ -505,14 +485,14 @@ layer into the deck format.
 - id: derivative-x2
   type: prompt_response
   prompt: |
-    Find the derivative.
-
-    $f(x) = x^2$
+    <p>Find the derivative.</p>
+    <math display="block"><mrow><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></math>
   answer: |
-    $f'(x) = 2x$
-
-    - Apply the power rule.
-    - Multiply by the exponent and subtract one from the exponent.
+    <math display="block"><mrow><msup><mi>f</mi><mo>′</mo></msup><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>2</mn><mi>x</mi></mrow></math>
+    <ul>
+      <li>Apply the power rule.</li>
+      <li>Multiply by the exponent and subtract one from the exponent.</li>
+    </ul>
 ```
 
 ## Type 2: `cloze`
@@ -523,7 +503,7 @@ Use `cloze` when the prompt is a source passage with inline hidden spans.
 
 ```yaml
 type: cloze
-text: content-with-cloze-markers
+text: content-with-cloze-elements
 ```
 
 ### Additional Fields
@@ -534,14 +514,15 @@ extra: content
 media: [media-ref]
 ```
 
-Cloze markers use this form:
+Cloze content uses a `span` with a non-empty `data-cloze` ID:
 
-```text
-{{id::answer}}
-{{id::answer::hint}}
+```html
+<span data-cloze="c1">answer</span>
+<span data-cloze="c1" data-hint="hint">answer</span>
 ```
 
-Repeated IDs belong to the same group.
+The element content is the answer. It may contain safe inline HTML. Repeated IDs
+belong to the same card.
 
 ### Example
 
@@ -549,10 +530,12 @@ Repeated IDs belong to the same group.
 - id: rust-ownership-cloze
   type: cloze
   text: |
-    In Rust, each value has {{c1::one owner::count + noun}} at a time,
-    and when the owner goes out of scope, the value is {{c2::dropped::cleanup action}}.
+    <p>In Rust, each value has
+    <span data-cloze="c1" data-hint="count + noun">one owner</span> at a time,
+    and when the owner goes out of scope, the value is
+    <span data-cloze="c2" data-hint="cleanup action">dropped</span>.</p>
   extra: |
-    This is the core ownership rule that lets Rust avoid a garbage collector.
+    <p>This is the core ownership rule that lets Rust avoid a garbage collector.</p>
 ```
 
 ## Type 3: `occlusion`
@@ -573,7 +556,7 @@ masks:
       y: 0
       w: 100
       h: 50
-    answer: string
+    answer: html-fragment
 ```
 
 ### Additional Fields
@@ -587,8 +570,8 @@ image:
 
 masks:
   - id: string
-    answer: string
-    hint: string
+    answer: html-fragment
+    hint: html-fragment
     group: string
     shape:
       kind: rect | ellipse | polygon
@@ -634,7 +617,7 @@ scale to screen size.
         w: 150
         h: 120
   extra: |
-    Review the relative position of each structure, not only the label name.
+    <p>Review the relative position of each structure, not only the label name.</p>
 ```
 
 ## References
@@ -670,29 +653,25 @@ Readers may ignore `provenance`.
 
 Importers should produce ordinary native notes. If they need to preserve source
 system details, they should put that data in `provenance`, not in review fields.
-Imported HTML templates, CSS, JavaScript, renderer preferences, and widget
-configuration are not native deck content. Preserve the useful learner-facing
-facts, media, links, and audit metadata instead.
+Importers may preserve safe learner-facing HTML, but must discard source
+templates, CSS, JavaScript, renderer preferences, and widget configuration.
+Preserve useful content, media, links, and audit metadata instead.
 
 ## Validation Rules
 
 A validator should check:
 
-- `deck.yaml` exists.
-- `format` is supported.
-- Every note has a stable `id`.
-- Every note has a supported `type`.
-- Required fields for the type are present.
-- Asset references exist and stay inside the deck root.
+- `deck.yaml` exists and its `format` is supported.
+- Every note has a stable ID, a supported type, and its required fields.
 - IDs are unique within the deck.
-- Prompt-response notes have a prompt and answer.
-- Content blocks, when used, have a supported role and at least one of `text`,
-  `runs`, or `media`.
-- Content blocks do not set both `text` and `runs`.
-- Inline runs, when used, are non-empty and use supported marks.
+- Asset references exist and stay inside the deck root.
+- Every HTML content value is a string or valid content block list.
+- Every HTML fragment uses only allowed elements, attributes, and URL protocols.
+- Content blocks have a supported role and contain `html` or media.
 - Media is valid on both notes and content blocks.
+- Prompt-response notes have a prompt and answer.
+- Cloze notes have at least one valid `data-cloze` element.
 - Occlusion masks have valid geometry.
-- Cloze notes have at least one cloze marker.
 
 This repository includes a small validator:
 
@@ -714,13 +693,12 @@ The renderer must provide good defaults for:
 - Dark mode.
 - Audio controls.
 - Image sizing.
-- Inline above/below text where available.
-- Code blocks.
-- Math/formula text where available.
+- Safe semantic HTML.
+- Code blocks and native MathML.
 - Accessibility labels.
 - Empty optional fields.
 
-The renderer should not require deck authors to manage layout.
+The renderer must not require deck authors to manage layout.
 
 ## Format Identifier
 
@@ -744,75 +722,39 @@ Compatibility rules:
 A conforming reader should support:
 
 - Directory and zip loading.
-- `deck.yaml`.
-- `notes/*.yaml`.
+- `deck.yaml` and `notes/*.yaml`.
 - Local assets.
-- `prompt_response`.
-- `cloze`.
-- `occlusion`.
+- `prompt_response`, `cloze`, and `occlusion`.
+- Safe HTML fragments and content blocks.
 - Validation errors with file paths and note IDs.
 
 Do not build a template engine.
 
-## Native Markdown Rendering
+## Safe HTML Rendering
 
-Card content may use Markdown for ordinary rich text, code fences, links, lists,
-and formulas. Card content may also be a list of generic labeled blocks whose
-`text` values are Markdown. Markdown is authoring syntax, not a layout or
-template system.
+Card content is an HTML fragment or a list of generic labeled blocks whose
+`html` values are fragments. HTML is content syntax, not a layout or template
+system.
 
-Blocks that use `runs` bypass Markdown. Run text is already a small inline
-content tree, so readers should render it directly as native text spans.
+Readers must parse fragments with an HTML parser. String matching is not enough
+to validate nested elements, encoded URLs, or malformed markup. Import validation
+must reject content outside the allowlist in [Safe HTML](#safe-html).
 
-Readers should parse Markdown into an app-owned content tree before rendering:
-
-```text
-Markdown content
-  -> content tree
-  -> native renderer
-```
-
-For block lists, readers should parse each block's `text` through the same
-Markdown pipeline, or render its `runs` directly. Then they should render the
-block role and label with app-owned native components.
-
-Readers should render that tree with platform-native UI components where
-practical. For example, iOS can render the tree with SwiftUI views, Android can
-render it with Compose views, and desktop apps can render it with their native UI
-toolkit. Electron desktop apps may render sanitized HTML as an implementation
-detail, but deck content should still be parsed through the same content tree and
-must not become deck-authored HTML.
-
-The content tree should stay small and semantic:
+Before rendering, readers must sanitize the fragment again and insert only the
+sanitized result. This second pass protects the page if stored data bypassed or
+predates import validation:
 
 ```text
-paragraph
-text
-emphasis
-strong
-inline_code
-code_block(language, text)
-link
-image
-bullet_list
-ordered_list
-blockquote
-math_inline
-math_block
+HTML fragment
+  -> parse and validate during import
+  -> store
+  -> sanitize before DOM insertion
 ```
 
-Readers should not support raw HTML, custom CSS, deck-authored JavaScript, or
-renderer-specific Markdown extensions.
+The app supplies all CSS. It may style semantic elements and content-block roles,
+but deck content cannot select classes, set styles, or run code. The app also
+owns external-link behavior, syntax highlighting, media controls, responsive
+layout, and accessibility defaults.
 
-Syntax highlighting, if supported, should be returned as spans over a code block
-rather than HTML:
-
-```text
-code_span(start, end, role)
-```
-
-The native renderer maps span roles to platform theme colors.
-
-Formula support should be isolated behind `math_inline` and `math_block`.
-Readers may render formulas with a native math renderer, pre-rendered images, or
-plain TeX fallback. Formula support should not require cards to use HTML.
+Math uses the allowed native MathML subset. TeX delimiters and
+renderer-specific formula extensions are not part of Open Deck.

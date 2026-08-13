@@ -1,700 +1,367 @@
-import { existsSync } from "node:fs";
-import { copyFile, mkdir, rm, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { existsSync } from 'node:fs'
+import { copyFile, mkdir, rm, writeFile } from 'node:fs/promises'
+import path from 'node:path'
 
-import { parseApkg, type Note } from "./parse_anki.ts";
+import { stringify } from 'yaml'
 
-type InlineMark = "strong" | "emphasis" | "code" | "strike" | "highlight";
-type InlineRun =
-  | string
-  | {
-      text: string;
-      marks?: InlineMark[];
-      above?: string;
-      below?: string;
-      link?: string;
-    };
+import { parseApkg, type Note } from './parse_anki.ts'
 
-type ContentBlock = {
-  role: "main" | "context" | "support" | "note";
-  label?: string;
-  text?: string;
-  runs?: InlineRun[];
-  language?: string;
-  media?: MediaRef[];
-};
+type Run = {
+  text: string
+  strong?: boolean
+  highlight?: boolean
+  above?: string
+  below?: string
+  link?: string
+}
 
-type DraftContentBlock = ContentBlock & {
-  fieldName?: string;
-};
-
-type MediaRef = {
-  kind: "image" | "audio" | "video";
-  src: string;
-  role?: "main" | "context" | "support" | "note";
-  label?: string;
-  alt?: string;
-};
+type MediaRef =
+  | { kind: 'image'; src: string; alt: string }
+  | { kind: 'audio' | 'video'; src: string; label: string }
 
 type ImportedMedia = {
-  filename: string;
-  fieldName: string;
-  alt?: string;
-};
+  filename: string
+  fieldName: string
+  alt?: string
+}
 
 type OpenNote = {
-  id: string;
-  type: "prompt_response";
-  prompt: string | ContentBlock[];
-  answer: string | ContentBlock[];
-  tags?: string[];
-  provenance: {
-    importer: string;
-    anki_note_id: number;
-    anki_guid: string;
-    anki_note_type: string;
-    anki_mod: number;
-  };
-};
+  id: string
+  type: 'prompt_response'
+  prompt: string
+  answer: string
+  media: MediaRef[]
+}
 
-const defaultDeckPath = "stuff/Kaishi-1.5k-v2.4.apkg";
-const defaultOutputDir = "stuff/kaishi-open-deck";
-const importWorkDir = ".tmp-kaishi-open-deck-import";
-const notesPerFile = 250;
-
-const textFieldOrder = [
-  "Word",
-  "Sentence",
-  "Word Meaning",
-  "Word Reading",
-  "Word Furigana",
-  "Sentence Meaning",
-  "Sentence Furigana",
-  "Notes",
-  "Pitch Accent",
-  "Pitch Accent Notes",
-  "Frequency",
-] as const;
-
-const expectedFieldNames = new Set([...textFieldOrder, "Word Audio", "Sentence Audio", "Picture"]);
-const promptFields = new Set(["Word", "Sentence"]);
-const overlineMark = "\uffe3";
-const dropMark = "\uff3c";
+const defaultDeckPath = 'stuff/Kaishi.1.5k.v2.4.1.apkg'
+const defaultOutputDir = 'kaishi-open-deck-mvp-html'
+const importWorkDir = '.tmp-kaishi-open-deck-import'
+const notesPerFile = 250
+const overlineMark = '￣'
+const dropMark = '＼'
+const answerFields = [
+  'Word Meaning',
+  'Word Reading',
+  'Word Furigana',
+  'Sentence Meaning',
+  'Sentence Furigana',
+  'Notes',
+  'Pitch Accent',
+  'Pitch Accent Notes',
+  'Frequency',
+] as const
+const expectedFieldNames = new Set([
+  'Word',
+  'Sentence',
+  ...answerFields,
+  'Word Audio',
+  'Sentence Audio',
+  'Picture',
+])
 
 function usage(): never {
-  console.error("Usage: bun stuff/convert-kaishi-to-open-deck.ts [apkg] [output-dir] [--force]");
-  process.exit(2);
+  console.error('Usage: bun stuff/convert-kaishi-to-open-deck.ts [apkg] [output-dir] [--force]')
+  process.exit(2)
 }
 
 function parseArgs(): { apkgPath: string; outputDir: string; force: boolean } {
-  const positional: string[] = [];
-  let force = false;
+  const positional: string[] = []
+  let force = false
 
-  for (const arg of Bun.argv.slice(2)) {
-    if (arg === "--force") {
-      force = true;
-      continue;
+  for (const arg of process.argv.slice(2)) {
+    if (arg === '--force') {
+      force = true
+    } else if (arg.startsWith('-')) {
+      usage()
+    } else {
+      positional.push(arg)
     }
-
-    if (arg.startsWith("-")) {
-      usage();
-    }
-
-    positional.push(arg);
   }
 
-  if (positional.length > 2) {
-    usage();
-  }
+  if (positional.length > 2) usage()
 
   return {
     apkgPath: positional[0] ?? defaultDeckPath,
     outputDir: positional[1] ?? defaultOutputDir,
     force,
-  };
+  }
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
 }
 
 function decodeHtmlEntities(value: string): string {
-  return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity) => {
-    if (entity.startsWith("#x")) {
-      return String.fromCodePoint(Number.parseInt(entity.slice(2), 16));
-    }
+  return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity: string) => {
+    if (entity.startsWith('#x')) return String.fromCodePoint(Number.parseInt(entity.slice(2), 16))
+    if (entity.startsWith('#')) return String.fromCodePoint(Number.parseInt(entity.slice(1), 10))
 
-    if (entity.startsWith("#")) {
-      return String.fromCodePoint(Number.parseInt(entity.slice(1), 10));
-    }
-
-    const named: Record<string, string> = {
-      amp: "&",
-      gt: ">",
-      lt: "<",
-      nbsp: " ",
-      quot: '"',
-      apos: "'",
-    };
-
-    return named[entity] ?? match;
-  });
+    return { amp: '&', gt: '>', lt: '<', nbsp: ' ', quot: '"', apos: "'" }[entity] ?? match
+  })
 }
 
 function stripMedia(value: string): string {
-  return value.replace(/\[sound:[^\]]+]/gi, "").replace(/<img\b[^>]*>/gi, "");
-}
-
-function htmlToText(value: string): string {
-  const withoutMedia = stripMedia(value);
-  const withMarkdownLinks = withoutMedia.replace(
-    /<a\b[^>]*\bhref=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
-    (_match, href, label) => `[${htmlToText(label)}](${href})`,
-  );
-
-  return decodeHtmlEntities(
-    withMarkdownLinks
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<\/(p|div|li|tr|h[1-6])>/gi, "\n")
-      .replace(/<li\b[^>]*>/gi, "- ")
-      .replace(/<[^>]+>/g, "")
-      .replace(/\r\n?/g, "\n")
-      .replace(/[ \t]+\n/g, "\n")
-      .replace(/\n[ \t]+/g, "\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim(),
-  );
-}
-
-type RunAttrs = {
-  marks: InlineMark[];
-  link?: string;
-};
-
-function createTextRun(
-  text: string,
-  attrs: RunAttrs,
-  extra?: { above?: string; below?: string },
-): InlineRun {
-  const marks = attrs.marks.length > 0 ? [...attrs.marks] : undefined;
-
-  if (!marks && !attrs.link && !extra?.above && !extra?.below) {
-    return text;
-  }
-
-  const run: Exclude<InlineRun, string> = { text };
-
-  if (marks) {
-    run.marks = marks;
-  }
-
-  if (attrs.link) {
-    run.link = attrs.link;
-  }
-
-  if (extra?.above) {
-    run.above = extra.above;
-  }
-
-  if (extra?.below) {
-    run.below = extra.below;
-  }
-
-  return run;
-}
-
-function pushRun(runs: InlineRun[], run: InlineRun, mergePlainText = true): void {
-  if (mergePlainText && typeof run === "string") {
-    const previous = runs[runs.length - 1];
-    if (typeof previous === "string") {
-      runs[runs.length - 1] = `${previous}${run}`;
-      return;
-    }
-  }
-
-  runs.push(run);
-}
-
-function isReadingBaseChar(char: string): boolean {
-  return !/[\s[\]{}()（）「」『』、。,.!?！？;；:："']/u.test(char);
-}
-
-function splitReadingBase(value: string): { prefix: string; base: string } {
-  const chars = Array.from(value);
-  let start = chars.length;
-
-  while (start > 0 && isReadingBaseChar(chars[start - 1] ?? "")) {
-    start -= 1;
-  }
-
-  return {
-    prefix: chars.slice(0, start).join(""),
-    base: chars.slice(start).join(""),
-  };
-}
-
-function pushTextWithReadings(runs: InlineRun[], value: string, attrs: RunAttrs): void {
-  let buffer = "";
-
-  for (let index = 0; index < value.length; index += 1) {
-    const char = value[index];
-
-    if (char !== "[") {
-      buffer += char;
-      continue;
-    }
-
-    const closeIndex = value.indexOf("]", index + 1);
-    if (closeIndex === -1) {
-      buffer += char;
-      continue;
-    }
-
-    const reading = value.slice(index + 1, closeIndex);
-    const { prefix, base } = splitReadingBase(buffer);
-
-    if (!base || !reading) {
-      buffer += value.slice(index, closeIndex + 1);
-      index = closeIndex;
-      continue;
-    }
-
-    if (prefix) {
-      pushRun(runs, createTextRun(prefix, attrs));
-    }
-
-    pushRun(runs, createTextRun(base, attrs, { above: reading }));
-    buffer = "";
-    index = closeIndex;
-  }
-
-  if (buffer) {
-    pushRun(runs, createTextRun(buffer, attrs));
-  }
-}
-
-function isSimpleInlineHtml(value: string): boolean {
-  return !/<\s*\/?\s*(p|div|ul|ol|li|table|thead|tbody|tr|td|th|img|audio|video)\b/i.test(value);
-}
-
-function inlineHtmlToRuns(value: string): InlineRun[] | undefined {
-  if (!isSimpleInlineHtml(value)) {
-    return undefined;
-  }
-
-  const runs: InlineRun[] = [];
-  let strongDepth = 0;
-  const linkStack: (string | undefined)[] = [];
-  let activeLink: string | undefined;
-
-  for (const match of stripMedia(value).matchAll(/<[^>]+>|[^<]+/g)) {
-    const token = match[0];
-
-    if (token.startsWith("<")) {
-      const tag = token.toLowerCase();
-
-      if (/^<\s*br\b/.test(tag)) {
-        pushRun(runs, "\n");
-      } else if (/^<\s*(b|strong)\b/.test(tag)) {
-        strongDepth += 1;
-      } else if (/^<\s*\/\s*(b|strong)\s*>/.test(tag)) {
-        strongDepth = Math.max(0, strongDepth - 1);
-      } else if (/^<\s*a\b/.test(tag)) {
-        linkStack.push(activeLink);
-        activeLink = extractAttr(token, "href") ?? activeLink;
-      } else if (/^<\s*\/\s*a\s*>/.test(tag)) {
-        activeLink = linkStack.pop();
-      }
-
-      continue;
-    }
-
-    const marks: InlineMark[] = strongDepth > 0 ? ["strong"] : [];
-    pushTextWithReadings(runs, decodeHtmlEntities(token), { marks, link: activeLink });
-  }
-
-  return runs.length > 0 ? runs : undefined;
-}
-
-type PitchSpan = {
-  inlineBlock: boolean;
-  overline: boolean;
-  highlight: boolean;
-  runStart: number;
-};
-
-function asObjectRun(run: InlineRun): Exclude<InlineRun, string> {
-  return typeof run === "string" ? { text: run } : run;
-}
-
-function addAdornment(
-  runs: InlineRun[],
-  start: number,
-  end: number,
-  key: "above" | "below",
-  value: string,
-): void {
-  for (let index = start; index < end; index += 1) {
-    const run = asObjectRun(runs[index] ?? "");
-    run[key] = run[key] ? `${run[key]}${value}` : value;
-    runs[index] = run;
-  }
-}
-
-function pitchAccentToRuns(value: string): InlineRun[] | undefined {
-  const runs: InlineRun[] = [];
-  const spans: PitchSpan[] = [];
-
-  for (const match of stripMedia(value).matchAll(/<[^>]+>|[^<]+/g)) {
-    const token = match[0];
-
-    if (token.startsWith("<")) {
-      const tag = token.toLowerCase();
-
-      if (/^<\s*br\b/.test(tag)) {
-        pushRun(runs, "\n", false);
-        continue;
-      }
-
-      if (/^<\s*\/\s*(div|p|li|tr|h[1-6])\s*>/.test(tag)) {
-        pushRun(runs, "\n", false);
-        continue;
-      }
-
-      if (/^<\s*li\b/.test(tag)) {
-        pushRun(runs, "- ", false);
-        continue;
-      }
-
-      if (/^<\s*\/\s*span\s*>/.test(tag)) {
-        spans.pop();
-        continue;
-      }
-
-      if (!/^<\s*span\b/.test(tag)) {
-        continue;
-      }
-
-      const style = extractAttr(token, "style")?.toLowerCase() ?? "";
-      const markerTarget = [...spans].reverse().find((span) => span.inlineBlock);
-
-      if (style.includes("border-top") && markerTarget) {
-        addAdornment(runs, markerTarget.runStart, runs.length, "above", overlineMark);
-
-        if (style.includes("border-right")) {
-          addAdornment(
-            runs,
-            Math.max(markerTarget.runStart, runs.length - 1),
-            runs.length,
-            "below",
-            dropMark,
-          );
-        }
-      }
-
-      spans.push({
-        inlineBlock: style.includes("display:inline-block"),
-        overline: style.includes("text-decoration:overline"),
-        highlight: style.includes("color:"),
-        runStart: runs.length,
-      });
-      continue;
-    }
-
-    const text = decodeHtmlEntities(token);
-    const marks: InlineMark[] = spans.some((span) => span.highlight) ? ["highlight"] : [];
-    const above = spans.some((span) => span.overline) ? overlineMark : undefined;
-
-    pushRun(runs, createTextRun(text, { marks }, { above }), false);
-  }
-
-  return runs.length > 0 ? runs : undefined;
-}
-
-function runsForField(fieldName: string, rawValue: string): InlineRun[] | undefined {
-  if (fieldName === "Pitch Accent") {
-    return pitchAccentToRuns(rawValue);
-  }
-
-  if (fieldName === "Pitch Accent Notes" && /<\s*span\b/i.test(rawValue)) {
-    return pitchAccentToRuns(rawValue);
-  }
-
-  if (fieldName === "Word Furigana" || fieldName === "Sentence Furigana") {
-    return inlineHtmlToRuns(rawValue);
-  }
-
-  if (fieldName === "Sentence" && /<\s*b\b/i.test(rawValue) && isSimpleInlineHtml(rawValue)) {
-    return inlineHtmlToRuns(rawValue);
-  }
-
-  return undefined;
+  return value.replace(/\[sound:[^\]]+]/gi, '').replace(/<img\b[^>]*>/gi, '')
 }
 
 function extractAttr(tag: string, name: string): string | undefined {
-  const pattern = new RegExp(`\\b${name}=["']([^"']*)["']`, "i");
-  const match = tag.match(pattern);
-  return match?.[1] ? decodeHtmlEntities(match[1]) : undefined;
+  const match = tag.match(new RegExp(`\\b${name}=["']([^"']*)["']`, 'i'))
+  return match?.[1] ? decodeHtmlEntities(match[1]) : undefined
 }
 
-function extractMedia(fields: Record<string, string>): ImportedMedia[] {
-  const media: ImportedMedia[] = [];
+function safeLink(value: string | undefined): string | undefined {
+  return value && /^(https?:|mailto:)/i.test(value) ? value : undefined
+}
 
-  for (const [fieldName, rawValue] of Object.entries(fields)) {
-    for (const match of rawValue.matchAll(/\[sound:([^\]]+)]/gi)) {
-      if (match[1]) {
-        media.push({ filename: match[1], fieldName });
-      }
+function isReadingBaseChar(char: string): boolean {
+  return !/[\s[\]{}()（）「」『』、。,.!?！？;；:："']/u.test(char)
+}
+
+function pushTextWithReadings(runs: Run[], value: string, strong: boolean, link?: string): void {
+  let buffer = ''
+
+  for (let index = 0; index < value.length; index += 1) {
+    if (value[index] !== '[') {
+      buffer += value[index]
+      continue
     }
 
-    for (const match of rawValue.matchAll(/<img\b[^>]*>/gi)) {
-      const tag = match[0];
-      const src = extractAttr(tag, "src");
+    const closeIndex = value.indexOf(']', index + 1)
+    if (closeIndex === -1) {
+      buffer += value[index]
+      continue
+    }
 
-      if (src) {
-        media.push({
-          filename: src,
-          fieldName,
-          alt: extractAttr(tag, "alt"),
-        });
+    const reading = value.slice(index + 1, closeIndex)
+    const chars = Array.from(buffer)
+    let start = chars.length
+    while (start > 0 && isReadingBaseChar(chars[start - 1] ?? '')) start -= 1
+    const prefix = chars
+      .slice(0, start)
+      .join('')
+      .replace(/[ \u00a0]+$/u, '')
+    const base = chars.slice(start).join('')
+
+    if (!base || !reading) {
+      buffer += value.slice(index, closeIndex + 1)
+      index = closeIndex
+      continue
+    }
+
+    if (prefix) runs.push({ text: prefix, strong, link })
+    runs.push({ text: base, strong, link, above: reading })
+    buffer = ''
+    index = closeIndex
+  }
+
+  if (buffer) runs.push({ text: buffer, strong, link })
+}
+
+function sourceHtmlToRuns(value: string, readings = false): Run[] {
+  const runs: Run[] = []
+  let strongDepth = 0
+  const linkStack: Array<string | undefined> = []
+  let activeLink: string | undefined
+
+  for (const match of stripMedia(value).matchAll(/<[^>]+>|[^<]+/g)) {
+    const token = match[0]
+    if (token.startsWith('<')) {
+      const tag = token.toLowerCase()
+      if (/^<\s*br\b/.test(tag) || /^<\s*\/\s*(div|p|li|tr|h[1-6])\s*>/.test(tag)) {
+        runs.push({ text: '\n' })
+      } else if (/^<\s*(b|strong)\b/.test(tag)) {
+        strongDepth += 1
+      } else if (/^<\s*\/\s*(b|strong)\s*>/.test(tag)) {
+        strongDepth = Math.max(0, strongDepth - 1)
+      } else if (/^<\s*a\b/.test(tag)) {
+        linkStack.push(activeLink)
+        activeLink = safeLink(extractAttr(token, 'href'))
+      } else if (/^<\s*\/\s*a\s*>/.test(tag)) {
+        activeLink = linkStack.pop()
       }
+      continue
+    }
+
+    const text = decodeHtmlEntities(token)
+    if (readings) pushTextWithReadings(runs, text, strongDepth > 0, activeLink)
+    else if (text) runs.push({ text, strong: strongDepth > 0, link: activeLink })
+  }
+
+  return runs
+}
+
+type PitchSpan = { inlineBlock: boolean; overline: boolean; highlight: boolean; runStart: number }
+
+function pitchAccentToRuns(value: string): Run[] {
+  const runs: Run[] = []
+  const spans: PitchSpan[] = []
+
+  for (const match of stripMedia(value).matchAll(/<[^>]+>|[^<]+/g)) {
+    const token = match[0]
+    if (!token.startsWith('<')) {
+      const text = decodeHtmlEntities(token)
+      if (text) {
+        runs.push({
+          text,
+          above: spans.some((span) => span.overline) ? overlineMark : undefined,
+          highlight: spans.some((span) => span.highlight),
+        })
+      }
+      continue
+    }
+
+    const tag = token.toLowerCase()
+    if (/^<\s*br\b/.test(tag) || /^<\s*\/\s*(div|p|li|tr|h[1-6])\s*>/.test(tag)) {
+      runs.push({ text: '\n' })
+    } else if (/^<\s*\/\s*span\s*>/.test(tag)) {
+      spans.pop()
+    } else if (/^<\s*span\b/.test(tag)) {
+      const style = extractAttr(token, 'style')?.toLowerCase() ?? ''
+      const target = [...spans].reverse().find((span) => span.inlineBlock)
+      if (style.includes('border-top') && target) {
+        for (let index = target.runStart; index < runs.length; index += 1)
+          runs[index]!.above = overlineMark
+        if (style.includes('border-right') && runs.length > target.runStart)
+          runs[runs.length - 1]!.below = dropMark
+      }
+      spans.push({
+        inlineBlock: style.includes('display:inline-block'),
+        overline: style.includes('text-decoration:overline'),
+        highlight: /(?:^|;)\s*color\s*:/i.test(style),
+        runStart: runs.length,
+      })
     }
   }
 
-  return media;
+  return runs
 }
 
-function kindForFilename(filename: string): MediaRef["kind"] {
-  const ext = path.extname(filename).toLowerCase();
-
-  if ([".mp3", ".m4a", ".ogg", ".oga", ".wav", ".flac", ".aac"].includes(ext)) {
-    return "audio";
-  }
-
-  if ([".mp4", ".webm", ".mov", ".m4v"].includes(ext)) {
-    return "video";
-  }
-
-  return "image";
+function runsToHtml(runs: Run[]): string {
+  return runs
+    .map((run) => {
+      let html = escapeHtml(run.text).replaceAll('\n', '<br>')
+      if (run.strong) html = `<strong>${html}</strong>`
+      if (run.highlight) html = `<mark>${html}</mark>`
+      if (run.above) html = `<ruby>${html}<rt>${escapeHtml(run.above)}</rt></ruby>`
+      if (run.below) html += `<sub>${escapeHtml(run.below)}</sub>`
+      if (run.link) html = `<a href="${escapeHtml(run.link)}">${html}</a>`
+      return html
+    })
+    .join('')
+    .replace(/(?:<br>){3,}/g, '<br><br>')
+    .replace(/^(?:<br>)+|(?:<br>)+$/g, '')
 }
 
-function mediaSubdir(kind: MediaRef["kind"]): string {
-  if (kind === "audio") {
-    return "audio";
+function fieldHtml(fieldName: string, value: string): string {
+  if (
+    fieldName === 'Pitch Accent' ||
+    (fieldName === 'Pitch Accent Notes' && /<\s*span\b/i.test(value))
+  ) {
+    return runsToHtml(pitchAccentToRuns(value))
   }
 
-  if (kind === "video") {
-    return "video";
-  }
-
-  return "images";
+  const readings = fieldName === 'Word Furigana' || fieldName === 'Sentence Furigana'
+  return runsToHtml(sourceHtmlToRuns(value, readings))
 }
 
-function roleForField(fieldName: string): MediaRef["role"] {
-  if (fieldName === "Word Audio") {
-    return "main";
-  }
-
-  if (fieldName === "Sentence Audio") {
-    return "context";
-  }
-
-  return "support";
+function plainText(value: string): string {
+  return sourceHtmlToRuns(value)
+    .map((run) => run.text)
+    .join('')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
-function blockFieldForMediaField(fieldName: string): string | undefined {
-  if (fieldName === "Word Audio") {
-    return "Word";
-  }
-
-  if (fieldName === "Sentence Audio") {
-    return "Sentence";
-  }
-
-  return undefined;
-}
-
-function roleForTextField(fieldName: string): ContentBlock["role"] {
-  if (fieldName === "Word" || fieldName === "Word Meaning") {
-    return "main";
-  }
-
-  if (fieldName === "Sentence" || fieldName === "Sentence Meaning") {
-    return "context";
-  }
-
-  if (fieldName === "Notes" || fieldName === "Pitch Accent Notes") {
-    return "note";
-  }
-
-  return "support";
-}
-
-function labelForField(fieldName: string): string | undefined {
-  if (fieldName === "Word") {
-    return undefined;
-  }
-
-  return fieldName;
-}
-
-function languageForField(fieldName: string, text: string): string | undefined {
-  if (fieldName === "Frequency") {
-    return undefined;
-  }
-
-  return /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(text) ? "ja" : "en";
+function languageFor(value: string): 'ja' | 'en' {
+  const japanese = (
+    plainText(value).match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/gu) ?? []
+  ).length
+  const latin = (plainText(value).match(/[A-Za-z]/g) ?? []).length
+  return japanese > latin ? 'ja' : 'en'
 }
 
 function slugify(value: string): string {
-  const slug = value
-    .normalize("NFKD")
-    .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
-    .replace(/^-+|-+$/g, "")
-    .toLowerCase();
-
-  return slug || "note";
+  return (
+    value
+      .normalize('NFKD')
+      .replace(/[^\p{Letter}\p{Number}]+/gu, '-')
+      .replace(/^-+|-+$/g, '')
+      .toLowerCase() || 'note'
+  )
 }
 
 function noteId(note: Note, index: number): string {
-  const word = htmlToText(note.fields.Word ?? "");
-  return `kaishi-${String(index + 1).padStart(4, "0")}-${slugify(word).slice(0, 48)}`;
+  return `kaishi-${String(index + 1).padStart(4, '0')}-${slugify(plainText(note.fields.Word ?? '')).slice(0, 48)}`
 }
 
-function blocksForFields(
-  fields: Record<string, string>,
-  names: readonly string[],
-): DraftContentBlock[] {
-  const blocks: DraftContentBlock[] = [];
+function buildPrompt(fields: Record<string, string>): string {
+  const word = fields.Word ?? ''
+  const sentence = fields.Sentence ?? ''
+  return `<p lang="${languageFor(word)}">${fieldHtml('Word', word)}</p><h2>Sentence</h2><p lang="${languageFor(sentence)}">${fieldHtml('Sentence', sentence)}</p>`
+}
 
-  for (const fieldName of names) {
-    const rawValue = fields[fieldName] ?? "";
-    const text = htmlToText(rawValue);
+function buildAnswer(fields: Record<string, string>): string {
+  const entries = answerFields.flatMap((fieldName) => {
+    const value = fields[fieldName] ?? ''
+    const html = fieldHtml(fieldName, value)
+    return html ? [`<dt>${fieldName}</dt><dd lang="${languageFor(value)}">${html}</dd>`] : []
+  })
 
-    if (!text) {
-      continue;
+  return `<dl>${entries.join('')}</dl>`
+}
+
+function extractMedia(fields: Record<string, string>): ImportedMedia[] {
+  const media: ImportedMedia[] = []
+  for (const [fieldName, rawValue] of Object.entries(fields)) {
+    for (const match of rawValue.matchAll(/\[sound:([^\]]+)]/gi)) {
+      if (match[1]) media.push({ filename: match[1], fieldName })
     }
-
-    const runs = runsForField(fieldName, rawValue);
-    const language = languageForField(fieldName, text);
-    const block: DraftContentBlock = {
-      role: roleForTextField(fieldName),
-      label: labelForField(fieldName),
-      fieldName,
-    };
-
-    if (runs) {
-      block.runs = runs;
-    } else {
-      block.text = text;
+    for (const match of rawValue.matchAll(/<img\b[^>]*>/gi)) {
+      const src = extractAttr(match[0], 'src')
+      if (src) media.push({ filename: src, fieldName, alt: extractAttr(match[0], 'alt') })
     }
-
-    if (language) {
-      block.language = language;
-    }
-
-    blocks.push(block);
   }
-
-  return blocks;
+  return media
 }
 
-function outputBlock(block: DraftContentBlock): ContentBlock {
-  const { fieldName: _fieldName, ...output } = block;
-  return output;
+function kindForFilename(filename: string): MediaRef['kind'] {
+  const extension = path.extname(filename).toLowerCase()
+  if (['.mp3', '.m4a', '.ogg', '.oga', '.wav', '.flac', '.aac'].includes(extension)) return 'audio'
+  if (['.mp4', '.webm', '.mov', '.m4v'].includes(extension)) return 'video'
+  return 'image'
 }
 
-function simplifyContent(blocks: DraftContentBlock[]): string | ContentBlock[] {
-  if (blocks.length === 1 && !blocks[0]?.label && blocks[0]?.text && !blocks[0]?.media?.length) {
-    return blocks[0].text;
-  }
-
-  return blocks.map(outputBlock);
-}
-
-function addMediaToBlock(block: DraftContentBlock, media: MediaRef): void {
-  block.media = [...(block.media ?? []), media];
-}
-
-function attachMediaToBlocks(
-  promptBlocks: DraftContentBlock[],
-  answerBlocks: DraftContentBlock[],
-  fieldName: string,
-  media: MediaRef,
-): void {
-  const targetField = blockFieldForMediaField(fieldName);
-  const targetBlock = targetField
-    ? [...promptBlocks, ...answerBlocks].find((block) => block.fieldName === targetField)
-    : undefined;
-
-  if (targetBlock) {
-    addMediaToBlock(targetBlock, media);
-    return;
-  }
-
-  answerBlocks.push({
-    role: roleForField(fieldName) ?? "support",
-    label: fieldName,
-    media: [media],
-  });
+function mediaSubdir(kind: MediaRef['kind']): string {
+  return kind === 'audio' ? 'audio' : kind === 'video' ? 'video' : 'images'
 }
 
 function buildOpenNote(note: Note, index: number, copiedMedia: Map<string, string>): OpenNote {
   for (const fieldName of Object.keys(note.fields)) {
-    if (!expectedFieldNames.has(fieldName)) {
-      throw new Error(`Unexpected Kaishi field "${fieldName}" on note ${note.id}`);
-    }
+    if (!expectedFieldNames.has(fieldName))
+      throw new Error(`Unexpected Kaishi field "${fieldName}" on note ${note.id}`)
   }
 
-  const promptBlocks = blocksForFields(
-    note.fields,
-    textFieldOrder.filter((fieldName) => promptFields.has(fieldName)),
-  );
-  const answerBlocks = blocksForFields(
-    note.fields,
-    textFieldOrder.filter((fieldName) => !promptFields.has(fieldName)),
-  );
-  const hasMainAnswer = answerBlocks.some((block) => block.role === "main");
-
-  if (!hasMainAnswer) {
-    const firstContext = answerBlocks.find((block) => block.role === "context");
-    if (firstContext) {
-      firstContext.role = "main";
-    }
-  }
-
-  for (const item of extractMedia(note.fields)) {
-    const media = (() => {
-      const src = copiedMedia.get(item.filename);
-
-      if (!src) {
-        return undefined;
-      }
-
-      return {
-        kind: kindForFilename(item.filename),
-        src,
-        role: roleForField(item.fieldName),
-        label: item.fieldName,
-        alt: item.alt,
-      };
-    })();
-
-    if (media) {
-      attachMediaToBlocks(promptBlocks, answerBlocks, item.fieldName, media);
-    }
-  }
+  const word = plainText(note.fields.Word ?? '')
+  const media = extractMedia(note.fields).flatMap((item): MediaRef[] => {
+    const src = copiedMedia.get(item.filename)
+    if (!src) throw new Error(`Missing copied media "${item.filename}" on note ${note.id}`)
+    const kind = kindForFilename(item.filename)
+    if (kind === 'image') return [{ kind, src, alt: item.alt || `Illustration for ${word}` }]
+    return [{ kind, src, label: item.fieldName }]
+  })
 
   return {
     id: noteId(note, index),
-    type: "prompt_response",
-    prompt: simplifyContent(promptBlocks),
-    answer: simplifyContent(answerBlocks),
-    tags: note.tags.length > 0 ? note.tags : undefined,
-    provenance: {
-      importer: "stuff/convert-kaishi-to-open-deck.ts",
-      anki_note_id: note.id,
-      anki_guid: note.guid,
-      anki_note_type: note.noteTypeName,
-      anki_mod: note.mod,
-    },
-  };
+    type: 'prompt_response',
+    prompt: buildPrompt(note.fields),
+    answer: buildAnswer(note.fields),
+    media,
+  }
 }
 
 async function copyReferencedMedia(
@@ -702,91 +369,68 @@ async function copyReferencedMedia(
   parserMediaDir: string,
   outputDir: string,
 ): Promise<Map<string, string>> {
-  const copied = new Map<string, string>();
-
+  const copied = new Map<string, string>()
   for (const note of notes) {
     for (const item of extractMedia(note.fields)) {
-      if (copied.has(item.filename)) {
-        continue;
-      }
+      if (copied.has(item.filename)) continue
+      if (path.basename(item.filename) !== item.filename)
+        throw new Error(`Unsafe media filename: ${item.filename}`)
 
-      const kind = kindForFilename(item.filename);
-      const relativeOutputPath = path.join("assets", mediaSubdir(kind), item.filename);
-      const sourcePath = path.join(parserMediaDir, item.filename);
-      const outputPath = path.join(outputDir, relativeOutputPath);
+      const kind = kindForFilename(item.filename)
+      const relativeOutputPath = path.posix.join('assets', mediaSubdir(kind), item.filename)
+      const sourcePath = path.join(parserMediaDir, item.filename)
+      if (!existsSync(sourcePath)) throw new Error(`Missing media file: ${item.filename}`)
 
-      if (!existsSync(sourcePath)) {
-        console.warn(`warning: missing media file referenced by Anki field: ${item.filename}`);
-        continue;
-      }
-
-      await mkdir(path.dirname(outputPath), { recursive: true });
-      await copyFile(sourcePath, outputPath);
-      copied.set(item.filename, relativeOutputPath);
+      const outputPath = path.join(outputDir, relativeOutputPath)
+      await mkdir(path.dirname(outputPath), { recursive: true })
+      await copyFile(sourcePath, outputPath)
+      copied.set(item.filename, relativeOutputPath)
     }
   }
-
-  return copied;
+  return copied
 }
 
 async function writeYaml(filePath: string, value: unknown): Promise<void> {
-  await mkdir(path.dirname(filePath), { recursive: true });
-  await writeFile(filePath, `${Bun.YAML.stringify(value, null, 2).trimEnd()}\n`);
+  await mkdir(path.dirname(filePath), { recursive: true })
+  await writeFile(filePath, stringify(value, { lineWidth: 0 }))
 }
 
 async function main(): Promise<void> {
-  const { apkgPath, outputDir, force } = parseArgs();
-
+  const { apkgPath, outputDir, force } = parseArgs()
   if (existsSync(outputDir)) {
-    if (!force) {
-      throw new Error(`Output directory already exists: ${outputDir}. Pass --force to replace it.`);
-    }
-
-    await rm(outputDir, { recursive: true, force: true });
+    if (!force)
+      throw new Error(`Output directory already exists: ${outputDir}. Pass --force to replace it.`)
+    await rm(outputDir, { recursive: true, force: true })
   }
 
-  await rm(importWorkDir, { recursive: true, force: true });
-  const parsed = await parseApkg(apkgPath, importWorkDir, { extractMedia: true });
-
-  await mkdir(outputDir, { recursive: true });
-
-  await writeYaml(path.join(outputDir, "deck.yaml"), {
-    format: "open-deck",
-    id: "kaishi-1-5k",
-    title: parsed.meta.deckNames[0] ?? "Kaishi 1.5k",
-    description:
-      "Japanese vocabulary cards migrated from the Kaishi Anki deck into Open Deck content blocks.",
-    language: "ja",
-  });
+  await rm(importWorkDir, { recursive: true, force: true })
+  const parsed = await parseApkg(apkgPath, importWorkDir, { extractMedia: true })
+  await mkdir(outputDir, { recursive: true })
+  await writeYaml(path.join(outputDir, 'deck.yaml'), {
+    format: 'open-deck',
+    id: 'kaishi-1-5k',
+    title: parsed.meta.deckNames[0] ?? 'Kaishi 1.5k',
+  })
 
   const copiedMedia = await copyReferencedMedia(
     parsed.notes,
-    path.join(importWorkDir, "media"),
+    path.join(importWorkDir, 'media'),
     outputDir,
-  );
-  const openNotes = parsed.notes.map((note, index) => buildOpenNote(note, index, copiedMedia));
-
+  )
+  const openNotes = parsed.notes.map((note, index) => buildOpenNote(note, index, copiedMedia))
   for (let start = 0; start < openNotes.length; start += notesPerFile) {
-    const chunk = openNotes.slice(start, start + notesPerFile);
-    const first = String(start + 1).padStart(4, "0");
-    const last = String(start + chunk.length).padStart(4, "0");
-
-    await writeYaml(path.join(outputDir, "notes", `${first}-${last}.yaml`), {
-      defaults: {
-        deck: "kaishi-1-5k",
-        answer_mode: "reveal",
-      },
-      notes: chunk,
-    });
+    const chunk = openNotes.slice(start, start + notesPerFile)
+    const first = String(start + 1).padStart(4, '0')
+    const last = String(start + chunk.length).padStart(4, '0')
+    await writeYaml(path.join(outputDir, 'notes', `${first}-${last}.yaml`), { notes: chunk })
   }
 
-  await rm(importWorkDir, { recursive: true, force: true });
-
-  console.log(`Wrote ${openNotes.length} notes to ${outputDir}`);
-  console.log(`Copied ${copiedMedia.size} referenced media files`);
+  await rm(importWorkDir, { recursive: true, force: true })
+  console.log(`Wrote ${openNotes.length} HTML notes to ${outputDir}`)
+  console.log(`Copied ${copiedMedia.size} referenced media files`)
 }
 
 main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+  console.error(error)
+  process.exit(1)
+})
