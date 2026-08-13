@@ -78,9 +78,40 @@ export async function importDeck(
   onProgress(importedBytes, totalBytes)
 
   try {
-    const assetPaths = new Set(
-      assetFiles.map((file) => file.webkitRelativePath.slice(`${root}/`.length)),
+    const assetFilesByPath = new Map(
+      assetFiles.map((file) => [file.webkitRelativePath.slice(`${root}/`.length), file]),
     )
+    // Some iOS directory pickers compatibility-normalize filename characters.
+    const normalizedAssetFiles = new Map<string, File | null>()
+    for (const file of assetFiles) {
+      const assetPath = file.webkitRelativePath.slice(`${root}/`.length)
+      const normalizedPath = assetPath.normalize('NFKC')
+      normalizedAssetFiles.set(
+        normalizedPath,
+        normalizedAssetFiles.has(normalizedPath) ? null : file,
+      )
+    }
+    const resolveAssetPath = (assetPath: string, issuePath: string): string => {
+      const invalid = () =>
+        new Error(`${issuePath}: ${assetPath} does not name a file inside assets/`)
+      if (!assetPath.startsWith('assets/') || assetPath.split('/').includes('..')) throw invalid()
+
+      const exactFile = assetFilesByPath.get(assetPath)
+      if (exactFile) return assetPath
+
+      const normalizedPath = assetPath.normalize('NFKC')
+      if (!normalizedPath.startsWith('assets/') || normalizedPath.split('/').includes('..')) {
+        throw invalid()
+      }
+
+      const normalizedFile = normalizedAssetFiles.get(normalizedPath)
+      if (normalizedFile) {
+        return normalizedFile.webkitRelativePath.slice(`${root}/`.length)
+      }
+
+      throw invalid()
+    }
+
     const noteIds = new Set<string>()
 
     for (const file of noteFiles) {
@@ -91,22 +122,23 @@ export async function importDeck(
         }
         noteIds.add(note.id)
 
-        const mediaPaths =
-          note.type === 'occlusion' ? [note.image.src] : note.media.map(({ src }) => src)
-        for (const path of mediaPaths) {
-          if (
-            !path.startsWith('assets/') ||
-            path.split('/').includes('..') ||
-            !assetPaths.has(path)
-          ) {
-            throw new Error(
-              `${file.webkitRelativePath}.notes.${index}: ${path} does not name a file inside assets/`,
-            )
-          }
-        }
+        const issuePath = `${file.webkitRelativePath}.notes.${index}`
+        const resolvedNote =
+          note.type === 'occlusion'
+            ? {
+                ...note,
+                image: { ...note.image, src: resolveAssetPath(note.image.src, issuePath) },
+              }
+            : {
+                ...note,
+                media: note.media.map((media) => ({
+                  ...media,
+                  src: resolveAssetPath(media.src, issuePath),
+                })),
+              }
 
         return {
-          ...note,
+          ...resolvedNote,
           id: JSON.stringify([manifest.id, note.id]),
           noteId: note.id,
           deckId: manifest.id,
