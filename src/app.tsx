@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex'
 import { createContext, useContext, useState, type Dispatch, type SetStateAction } from 'react'
 import Dexie from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -199,10 +200,10 @@ function App() {
     value: number
     onChange: (value: number) => void
   }) => (
-    <div className="flex min-h-12 items-center justify-between gap-4 py-2">
-      <span className="flex-1 text-sm">{label}</span>
+    <div {...stylex.props(styles.settingRow)}>
+      <span {...stylex.props(styles.grow, styles.textSmall)}>{label}</span>
       <input
-        className="no-spinner w-20 border border-gray-300 px-2 py-1 text-right text-sm"
+        {...stylex.props(styles.numberInput)}
         min="0"
         type="number"
         value={value}
@@ -220,11 +221,11 @@ function App() {
     checked: boolean
     onChange: (value: boolean) => void
   }) => (
-    <div className="flex min-h-12 items-center justify-between gap-4 py-2">
-      <span className="flex-1 text-sm">{label}</span>
+    <div {...stylex.props(styles.settingRow)}>
+      <span {...stylex.props(styles.grow, styles.textSmall)}>{label}</span>
       <input
         checked={checked}
-        className="size-5"
+        {...stylex.props(styles.checkbox)}
         type="checkbox"
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -240,9 +241,9 @@ function App() {
     const [toggledNoteID, setToggledNoteID] = useState<string | null>(null)
     return (
       <>
-        <div className="flex items-center justify-between gap-4 font-semibold">
+        <div {...stylex.props(styles.row, styles.spaceBetween, styles.semibold)}>
           <button
-            className="border border-gray-300 px-6 py-4 text-sm"
+            {...stylex.props(styles.button)}
             onClick={(e) => {
               e.stopPropagation()
               setTab('decks')
@@ -250,10 +251,10 @@ function App() {
           >
             Back
           </button>
-          <button className="border border-gray-300 px-6 py-4 text-sm">Delete</button>
+          <button {...stylex.props(styles.button)}>Delete</button>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-none">
+        <div {...stylex.props(styles.scrollPanel)}>
           {notes.map((n) => (
             <Note
               key={n.id}
@@ -269,9 +270,9 @@ function App() {
 
   const Settings = () => (
     <>
-      <div className="flex items-center gap-4 font-semibold">
+      <div {...stylex.props(styles.row, styles.semibold)}>
         <button
-          className="border border-gray-300 px-6 py-4 text-sm"
+          {...stylex.props(styles.button)}
           onClick={(e) => {
             e.stopPropagation()
             setTab('decks')
@@ -281,8 +282,8 @@ function App() {
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col">
-        <h1 className="pb-4 text-lg font-semibold">Settings</h1>
+      <div {...stylex.props(styles.pane)}>
+        <h1 {...stylex.props(styles.heading)}>Settings</h1>
         <NumberSetting
           label="New cards per day"
           value={globalSettings.newCardsPerDay}
@@ -298,10 +299,7 @@ function App() {
           label="Auto-sync"
           onChange={(value) => updateGlobalSetting('autoSync', value)}
         />
-        <button
-          className="border border-red-300 px-6 py-4 text-sm text-red-700"
-          onClick={() => void devReset()}
-        >
+        <button {...stylex.props(styles.button, styles.danger)} onClick={() => void devReset()}>
           Dev Reset
         </button>
       </div>
@@ -343,9 +341,9 @@ function App() {
 
     return (
       <>
-        <div className="flex items-center gap-4 font-semibold">
+        <div {...stylex.props(styles.row, styles.semibold)}>
           <button
-            className="border border-gray-300 px-6 py-4 text-sm"
+            {...stylex.props(styles.button)}
             onClick={(e) => {
               e.stopPropagation()
               setTab('decks')
@@ -355,8 +353,8 @@ function App() {
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col">
-          <h1 className="pb-4 text-lg font-semibold">{selectedDeck.name}</h1>
+        <div {...stylex.props(styles.pane)}>
+          <h1 {...stylex.props(styles.heading)}>{selectedDeck.name}</h1>
           <NumberSetting
             label="New cards per day"
             value={settings.newCardsPerDay}
@@ -373,7 +371,7 @@ function App() {
             onChange={(value) => updateDeckSetting(selectedDeck.id, 'downloadOffline', value)}
           />
           <button
-            className="mt-6 border border-red-300 px-6 py-4 text-sm text-red-700"
+            {...stylex.props(styles.button, styles.danger, styles.topMargin)}
             onClick={(e) => {
               e.stopPropagation()
               resetDeckProgress(selectedDeck.id)
@@ -424,9 +422,9 @@ function App() {
 
     return (
       <>
-        <div className="flex items-center gap-4 font-semibold">
+        <div {...stylex.props(styles.row, styles.semibold)}>
           <button
-            className="border border-gray-300 px-6 py-4 text-sm"
+            {...stylex.props(styles.button)}
             onClick={(e) => {
               e.stopPropagation()
               setTab('decks')
@@ -437,16 +435,16 @@ function App() {
         </div>
 
         {reviewComplete ? (
-          <div className="flex flex-1 items-center justify-center">Review complete</div>
+          <div {...stylex.props(styles.centered)}>Review complete</div>
         ) : note ? (
           <NoteContent note={note} revealed={!front} variantId={variantId} />
         ) : null}
 
         {!reviewComplete && card && note ? (
-          <div className="flex flex-col gap-4">
+          <div {...stylex.props(styles.studyActions)}>
             {front ? (
               <button
-                className="flex-1 border border-gray-300 px-6 py-4 text-sm"
+                {...stylex.props(styles.button, styles.grow)}
                 onClick={(e) => {
                   e.stopPropagation()
                   setFront(false)
@@ -455,9 +453,9 @@ function App() {
                 Show back
               </button>
             ) : (
-              <div className="flex flex-nowrap gap-2">
+              <div {...stylex.props(styles.ratingRow)}>
                 <button
-                  className="flex-1 bg-red-300 px-6 py-4 text-sm"
+                  {...stylex.props(styles.ratingButton, styles.again)}
                   onClick={(e) => {
                     e.stopPropagation()
                     void review(card, Rating.Again)
@@ -466,7 +464,7 @@ function App() {
                   Again
                 </button>
                 <button
-                  className="flex-1 bg-orange-300 px-6 py-4 text-sm"
+                  {...stylex.props(styles.ratingButton, styles.hard)}
                   onClick={(e) => {
                     e.stopPropagation()
                     void review(card, Rating.Hard)
@@ -475,7 +473,7 @@ function App() {
                   Hard
                 </button>
                 <button
-                  className="flex-1 bg-blue-300 px-6 py-4 text-sm"
+                  {...stylex.props(styles.ratingButton, styles.good)}
                   onClick={(e) => {
                     e.stopPropagation()
                     void review(card, Rating.Good)
@@ -484,7 +482,7 @@ function App() {
                   Good
                 </button>
                 <button
-                  className="flex-1 bg-green-300 px-6 py-4 text-sm"
+                  {...stylex.props(styles.ratingButton, styles.easy)}
                   onClick={(e) => {
                     e.stopPropagation()
                     void review(card, Rating.Easy)
@@ -502,10 +500,10 @@ function App() {
 
   const Deck = () => (
     <>
-      <div className="flex items-center gap-4 font-semibold">
-        <button className="border border-gray-300 px-6 py-4 text-sm">Account</button>
+      <div {...stylex.props(styles.row, styles.semibold)}>
+        <button {...stylex.props(styles.button)}>Account</button>
         <button
-          className="border border-gray-300 px-6 py-4 text-sm"
+          {...stylex.props(styles.button)}
           onClick={(e) => {
             e.stopPropagation()
             setTab('settings')
@@ -514,7 +512,7 @@ function App() {
           Settings
         </button>
         <button
-          className="border border-gray-300 px-6 py-4 text-sm"
+          {...stylex.props(styles.button)}
           onClick={(e) => {
             e.stopPropagation()
             setShowAddDeck((p) => !p)
@@ -525,7 +523,7 @@ function App() {
       </div>
 
       {showAddDeck ? (
-        <div className="flex flex-col gap-2 border border-dashed border-gray-300 px-6 py-4">
+        <div {...stylex.props(styles.addDeck)}>
           <input
             {...{ webkitdirectory: '' }}
             disabled={importing}
@@ -534,57 +532,57 @@ function App() {
             type="file"
             onChange={(event) => void loadDeck(event.currentTarget)}
           />
-          {importError ? <p className="text-sm text-red-700">{importError}</p> : null}
+          {importError ? <p {...stylex.props(styles.error)}>{importError}</p> : null}
         </div>
       ) : null}
 
       {/* Only this middle panel scrolls; the page shell stays fixed. */}
-      <div className="flex min-h-0 flex-1 scrollbar-thin flex-col gap-2 overflow-y-auto overscroll-none">
+      <div {...stylex.props(styles.scrollPanel, styles.thinScrollbar)}>
         {decks.map((d) => (
           <div
             key={d.id}
-            className="flex flex-col gap-4 border border-gray-300 px-6 py-4"
+            {...stylex.props(styles.card)}
             onClick={(e) => {
               e.stopPropagation()
               setToggledDeckID((p) => (p === d.id ? null : d.id))
             }}
           >
-            <div className="flex min-h-8 items-center gap-4">
-              <div className="flex-1 select-none">
-                <p className="w-fit select-text">{d.name}</p>
+            <div {...stylex.props(styles.deckHeader)}>
+              <div {...stylex.props(styles.deckNameWrap)}>
+                <p {...stylex.props(styles.deckName)}>{d.name}</p>
               </div>
 
-              <div className="flex items-center gap-4">
-                <span className="w-10 text-end text-green-700" title="Due reviews">
+              <div {...stylex.props(styles.row)}>
+                <span {...stylex.props(styles.count, styles.greenText)} title="Due reviews">
                   {d.review}
                 </span>
-                <span className="w-10 text-end text-blue-700" title="New">
+                <span {...stylex.props(styles.count, styles.blueText)} title="New">
                   {d.new}
                 </span>
-                <span className="w-10 text-end text-red-700" title="Learning">
+                <span {...stylex.props(styles.count, styles.redText)} title="Learning">
                   {d.learn}
                 </span>
               </div>
             </div>
 
             {d.importStatus === 'importing' ? (
-              <div className="flex items-center gap-3">
+              <div {...stylex.props(styles.importRow)}>
                 <progress
                   aria-label={`Importing ${d.name}`}
-                  className="flex-1"
+                  {...stylex.props(styles.grow)}
                   max={d.totalBytes}
                   value={d.importedBytes}
                 />
-                <span className="text-sm">
+                <span {...stylex.props(styles.textSmall)}>
                   {d.totalBytes ? Math.round((d.importedBytes / d.totalBytes) * 100) : 0}%
                 </span>
               </div>
             ) : null}
 
             {isActive(d.id) && d.importStatus === 'ready' ? (
-              <div className="flex items-center justify-between gap-2">
+              <div {...stylex.props(styles.deckActions)}>
                 <button
-                  className="bg-primary px-8 py-2 text-sm text-primary-foreground"
+                  {...stylex.props(styles.primaryButton)}
                   onClick={(e) => {
                     e.stopPropagation()
                     void startStudy(d.id)
@@ -593,9 +591,9 @@ function App() {
                   Study
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div {...stylex.props(styles.buttonGroup)}>
                   <button
-                    className={`border border-gray-300 px-4 py-2 text-sm ${dirty ? 'bg-primary text-primary-foreground' : ''}`}
+                    {...stylex.props(styles.smallButton, dirty && styles.primary)}
                     onClick={(e) => {
                       e.stopPropagation()
                       setDirty(false)
@@ -604,7 +602,7 @@ function App() {
                     Sync
                   </button>
                   <button
-                    className="border border-gray-300 px-4 py-2 text-sm"
+                    {...stylex.props(styles.smallButton)}
                     onClick={(e) => {
                       e.stopPropagation()
                       setSelectedDeckID(d.id)
@@ -614,7 +612,7 @@ function App() {
                     Edit
                   </button>
                   <button
-                    className="border border-gray-300 px-4 py-2 text-sm"
+                    {...stylex.props(styles.smallButton)}
                     onClick={(e) => {
                       e.stopPropagation()
                       setSelectedDeckID(d.id)
@@ -657,10 +655,10 @@ function App() {
   }
 
   return (
-    <main className="mx-auto flex h-dvh max-w-xl flex-col overflow-hidden px-3 md:pt-4">
-      <div className="flex min-h-0 flex-1 flex-col gap-4">{content}</div>
-      <div className="flex h-[calc(env(safe-area-inset-bottom)+var(--bottom-corner-clearance))] items-center justify-center">
-        <span className="text-sm">~13 min to clear</span>{' '}
+    <main {...stylex.props(styles.main)}>
+      <div {...stylex.props(styles.content)}>{content}</div>
+      <div {...stylex.props(styles.safeArea)}>
+        <span {...stylex.props(styles.textSmall)}>~13 min to clear</span>{' '}
       </div>
     </main>
   )
@@ -675,5 +673,230 @@ function Root() {
     </NavContext>
   )
 }
+
+const styles = stylex.create({
+  addDeck: {
+    borderColor: '#d1d5db',
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+    paddingBlock: '1rem',
+    paddingInline: '1.5rem',
+  },
+  again: {
+    backgroundColor: '#fca5a5',
+  },
+  blueText: {
+    color: '#1d4ed8',
+  },
+  button: {
+    borderColor: '#d1d5db',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    fontSize: '0.875rem',
+    paddingBlock: '1rem',
+    paddingInline: '1.5rem',
+  },
+  buttonGroup: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: '0.5rem',
+  },
+  card: {
+    borderColor: '#d1d5db',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    paddingBlock: '1rem',
+    paddingInline: '1.5rem',
+  },
+  centered: {
+    alignItems: 'center',
+    display: 'flex',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  checkbox: {
+    height: '1.25rem',
+    width: '1.25rem',
+  },
+  content: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    gap: '1rem',
+    minHeight: 0,
+  },
+  count: {
+    textAlign: 'end',
+    width: '2.5rem',
+  },
+  danger: {
+    borderColor: '#fca5a5',
+    color: '#b91c1c',
+  },
+  deckActions: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: '0.5rem',
+    justifyContent: 'space-between',
+  },
+  deckHeader: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: '1rem',
+    minHeight: '2rem',
+  },
+  deckName: {
+    userSelect: 'text',
+    width: 'fit-content',
+  },
+  deckNameWrap: {
+    flex: 1,
+    userSelect: 'none',
+  },
+  easy: {
+    backgroundColor: '#86efac',
+  },
+  error: {
+    color: '#b91c1c',
+    fontSize: '0.875rem',
+  },
+  good: {
+    backgroundColor: '#93c5fd',
+  },
+  greenText: {
+    color: '#15803d',
+  },
+  grow: {
+    flex: 1,
+  },
+  hard: {
+    backgroundColor: '#fdba74',
+  },
+  heading: {
+    fontSize: '1.125rem',
+    fontWeight: 600,
+    paddingBottom: '1rem',
+  },
+  importRow: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: '0.75rem',
+  },
+  main: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100dvh',
+    marginInline: 'auto',
+    maxWidth: '36rem',
+    overflow: 'hidden',
+    paddingInline: '0.75rem',
+    paddingTop: {
+      default: 0,
+      '@media (min-width: 768px)': '1rem',
+    },
+  },
+  numberInput: {
+    borderColor: '#d1d5db',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    fontSize: '0.875rem',
+    paddingBlock: '0.25rem',
+    paddingInline: '0.5rem',
+    textAlign: 'right',
+    width: '5rem',
+  },
+  pane: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+  },
+  primary: {
+    backgroundColor: 'var(--primary)',
+    color: 'var(--primary-foreground)',
+  },
+  primaryButton: {
+    backgroundColor: 'var(--primary)',
+    color: 'var(--primary-foreground)',
+    fontSize: '0.875rem',
+    paddingBlock: '0.5rem',
+    paddingInline: '2rem',
+  },
+  ratingButton: {
+    flex: 1,
+    fontSize: '0.875rem',
+    paddingBlock: '1rem',
+    paddingInline: '1.5rem',
+  },
+  ratingRow: {
+    display: 'flex',
+    flexWrap: 'nowrap',
+    gap: '0.5rem',
+  },
+  redText: {
+    color: '#b91c1c',
+  },
+  row: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: '1rem',
+  },
+  safeArea: {
+    alignItems: 'center',
+    display: 'flex',
+    height: 'calc(env(safe-area-inset-bottom) + var(--bottom-corner-clearance))',
+    justifyContent: 'center',
+  },
+  scrollPanel: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    gap: '0.5rem',
+    minHeight: 0,
+    overflowY: 'auto',
+    overscrollBehavior: 'none',
+  },
+  semibold: {
+    fontWeight: 600,
+  },
+  settingRow: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: '1rem',
+    justifyContent: 'space-between',
+    minHeight: '3rem',
+    paddingBlock: '0.5rem',
+  },
+  smallButton: {
+    borderColor: '#d1d5db',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    fontSize: '0.875rem',
+    paddingBlock: '0.5rem',
+    paddingInline: '1rem',
+  },
+  spaceBetween: {
+    justifyContent: 'space-between',
+  },
+  studyActions: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+  textSmall: {
+    fontSize: '0.875rem',
+  },
+  thinScrollbar: {
+    scrollbarWidth: 'thin',
+  },
+  topMargin: {
+    marginTop: '1.5rem',
+  },
+})
 
 export default Root

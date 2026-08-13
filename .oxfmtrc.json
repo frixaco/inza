@@ -2,8 +2,5 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "ignorePatterns": ["dist/**", "stuff/kaishi-open-deck/**"],
   "singleQuote": true,
-  "semi": false,
-  "sortTailwindcss": {
-    "stylesheet": "./src/index.css"
-  }
+  "semi": false
 }

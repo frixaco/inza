@@ -1,3 +1,5 @@
+import * as stylex from '@stylexjs/stylex'
+import type { StyleXStyles } from '@stylexjs/stylex'
 import { Renderer, marked } from 'marked'
 import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -22,10 +24,10 @@ renderer.link = ({ href, title, tokens }) => {
   return `<a href="${escapeHtml(href)}"${title ? ` title="${escapeHtml(title)}"` : ''}>${text}</a>`
 }
 
-function Markdown({ children, className = '' }: { children: string; className?: string }) {
+function Markdown({ children, xstyle }: { children: string; xstyle?: StyleXStyles }) {
   return (
     <div
-      className={className}
+      {...stylex.props(xstyle)}
       dangerouslySetInnerHTML={{
         __html: marked.parse(children, { async: false, renderer }),
       }}
@@ -62,11 +64,11 @@ function Media({
 
   switch (media.kind) {
     case 'image':
-      return <img className="max-h-64 max-w-full" src={url} alt={media.alt} />
+      return <img {...stylex.props(styles.media)} src={url} alt={media.alt} />
     case 'audio':
       return <audio aria-label={media.label} controls src={url} />
     case 'video':
-      return <video aria-label={media.label} className="max-h-64 max-w-full" controls src={url} />
+      return <video {...stylex.props(styles.media)} aria-label={media.label} controls src={url} />
   }
 }
 
@@ -89,9 +91,9 @@ function OcclusionContent({
   return (
     <>
       {url ? (
-        <div className="relative inline-flex max-w-full">
+        <div {...stylex.props(styles.occlusion)}>
           <img
-            className="max-h-96 max-w-full"
+            {...stylex.props(styles.occlusionImage)}
             src={url}
             alt={note.image.alt}
             onLoad={(event) =>
@@ -103,7 +105,7 @@ function OcclusionContent({
           />
           <svg
             aria-label="Image occlusion masks"
-            className="absolute inset-0 size-full"
+            {...stylex.props(styles.mask)}
             preserveAspectRatio="xMidYMid meet"
             viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}
           >
@@ -137,7 +139,7 @@ export function NoteContent({ note, revealed, variantId }: NoteContentProps) {
     case 'prompt_response':
       content = (
         <>
-          <Markdown className="text-lg">{note.prompt}</Markdown>
+          <Markdown xstyle={styles.textLarge}>{note.prompt}</Markdown>
           {note.media.map((media) => (
             <Media key={`${media.kind}:${media.src}`} note={note} media={media} />
           ))}
@@ -148,10 +150,9 @@ export function NoteContent({ note, revealed, variantId }: NoteContentProps) {
     case 'cloze':
       content = (
         <>
-          <Markdown className="text-lg">
-            {note.text.replace(
-              /\{\{([^:}]+)::([^}]+)\}\}/g,
-              (_marker, id, answer) => (revealed || id !== variantId ? answer : '[…]'),
+          <Markdown xstyle={styles.textLarge}>
+            {note.text.replace(/\{\{([^:}]+)::([^}]+)\}\}/g, (_marker, id, answer) =>
+              revealed || id !== variantId ? answer : '[…]',
             )}
           </Markdown>
           {note.media.map((media) => (
@@ -165,11 +166,7 @@ export function NoteContent({ note, revealed, variantId }: NoteContentProps) {
       break
   }
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 overflow-y-auto text-center">
-      {content}
-    </div>
-  )
+  return <div {...stylex.props(styles.noteContent)}>{content}</div>
 }
 
 export function Note({
@@ -190,7 +187,7 @@ export function Note({
 
   return (
     <article
-      className="flex flex-col gap-4 border border-gray-300 px-6 py-4"
+      {...stylex.props(styles.note)}
       onClick={(event) => {
         event.stopPropagation()
         setToggledNoteID((current) => (current === note.id ? null : note.id))
@@ -199,8 +196,61 @@ export function Note({
       {isOpen ? (
         <NoteContent note={note} revealed />
       ) : (
-        <Markdown className="line-clamp-2 text-start">{preview}</Markdown>
+        <Markdown xstyle={styles.preview}>{preview}</Markdown>
       )}
     </article>
   )
 }
+
+const styles = stylex.create({
+  mask: {
+    height: '100%',
+    inset: 0,
+    position: 'absolute',
+    width: '100%',
+  },
+  media: {
+    maxHeight: '16rem',
+    maxWidth: '100%',
+  },
+  note: {
+    borderColor: '#d1d5db',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    paddingBlock: '1rem',
+    paddingInline: '1.5rem',
+  },
+  noteContent: {
+    alignItems: 'center',
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    gap: '1rem',
+    justifyContent: 'center',
+    minHeight: 0,
+    overflowY: 'auto',
+    textAlign: 'center',
+  },
+  occlusion: {
+    display: 'inline-flex',
+    maxWidth: '100%',
+    position: 'relative',
+  },
+  occlusionImage: {
+    maxHeight: '24rem',
+    maxWidth: '100%',
+  },
+  preview: {
+    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: 2,
+    display: '-webkit-box',
+    overflow: 'hidden',
+    textAlign: 'start',
+  },
+  textLarge: {
+    fontSize: '1.125rem',
+  },
+})
