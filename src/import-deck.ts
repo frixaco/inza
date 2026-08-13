@@ -65,9 +65,6 @@ export async function importDeck(files: File[]) {
   await db.decks.add({
     id: manifest.id,
     name: manifest.title,
-    done: 0,
-    due: 0,
-    todo: 0,
     importStatus: 'importing',
     importedBytes,
     totalBytes,
@@ -117,7 +114,7 @@ export async function importDeck(files: File[]) {
       await db.transaction('rw', db.decks, db.notes, db.cards, async () => {
         await db.notes.bulkAdd(notes)
         await db.cards.bulkAdd(cards)
-        await db.decks.update(manifest.id, { importedBytes, todo: cards.length })
+        await db.decks.update(manifest.id, { importedBytes })
       })
     }
 

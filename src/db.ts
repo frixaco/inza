@@ -5,9 +5,6 @@ import type { DeckNote } from './notes'
 type StoredDeck = {
   id: string
   name: string
-  done: number
-  due: number
-  todo: number
   importStatus: 'importing' | 'ready'
   importedBytes: number
   totalBytes: number

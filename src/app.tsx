@@ -39,17 +39,51 @@ const defaultGlobalSettings: GlobalSettings = {
 function App() {
   const { tab, setTab } = useNav()
   const scheduler = useFsrs()
+  const [globalSettings, setGlobalSettings] = useState(defaultGlobalSettings)
   const decks = useLiveQuery(
     async () => {
       await dbReady
-      return db.decks.toArray()
+      const now = new Date()
+      const studyDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+
+      return Promise.all(
+        (await db.decks.toArray()).map(async (deck) => {
+          const newStudied = deck.studyDay === studyDay ? deck.newStudied : 0
+          const reviewsStudied = deck.studyDay === studyDay ? deck.reviewsStudied : 0
+          const reviewLimit = Math.max(
+            0,
+            Math.floor(globalSettings.maxReviewsPerDay) - newStudied - reviewsStudied,
+          )
+          const newLimit = Math.max(0, Math.floor(globalSettings.newCardsPerDay) - newStudied)
+          const dueCards = await db.cards
+            .where('[deckId+fsrsCard.due]')
+            .between([deck.id, Dexie.minKey], [deck.id, now], true, true)
+            .filter(({ fsrsCard }) => fsrsCard.state !== State.New)
+            .limit(reviewLimit)
+            .toArray()
+          const newCards = await db.cards
+            .where('[deckId+fsrsCard.state]')
+            .equals([deck.id, State.New])
+            .limit(Math.min(newLimit, reviewLimit - dueCards.length))
+            .count()
+
+          return {
+            ...deck,
+            learn: dueCards.filter(
+              ({ fsrsCard }) =>
+                fsrsCard.state === State.Learning || fsrsCard.state === State.Relearning,
+            ).length,
+            new: newCards,
+            review: dueCards.filter(({ fsrsCard }) => fsrsCard.state === State.Review).length,
+          }
+        }),
+      )
     },
-    [],
+    [globalSettings],
     [],
   )
   const [toggledDeckID, setToggledDeckID] = useState<string | null>(null)
   const [selectedDeckID, setSelectedDeckID] = useState<string | null>(null)
-  const [globalSettings, setGlobalSettings] = useState(defaultGlobalSettings)
   const [studyCards, setStudyCards] = useState<StoredCard[]>([])
   const [front, setFront] = useState(true)
   const [cardIndex, setCardIndex] = useState(0)
@@ -70,13 +104,9 @@ function App() {
   }
 
   const resetDeckProgress = async (deckID: string) => {
-    const todo = await db.cards.where('deckId').equals(deckID).count()
     await db.transaction('rw', db.decks, db.cards, async () => {
       await db.cards.where('deckId').equals(deckID).modify({ fsrsCard: createEmptyCard() })
       await db.decks.update(deckID, {
-        done: 0,
-        due: 0,
-        todo,
         studyDay: 0,
         newStudied: 0,
         reviewsStudied: 0,
@@ -524,9 +554,15 @@ function App() {
               </div>
 
               <div className="flex items-center gap-4">
-                <span className="w-10 text-end text-green-700">{d.done}</span>
-                <span className="w-10 text-end text-blue-700">{d.due}</span>
-                <span className="w-10 text-end text-red-700">{d.todo}</span>
+                <span className="w-10 text-end text-green-700" title="Due reviews">
+                  {d.review}
+                </span>
+                <span className="w-10 text-end text-blue-700" title="New">
+                  {d.new}
+                </span>
+                <span className="w-10 text-end text-red-700" title="Learning">
+                  {d.learn}
+                </span>
               </div>
             </div>
 
