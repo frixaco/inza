@@ -2,6 +2,20 @@ import Dexie, { type EntityTable } from 'dexie'
 import { createEmptyCard, type Card } from 'ts-fsrs'
 import type { DeckNote } from './notes'
 
+export type GlobalSettings = {
+  id: 'global'
+  newCardsPerDay: number
+  maxReviewsPerDay: number
+  autoSync: boolean
+}
+
+export const defaultGlobalSettings: GlobalSettings = {
+  id: 'global',
+  newCardsPerDay: 24,
+  maxReviewsPerDay: 120,
+  autoSync: true,
+}
+
 type StoredDeck = {
   id: string
   name: string
@@ -11,6 +25,9 @@ type StoredDeck = {
   studyDay: number
   newStudied: number
   reviewsStudied: number
+  newCardsPerDay?: number
+  maxReviewsPerDay?: number
+  downloadOffline?: boolean
 }
 
 export type StoredNote = DeckNote & {
@@ -38,6 +55,7 @@ export const db = new Dexie('inza') as Dexie & {
   notes: EntityTable<StoredNote, 'id'>
   cards: EntityTable<StoredCard, 'id'>
   media: EntityTable<StoredMedia, 'id'>
+  settings: EntityTable<GlobalSettings, 'id'>
 }
 
 db.version(1).stores({
@@ -45,6 +63,7 @@ db.version(1).stores({
   notes: 'id, deckId',
   cards: 'id, deckId, [deckId+fsrsCard.state], [deckId+fsrsCard.due]',
   media: 'id, deckId',
+  settings: 'id',
 })
 
 export function createStoredCards(note: StoredNote): StoredCard[] {
@@ -75,6 +94,7 @@ export async function deleteDeck(deckId: string) {
 }
 
 export const dbReady = db.open().then(async () => {
+  if (!(await db.settings.get('global'))) await db.settings.add(defaultGlobalSettings)
   for (const deck of await db.decks.toArray()) {
     // TODO: handle better
     if (deck.importStatus === 'importing') await deleteDeck(deck.id)

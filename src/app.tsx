@@ -3,7 +3,7 @@ import { createContext, useContext, useState, type Dispatch, type SetStateAction
 import Dexie from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { createEmptyCard, Rating, State, type Grade } from 'ts-fsrs'
-import { db, dbReady, type StoredCard } from './db'
+import { db, dbReady, defaultGlobalSettings, type StoredCard } from './db'
 import { importDeck } from './import-deck'
 import { Note, NoteContent } from './note'
 import { useFsrs } from './use-fsrs'
@@ -12,12 +12,6 @@ type Tab = 'decks' | 'study' | 'settings' | 'browse' | 'edit'
 type NavContextValue = {
   tab: Tab
   setTab: Dispatch<SetStateAction<Tab>>
-}
-
-type GlobalSettings = {
-  newCardsPerDay: number
-  maxReviewsPerDay: number
-  autoSync: boolean
 }
 
 const NavContext = createContext<NavContextValue | null>(null)
@@ -31,16 +25,18 @@ const useNav = () => {
   return nav
 }
 
-const defaultGlobalSettings: GlobalSettings = {
-  newCardsPerDay: 24,
-  maxReviewsPerDay: 120,
-  autoSync: true,
-}
-
 function App() {
   const { tab, setTab } = useNav()
   const scheduler = useFsrs()
-  const [globalSettings, setGlobalSettings] = useState(defaultGlobalSettings)
+  const globalSettings =
+    useLiveQuery(
+      async () => {
+        await dbReady
+        return db.settings.get('global')
+      },
+      [],
+      defaultGlobalSettings,
+    ) ?? defaultGlobalSettings
   const decks = useLiveQuery(
     async () => {
       await dbReady
@@ -53,9 +49,14 @@ function App() {
           const reviewsStudied = deck.studyDay === studyDay ? deck.reviewsStudied : 0
           const reviewLimit = Math.max(
             0,
-            Math.floor(globalSettings.maxReviewsPerDay) - newStudied - reviewsStudied,
+            Math.floor(deck.maxReviewsPerDay ?? globalSettings.maxReviewsPerDay) -
+              newStudied -
+              reviewsStudied,
           )
-          const newLimit = Math.max(0, Math.floor(globalSettings.newCardsPerDay) - newStudied)
+          const newLimit = Math.max(
+            0,
+            Math.floor(deck.newCardsPerDay ?? globalSettings.newCardsPerDay) - newStudied,
+          )
           const dueCards = await db.cards
             .where('[deckId+fsrsCard.due]')
             .between([deck.id, Dexie.minKey], [deck.id, now], true, true)
@@ -93,16 +94,15 @@ function App() {
   const [showAddDeck, setShowAddDeck] = useState(false)
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
+  const [globalSettingsDraft, setGlobalSettingsDraft] = useState(globalSettings)
+  const [deckSettingsDraft, setDeckSettingsDraft] = useState({
+    newCardsPerDay: defaultGlobalSettings.newCardsPerDay,
+    maxReviewsPerDay: defaultGlobalSettings.maxReviewsPerDay,
+    downloadOffline: false,
+  })
 
   const isActive = (id: string) => toggledDeckID === id
   const selectedDeck = decks.find((deck) => deck.id === selectedDeckID) ?? decks[0]
-
-  const updateGlobalSetting = <Key extends keyof GlobalSettings>(
-    key: Key,
-    value: GlobalSettings[Key],
-  ) => {
-    setGlobalSettings((current) => ({ ...current, [key]: value }))
-  }
 
   const resetDeckProgress = async (deckID: string) => {
     await db.transaction('rw', db.decks, db.cards, async () => {
@@ -143,9 +143,14 @@ function App() {
     const reviewsStudied = deck.studyDay === studyDay ? deck.reviewsStudied : 0
     const reviewLimit = Math.max(
       0,
-      Math.floor(globalSettings.maxReviewsPerDay) - newStudied - reviewsStudied,
+      Math.floor(deck.maxReviewsPerDay ?? globalSettings.maxReviewsPerDay) -
+        newStudied -
+        reviewsStudied,
     )
-    const newLimit = Math.max(0, Math.floor(globalSettings.newCardsPerDay) - newStudied)
+    const newLimit = Math.max(
+      0,
+      Math.floor(deck.newCardsPerDay ?? globalSettings.newCardsPerDay) - newStudied,
+    )
     const dueCards = await db.cards
       .where('[deckId+fsrsCard.due]')
       .between([deckID, Dexie.minKey], [deckID, now], true, true)
@@ -179,8 +184,6 @@ function App() {
   }
 
   const devReset = async () => {
-    localStorage.clear()
-    sessionStorage.clear()
     await db.delete()
     await Promise.all((await caches.keys()).map((name) => caches.delete(name)))
     await Promise.all(
@@ -286,92 +289,84 @@ function App() {
         <h1 {...stylex.props(styles.heading)}>Settings</h1>
         <NumberSetting
           label="New cards per day"
-          value={globalSettings.newCardsPerDay}
-          onChange={(value) => updateGlobalSetting('newCardsPerDay', value)}
+          value={globalSettingsDraft.newCardsPerDay}
+          onChange={(newCardsPerDay) =>
+            setGlobalSettingsDraft((current) => ({ ...current, newCardsPerDay }))
+          }
         />
         <NumberSetting
           label="Max reviews per day"
-          value={globalSettings.maxReviewsPerDay}
-          onChange={(value) => updateGlobalSetting('maxReviewsPerDay', value)}
+          value={globalSettingsDraft.maxReviewsPerDay}
+          onChange={(maxReviewsPerDay) =>
+            setGlobalSettingsDraft((current) => ({ ...current, maxReviewsPerDay }))
+          }
         />
         <ToggleSetting
-          checked={globalSettings.autoSync}
+          checked={globalSettingsDraft.autoSync}
           label="Auto-sync"
-          onChange={(value) => updateGlobalSetting('autoSync', value)}
+          onChange={(autoSync) => setGlobalSettingsDraft((current) => ({ ...current, autoSync }))}
         />
-        <button {...stylex.props(styles.button, styles.danger)} onClick={() => void devReset()}>
-          Dev Reset
-        </button>
+        <div {...stylex.props(styles.row, styles.topMargin)}>
+          <button
+            {...stylex.props(styles.button, styles.primary)}
+            onClick={() => void db.settings.put(globalSettingsDraft)}
+          >
+            Save
+          </button>
+          <button {...stylex.props(styles.button, styles.danger)} onClick={() => void devReset()}>
+            Dev Reset
+          </button>
+        </div>
       </div>
     </>
   )
 
-  const Edit = () => {
-    type DeckSettings = {
-      newCardsPerDay: number
-      maxReviewsPerDay: number
-      downloadOffline: boolean
-    }
+  const Edit = () => (
+    <>
+      <div {...stylex.props(styles.row, styles.semibold)}>
+        <button
+          {...stylex.props(styles.button)}
+          onClick={(e) => {
+            e.stopPropagation()
+            setTab('decks')
+          }}
+        >
+          Back
+        </button>
+      </div>
 
-    const defaultDeckSettings: DeckSettings = {
-      newCardsPerDay: 24,
-      maxReviewsPerDay: 120,
-      downloadOffline: false,
-    }
-
-    const [deckSettings, setDeckSettings] = useState<Record<string, DeckSettings>>(() =>
-      Object.fromEntries(decks.map((deck) => [deck.id, { ...defaultDeckSettings }])),
-    )
-    const settings = deckSettings[selectedDeck.id] ?? defaultDeckSettings
-
-    const updateDeckSetting = <Key extends keyof DeckSettings>(
-      deckID: string,
-      key: Key,
-      value: DeckSettings[Key],
-    ) => {
-      setDeckSettings((current) => ({
-        ...current,
-        [deckID]: {
-          ...defaultDeckSettings,
-          ...current[deckID],
-          [key]: value,
-        },
-      }))
-    }
-
-    return (
-      <>
-        <div {...stylex.props(styles.row, styles.semibold)}>
+      <div {...stylex.props(styles.pane)}>
+        <h1 {...stylex.props(styles.heading)}>{selectedDeck.name}</h1>
+        <NumberSetting
+          label="New cards per day"
+          value={deckSettingsDraft.newCardsPerDay}
+          onChange={(newCardsPerDay) =>
+            setDeckSettingsDraft((current) => ({ ...current, newCardsPerDay }))
+          }
+        />
+        <NumberSetting
+          label="Max reviews per day"
+          value={deckSettingsDraft.maxReviewsPerDay}
+          onChange={(maxReviewsPerDay) =>
+            setDeckSettingsDraft((current) => ({ ...current, maxReviewsPerDay }))
+          }
+        />
+        <ToggleSetting
+          checked={deckSettingsDraft.downloadOffline}
+          label="Download for offline"
+          onChange={(downloadOffline) =>
+            setDeckSettingsDraft((current) => ({ ...current, downloadOffline }))
+          }
+        />
+        <div {...stylex.props(styles.row, styles.topMargin)}>
           <button
-            {...stylex.props(styles.button)}
-            onClick={(e) => {
-              e.stopPropagation()
-              setTab('decks')
-            }}
+            {...stylex.props(styles.button, styles.primary)}
+            onClick={() => void db.decks.update(selectedDeck.id, deckSettingsDraft)}
           >
-            Back
+            Save
           </button>
-        </div>
-
-        <div {...stylex.props(styles.pane)}>
-          <h1 {...stylex.props(styles.heading)}>{selectedDeck.name}</h1>
-          <NumberSetting
-            label="New cards per day"
-            value={settings.newCardsPerDay}
-            onChange={(value) => updateDeckSetting(selectedDeck.id, 'newCardsPerDay', value)}
-          />
-          <NumberSetting
-            label="Max reviews per day"
-            value={settings.maxReviewsPerDay}
-            onChange={(value) => updateDeckSetting(selectedDeck.id, 'maxReviewsPerDay', value)}
-          />
-          <ToggleSetting
-            checked={settings.downloadOffline}
-            label="Download for offline"
-            onChange={(value) => updateDeckSetting(selectedDeck.id, 'downloadOffline', value)}
-          />
           <button
-            {...stylex.props(styles.button, styles.danger, styles.topMargin)}
+            {...stylex.props(styles.button, styles.danger)}
             onClick={(e) => {
               e.stopPropagation()
               resetDeckProgress(selectedDeck.id)
@@ -380,9 +375,9 @@ function App() {
             Reset deck progress
           </button>
         </div>
-      </>
-    )
-  }
+      </div>
+    </>
+  )
 
   const Study = () => {
     const card = studyCards[cardIndex]
@@ -506,6 +501,7 @@ function App() {
           {...stylex.props(styles.button)}
           onClick={(e) => {
             e.stopPropagation()
+            setGlobalSettingsDraft(globalSettings)
             setTab('settings')
           }}
         >
@@ -606,6 +602,11 @@ function App() {
                     onClick={(e) => {
                       e.stopPropagation()
                       setSelectedDeckID(d.id)
+                      setDeckSettingsDraft({
+                        newCardsPerDay: d.newCardsPerDay ?? globalSettings.newCardsPerDay,
+                        maxReviewsPerDay: d.maxReviewsPerDay ?? globalSettings.maxReviewsPerDay,
+                        downloadOffline: d.downloadOffline ?? false,
+                      })
                       setTab('edit')
                     }}
                   >
