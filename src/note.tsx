@@ -13,12 +13,152 @@ function contentText(html: string, selector?: string) {
   return content.textContent?.replace(/\s+/g, ' ').trim() ?? ''
 }
 
+const safeElements: Record<string, true> = {
+  a: true,
+  b: true,
+  blockquote: true,
+  br: true,
+  caption: true,
+  code: true,
+  dd: true,
+  del: true,
+  div: true,
+  dl: true,
+  dt: true,
+  em: true,
+  h1: true,
+  h2: true,
+  h3: true,
+  h4: true,
+  h5: true,
+  h6: true,
+  hr: true,
+  i: true,
+  kbd: true,
+  li: true,
+  mark: true,
+  math: true,
+  mfrac: true,
+  mi: true,
+  mn: true,
+  mo: true,
+  mroot: true,
+  mrow: true,
+  mspace: true,
+  msqrt: true,
+  msub: true,
+  msubsup: true,
+  msup: true,
+  mtable: true,
+  mtd: true,
+  mtext: true,
+  mtr: true,
+  mpadded: true,
+  mphantom: true,
+  munder: true,
+  munderover: true,
+  mover: true,
+  ol: true,
+  p: true,
+  pre: true,
+  rp: true,
+  rt: true,
+  ruby: true,
+  s: true,
+  samp: true,
+  small: true,
+  span: true,
+  strong: true,
+  sub: true,
+  sup: true,
+  table: true,
+  tbody: true,
+  td: true,
+  tfoot: true,
+  th: true,
+  thead: true,
+  tr: true,
+  ul: true,
+  var: true,
+}
+const droppedElements: Record<string, true> = {
+  audio: true,
+  canvas: true,
+  embed: true,
+  form: true,
+  iframe: true,
+  object: true,
+  script: true,
+  style: true,
+  template: true,
+  video: true,
+}
+const globalAttributes: Record<string, true> = { dir: true, lang: true, title: true }
+const elementAttributes: Record<string, Record<string, true>> = {
+  a: { href: true },
+  code: { 'data-language': true },
+  li: { value: true },
+  math: { display: true },
+  ol: { reversed: true, start: true, type: true },
+  span: { 'data-cloze': true },
+  td: { colspan: true, rowspan: true, scope: true },
+  th: { colspan: true, rowspan: true, scope: true },
+}
+
+function sanitizeFragment(html: string): DocumentFragment {
+  const parsed = new DOMParser().parseFromString(html, 'text/html')
+  const sanitize = (node: Node): void => {
+    if (node.nodeType === Node.COMMENT_NODE) {
+      node.parentNode?.removeChild(node)
+      return
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return
+
+    const element = node as HTMLElement
+    for (const child of Array.from(element.childNodes)) sanitize(child)
+
+    const tag = element.localName
+    if (!safeElements[tag]) {
+      if (droppedElements[tag] || !element.parentNode) {
+        element.remove()
+        return
+      }
+      while (element.firstChild) element.parentNode.insertBefore(element.firstChild, element)
+      element.remove()
+      return
+    }
+
+    for (const attribute of Array.from(element.attributes)) {
+      const allowed =
+        globalAttributes[attribute.name] ||
+        elementAttributes[tag]?.[attribute.name] ||
+        (attribute.name === 'mathvariant' && tag.startsWith('m') && tag !== 'mark')
+      if (!allowed || (attribute.name === 'href' && !/^(https?:|mailto:)/i.test(attribute.value))) {
+        element.removeAttribute(attribute.name)
+      }
+    }
+  }
+
+  for (const child of Array.from(parsed.body.childNodes)) sanitize(child)
+  const fragment = parsed.createDocumentFragment()
+  fragment.append(...Array.from(parsed.body.childNodes))
+  return fragment
+}
+
 function Content({ children, xstyle }: { children: string; xstyle?: StyleXStyles }) {
   return (
     <div
-      ref={(element) =>
-        (element as (HTMLDivElement & { setHTML(html: string): void }) | null)?.setHTML(children)
-      }
+      ref={(element) => {
+        if (!element) return
+        const nativeElement = element as HTMLDivElement & {
+          setHTML?: (html: string) => void
+        }
+        if (nativeElement.setHTML) {
+          nativeElement.setHTML(children)
+          return
+        }
+        element.replaceChildren(sanitizeFragment(children))
+      }}
       {...stylex.props(xstyle)}
     />
   )
