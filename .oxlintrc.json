@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["eslint", "typescript", "unicorn", "oxc", "react"],
-  "jsPlugins": ["oxlint-tailwindcss"],
   "env": {
     "browser": true,
     "es2026": true,
@@ -11,21 +10,7 @@
   "settings": {
     "react": {
       "version": "19.2"
-    },
-    "tailwindcss": {
-      "entryPoint": "src/index.css"
     }
   },
-  "rules": {
-    "tailwindcss/no-conflicting-classes": "error",
-    "tailwindcss/no-deprecated-classes": "error",
-    "tailwindcss/no-duplicate-classes": "warn",
-    "tailwindcss/no-unknown-classes": "error",
-    "tailwindcss/enforce-canonical": "warn",
-    "tailwindcss/no-unnecessary-arbitrary-value": "warn",
-    "tailwindcss/enforce-sort-order": "warn",
-    "tailwindcss/consistent-variant-order": "warn",
-    "tailwindcss/enforce-consistent-important-position": "warn",
-    "tailwindcss/no-unnecessary-whitespace": "warn"
-  }
+  "rules": {}
 }

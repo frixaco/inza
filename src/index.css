@@ -1,25 +1,46 @@
-@import 'tailwindcss';
-@theme inline {
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-}
-
 :root {
   color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
   /* Extra room above the iOS home indicator where rounded corners can clip content. */
   --bottom-corner-clearance: 1.5rem;
-  --primary: light-dark(var(--color-blue-300), var(--color-blue-700));
-  --primary-foreground: light-dark(var(--color-gray-950), var(--color-gray-50));
+  --primary: light-dark(#93c5fd, #1d4ed8);
+  --primary-foreground: light-dark(#030712, #f9fafb);
 }
 
-@utility no-spinner {
-  appearance: textfield;
+* {
+  box-sizing: border-box;
+}
 
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    margin: 0;
-    appearance: none;
-  }
+button,
+input {
+  color: inherit;
+  font: inherit;
+}
+
+button {
+  border: 0;
+  background-color: transparent;
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+input[type='number'] {
+  appearance: textfield;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
 }
 
 html,
@@ -38,6 +59,7 @@ body,
 body {
   /* The app owns scrolling internally; the document itself should not move. */
   overflow: hidden;
+  margin: 0;
   background: light-dark(#fff, #030712);
   color: light-dark(#111827, #f3f4f6);
 }
