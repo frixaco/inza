@@ -172,15 +172,26 @@ export function Note({
   note: StoredNote
   setToggledNoteID: (update: (current: string | null) => string | null) => void
 }) {
+  const preview =
+    note.type === 'prompt_response'
+      ? note.prompt
+      : note.type === 'cloze'
+        ? note.text.replace(/\{\{[^:}]+::([^}]+)\}\}/g, '$1')
+        : note.image.alt
+
   return (
     <article
-      className="flex min-h-48 flex-col gap-4 border border-gray-300 px-6 py-4"
+      className="flex flex-col gap-4 border border-gray-300 px-6 py-4"
       onClick={(event) => {
         event.stopPropagation()
         setToggledNoteID((current) => (current === note.id ? null : note.id))
       }}
     >
-      <NoteContent note={note} revealed={isOpen} />
+      {isOpen ? (
+        <NoteContent note={note} revealed />
+      ) : (
+        <Markdown className="line-clamp-2 text-start">{preview}</Markdown>
+      )}
     </article>
   )
 }
