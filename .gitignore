@@ -1,9 +1,5 @@
 node_modules
 dist
+*.tsbuildinfo
 .DS_Store
-
 *.apkg
-*.zip
-kaishi-open-deck
-kaishi-open-deck-mvp
-kaishi-open-deck-mvp-html

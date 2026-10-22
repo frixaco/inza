@@ -1,30 +1,20 @@
 # Open Deck Format
 
-> **Post-MVP specification.** Inza MVP/v1 uses the strict required-only subset in [`OPEN-DECK_MVP_FORMAT.md`](OPEN-DECK_MVP_FORMAT.md).
+Open Deck is a plain-text flashcard deck format. A person can write a deck by
+hand in a text editor, and an AI agent can generate one reliably. This document
+is the only Open Deck specification. It has no reduced or extended profile.
 
-This document defines a human-readable deck format for flashcard decks that can
-live as either a directory or a zip archive. The design goal is to support a
-large range of Anki-like decks without copying Anki's templates, CSS, or
-JavaScript into the authoring format.
+The core rule:
 
-The core rule is simple:
+> Deck files describe learning content. The app owns rendering.
 
-> Deck files describe learning content and intent. The app owns rendering.
+A deck contains content, media, and stable identifiers. It never contains
+templates, CSS, JavaScript, layout settings, or scheduling state.
 
-Learner-facing text is safe semantic HTML because Open Deck targets a web app.
-HTML describes paragraphs, emphasis, links, code, tables, ruby text, and math.
-It does not control layout or styling. Pretty defaults, accessibility, dark
-mode, and responsive behavior remain app responsibilities.
+Sections 1–10 define the format. Section 11 defines how Inza reads and updates
+decks. Section 12 lists what the format deliberately leaves out.
 
-## Non-Goals
-
-- No full HTML documents or card templates.
-- No deck-authored CSS or JavaScript.
-- No required database.
-- No hidden binary package format.
-- No attempt to preserve every imported deck layout exactly.
-
-## Package Shape
+## 1. Package
 
 A deck is a directory:
 
@@ -33,188 +23,175 @@ my-deck/
   deck.yaml
   notes/
     basics.yaml
-    chapter-01.yaml
+    chapter-02.yaml
   assets/
     images/
     audio/
     video/
 ```
 
-The same directory can be zipped:
+The same directory may be packed as a ZIP file. The archive must contain
+`deck.yaml` at its root or exactly one top-level directory that contains it. A
+ZIP is only a container; its contents follow the same rules.
 
-```text
-my-deck.zip
-```
+- `deck.yaml` is required.
+- `notes/` holds one or more `.yaml` files, in any subdirectory layout. A reader
+  loads them in lexical order of their paths (compared by Unicode code point),
+  then loads notes in file order. File names and file boundaries carry no
+  meaning; moving a note to another file changes nothing.
+- `assets/` holds every image, audio, and video file the notes reference. It
+  may be omitted when no note references an asset.
 
-A conforming reader should treat a zip exactly like the directory it contains.
+### YAML rules
 
-## File Roles
+Files use YAML 1.2 with plain, JSON-compatible values. Comments are allowed.
 
-### `deck.yaml`
+- Duplicate mapping keys, anchors, aliases, merge keys (`<<`), and custom tags
+  are invalid.
+- Values are never coerced. A content field written as `19` is a number and is
+  invalid; write `"19"`.
+- Omit an optional field instead of writing `null`. Empty strings are invalid;
+  an empty list (such as `media: []`) is valid.
+- Every object rejects fields that this document does not define, at every
+  depth. A typo is an error, never silently ignored.
 
-`deck.yaml` is the deck manifest. It declares the deck identity.
+Authoring tips:
+
+- Quote a string that contains `: `, starts with `{`, `[`, `&`, `*`, `!`, `|`,
+  `>`, `'`, `"`, `%`, `@`, or a backtick, or could be read as a number or
+  boolean.
+- Use a block scalar (`|`) for multi-line HTML.
+
+## 2. `deck.yaml`
 
 ```yaml
 format: open-deck
-id: rust-book
-title: The Rust Book
-description: Cards based on The Rust Programming Language book.
+id: kaishi
+title: Kaishi 1.5k
+description: Japanese vocabulary with example sentences.
 language: en
+license: CC BY-SA 4.0
 ```
 
-Optional manifest fields:
+| Field | Required | Value |
+|---|---|---|
+| `format` | yes | The string `open-deck` |
+| `id` | yes | [ID](#5-identifiers). Identifies the deck. |
+| `title` | yes | Text |
+| `description` | no | Text |
+| `language` | no | [Language tag](#language) for the deck's content |
+| `license` | no | Text identifying the deck's license |
+
+Text is a plain string with at least one non-whitespace character. It is shown
+literally and is never parsed as HTML.
+
+## 3. Note files
+
+A note file has exactly one field:
 
 ```yaml
-license: MIT OR Apache-2.0
-```
-
-### `notes/*.yaml`
-
-Note files contain authorable content. They may define file-level defaults and a
-list of notes.
-
-Decks may split notes across files in any useful way:
-
-```text
-notes/
-  0001-0250.yaml
-  0251-0500.yaml
-  grammar.yaml
-  chapter-03.yaml
-```
-
-Readers should load note files in stable lexical path order, then load notes in
-the order they appear inside each file. If deck order matters, choose filenames
-that sort in the intended order, such as zero-padded numeric prefixes.
-
-```yaml
-defaults:
-  deck: rust-book/ch03
-  tags: [ch03, data-types]
-
 notes:
-  - id: rust-scalar-categories
+  - id: oxygen
     type: prompt_response
-    prompt: Which four scalar type categories does Rust have?
-    answer: Integers, floating-point numbers, Booleans, and characters.
-    tags: [definition]
+    prompt: What is the chemical symbol for oxygen?
+    answer: O
 ```
 
-### `assets/`
+`notes` is a list of notes. An empty list (`notes: []`) is valid. Note files
+have no file-level defaults.
 
-Assets are ordinary files referenced by relative path.
+### Fields shared by every note
 
-```yaml
-image: assets/images/knee.png
-audio: assets/audio/word.mp3
-video: assets/video/demo.mp4
-```
+| Field | Required | Value |
+|---|---|---|
+| `id` | yes | [ID](#5-identifiers), unique within the deck |
+| `type` | yes | `prompt_response`, `cloze`, or `occlusion` |
+| `tags` | no | List of tags |
+| `language` | no | Language tag for this note's content |
+| `media` | no | List of [media](#7-media) not linked to any content |
 
-Readers should reject paths that escape the deck root.
+A tag is a non-empty string without whitespace. Tags in one note must be
+unique. Tags organize and filter notes; they never change rendering or which
+cards a note produces.
 
-## Core Concepts
+Each note type adds its own fields, defined in [section 8](#8-note-types).
 
-### Deck Type
+## 4. Content
 
-There are three top-level note types:
+Every learner-facing field (`prompt`, `answer`, `reverse`, `text`, `extra`,
+occlusion `prompt`, and mask `answer`) holds **content**. Content is either an
+HTML string or a list of **parts**.
 
-```yaml
-type: prompt_response | cloze | occlusion
-```
-
-These classify the review interaction. Subject matter should usually be modeled
-with decks and tags.
-
-### Shared Fields
-
-Every note may use these fields.
-
-```yaml
-id: stable-note-id
-type: prompt_response
-deck: rust-book/ch03
-tags: [tag-one, tag-two]
-language: en
-```
-
-Keep review fields focused on what the learner sees or what the scheduler needs.
-Authoring history, import details, and source file paths belong in `provenance`,
-not in the core note shape.
-
-### HTML Content
-
-Visible content uses either an HTML fragment string or a small list of generic
-content blocks. Plain text is valid HTML content. Use one string for ordinary
-cards. Use blocks when a card has several learner-facing pieces that need
-separate roles, labels, languages, or media.
-
-Simple string:
+A string is the short form. Plain text is valid HTML:
 
 ```yaml
 prompt: What is ownership?
+answer: Each value has one owner.
 ```
 
-HTML fragment:
+Use a list of parts when pieces of content need their own label, language, or
+media:
 
 ```yaml
-prompt: |
-  <p>What happens when this code runs?</p>
-  <pre><code data-language="rust">println!(&quot;{}&quot;, [1, 2, 3][1]);</code></pre>
-```
-
-Block list:
-
-```yaml
-prompt:
-  - role: main
-    html: <ruby>私<rt>わたし</rt></ruby>
-    language: ja
-    media:
-      - kind: audio
-        src: assets/audio/watashi.mp3
-        label: Word audio
-
-  - role: context
-    label: Sentence
-    html: 私はアンです。
+answer:
+  - label: Meaning
+    html: I (polite, general)
+  - label: Example
+    html: <mark>私</mark>はアンです。
     language: ja
     media:
       - kind: audio
         src: assets/audio/watashi-sentence.mp3
-        label: Sentence audio
 ```
 
-Block fields:
+A string is equivalent to a list with one part: `prompt: X` means
+`prompt: [{html: X}]`.
 
-```yaml
-role: main | context | support | note
-label: string
-html: html-fragment
-language: language-code
-media: [media-ref]
-```
+### Part fields
 
-A block must contain `html` or a non-empty `media` list. Use media on a block
-when the file belongs to that specific piece of content, such as word audio,
-sentence audio, or an example image.
+| Field | Required | Value |
+|---|---|---|
+| `html` | see below | [Safe HTML](#6-safe-html) |
+| `label` | no | Text shown as a small heading for the part |
+| `language` | no | Language tag for this part |
+| `media` | see below | List of media linked to this part |
 
-`role` tells the renderer the weight of the block, not its subject matter:
+A part must have `html`, a non-empty `media` list, or both. A part with only a
+label is invalid. A content list must contain at least one part.
 
-- `main`: the primary thing to answer or remember.
-- `context`: material needed to understand the prompt or answer.
-- `support`: ordinary supporting information.
-- `note`: lower-emphasis extra information.
+Parts render in list order. Labels are presentation only: they never decide
+where media goes, what is hidden, or how a card behaves. Renaming every label in
+a deck changes nothing except the visible headings.
 
-`label` is optional. Use it when flattening would lose meaning, such as
-distinguishing "Reading", "Frequency", "Source sentence", or "Compiler error".
-Labels are deck content, not renderer commands.
+### Language
 
-Readers render each block's HTML inside an app-owned block component. The app
-decides block layout, spacing, labels, language handling, and visual weight.
+A language tag is a BCP 47 tag such as `en`, `ja`, or `pt-BR`. Content language
+is inherited from the nearest of: the part's `language`, the note's `language`,
+the manifest's `language`. A `lang` attribute inside HTML overrides it for that
+element. Readers use the language for fonts, line breaking, and text-to-speech.
 
-### Safe HTML
+## 5. Identifiers
 
-Content may use these semantic HTML elements:
+An ID is a non-empty string with no whitespace, control characters, `:`, `{`,
+or `}`. IDs are case-sensitive. Any script is allowed: `kaishi-0002-私` is a
+valid ID.
+
+| ID | Unique within |
+|---|---|
+| Deck `id` | The reader's collection |
+| Note `id` | The deck |
+| Cloze ID (`c1` in `{{c1::...}}`) | The note |
+| Mask `id` | The note |
+
+IDs are how a reader keeps review history when a deck changes. The rules for
+keeping them stable are in [section 10](#10-updating-a-deck).
+
+## 6. Safe HTML
+
+HTML in a deck is a fragment, not a document. It describes meaning; the app
+decides how it looks.
+
+Allowed elements:
 
 ```text
 p br hr h1 h2 h3 h4 h5 h6 div span blockquote pre code
@@ -223,7 +200,7 @@ ul ol li dl dt dd table caption thead tbody tfoot tr th td
 a ruby rt rp
 ```
 
-Content may also use these MathML elements:
+Allowed MathML elements:
 
 ```text
 math mrow mi mn mo mtext mspace mfrac msqrt mroot
@@ -231,530 +208,528 @@ msub msup msubsup munder mover munderover
 mtable mtr mtd mpadded mphantom
 ```
 
-Allowed attributes are:
+Allowed attributes:
 
-- `lang`, `dir`, and `title`.
+- `lang`, `dir`, and `title` on any allowed element.
 - `href` on `a`.
 - `start`, `reversed`, and `type` on `ol`; `value` on `li`.
-- `colspan`, `rowspan`, and `scope` on table cells.
-- `data-language` on `code`.
-- `data-cloze` and `data-hint` on cloze `span` elements.
+- `colspan`, `rowspan`, and `scope` on `th` and `td`.
+- `data-language` on `code`, naming the programming language for highlighting.
 - `display` on `math`; `mathvariant` on MathML elements.
 
-Links must use `https:`, `http:`, or `mailto:` URLs. Readers must reject every
-unlisted element or attribute, full HTML documents, comments, CSS, event
-handlers, scripts, forms, frames, embedded objects, and media elements. Images,
-audio, and video use structured media references so readers can validate and
-load deck assets.
+Links must use absolute `https:`, `http:`, or `mailto:` URLs.
 
-A reader must parse and validate every fragment during import. It must reject
-unsafe HTML instead of silently changing deck content. It must sanitize the
-validated fragment again before inserting it into the page. Deck HTML must never
-be assigned to an executable script, style, URL, or event-handler context.
+Everything else is invalid, including full documents, comments, `class`,
+`style`, `id`, event handlers, scripts, forms, frames, embedded objects, and
+`img`, `audio`, and `video` elements. Images, audio, and video are always
+[media](#7-media), never HTML.
 
-### Media References
+Write `&lt;` for a literal `<` and `&amp;` for a literal `&`.
 
-Media references are semantic. The app decides replay button style, placement,
-image sizing, captions, and lazy loading.
+### Emphasis
 
-Media may appear on a note or inside an individual content block. Prefer
-block-level media when the media belongs to a specific block. Use note-level
-media when the media belongs to the whole card or there is no useful block to
-attach it to.
+Use `<mark>` for the text a piece of content is about, such as the target word
+inside an example sentence:
 
 ```yaml
-media:
-  - kind: audio
-    src: assets/audio/word.mp3
-    label: Word audio
-    role: main
-  - kind: image
-    src: assets/images/example.webp
-    role: support
-    alt: Person being threatened
+html: あなたはトム<mark>さん</mark>ですか。
 ```
 
-Allowed media kinds:
+Use `<strong>` and `<em>` for ordinary emphasis. The app decides how each looks.
+
+## 7. Media
+
+A media item references one file under `assets/`.
 
 ```yaml
-kind: image | audio | video
+- kind: image
+  src: assets/images/knee.webp
+  alt: Front view of a knee joint
+
+- kind: audio
+  src: assets/audio/watashi.mp3
+  label: Word audio
+
+- kind: video
+  src: assets/video/fold.mp4
+  label: How to fold the corner
 ```
 
-SVG files may be referenced as `kind: image`.
+| Field | Kinds | Required | Value |
+|---|---|---|---|
+| `kind` | all | yes | `image`, `audio`, or `video` |
+| `src` | all | yes | Asset path |
+| `alt` | image | yes | Text describing the image |
+| `label` | audio, video | no | Text naming the recording for accessibility |
+| `side` | all | no | `front`, `back`, or `both` (default `both`) |
 
-`role` and `label` on media are optional. They help the renderer group media
-with nearby content without inventing media fields like `word_audio` or
-`sentence_audio`. Block-level media already inherits the surrounding block's
-role, so a block-level media item often needs only `kind`, `src`, and maybe
-`label` or `alt`.
+- Images include GIF, animated WebP, and SVG. SVG is always displayed as an
+  image, never inserted as markup.
+- Audio and video never play automatically because of anything in the deck.
+- An asset path starts with `assets/`, uses `/` separators, and has no `..`
+  segments, backslashes, or URL scheme. Remote and `data:` URLs are invalid.
+- Several media items may reference the same file.
 
-### Visual Demonstrations
+### Linked and standalone media
 
-Some cards need to show how something is produced over time: drawing a
-character, sketching a diagram, constructing a proof, playing a chord, or
-folding a shape. Model that as ordinary media first.
+Where a media item is written decides what it belongs to.
+
+**Linked media** sits inside a part that has `html`. It belongs to that piece
+of content, whatever the content is: a word, a sentence, a code sample, a
+formula. The app places audio controls next to the part's text and places
+images and videos directly below it, inside the same part.
+
+```yaml
+prompt:
+  - html: 私
+    media:
+      - kind: audio
+        src: assets/audio/watashi.mp3
+```
+
+**Standalone media** belongs to no particular content. There are two forms:
+
+- A **media-only part** (a part without `html`) renders at its own position in
+  the content list. Use it to place a picture between two paragraphs, or to make
+  a prompt that is only a recording.
+- **Note-level `media`** renders as its own row between the card's front content
+  and its answer.
 
 ```yaml
 answer:
-  - role: main
-    html: 你
-    language: zh-Hans
+  - html: This is the finished fold.
+  - media:
+      - kind: image
+        src: assets/images/fold.webp
+        alt: The finished paper fold
+  - html: Notice where the two corners meet.
+```
+
+Linking is per part. To link audio to a whole sentence while showing which word
+it practises, put the audio on the sentence part and wrap the word in `<mark>`.
+
+### Front, back, and `side`
+
+"Front" is a card before the learner reveals the answer. "Back" is the same card
+after the reveal. The back keeps the front's content visible and adds the answer
+below it.
+
+Each content field has a fixed visibility, listed with each note type in
+[section 8](#8-note-types). A media item is visible only when **both** its
+container is visible and its `side` allows it:
+
+| `side` | Visible |
+|---|---|
+| `both` (default) | Whenever its container is visible |
+| `front` | Only before the reveal |
+| `back` | Only after the reveal |
+
+`side` exists for media that would give the answer away. Audio of a vocabulary
+word on the front would let the learner hear the reading they are meant to
+recall, so mark it `side: back`. Its play button then appears next to the word,
+but only after the reveal:
+
+```yaml
+prompt:
+  - html: 私
     media:
-      - kind: video
-        src: assets/video/ni-writing-demo.mp4
-        label: Writing demo
-        role: support
+      - kind: audio
+        src: assets/audio/watashi.mp3
+        side: back
 ```
 
-This keeps the format generic. The deck stores learner-facing content and
-optional demonstration media. The app decides playback controls, animation
-style, native drawing surfaces, script-aware stroke renderers, and fallbacks.
+`side: front` on media in a field that only appears after the reveal can never
+show and is invalid.
 
-Do not add renderer-specific libraries, JavaScript, CDN URLs, canvas settings,
-stroke colors, or widget configuration to the deck. If native ordered-step
-rendering becomes a common real need, define one generic media form for ordered
-visual sequences later. Do not add subject-specific fields such as
-`hanzi_writer`, `stroke_order`, or `kanji_svg` to the core note shape.
+## 8. Note types
 
-## Type 1: `prompt_response`
+There are three note types. Each describes a different review interaction.
+Subject matter belongs in decks and tags, not in note types.
 
-Use `prompt_response` for ordinary recall and problem-solving cards:
+Each card renders as:
 
-- Front/back cards.
-- Vocabulary.
-- Definitions.
-- Dates and facts.
-- Geography.
-- Classification.
-- Media identification.
-- Structured fact cards.
-- Problems, cases, proofs, and worked examples.
-- Code diagnostics and query questions.
-
-### Required Fields
-
-```yaml
-type: prompt_response
-prompt: content
-answer: content
+```text
+front area → visible note-level media → answer area (after reveal)
 ```
 
-### Additional Fields
+### `prompt_response`
+
+A question and its answer.
+
+| Field | Required | Visible |
+|---|---|---|
+| `prompt` | yes | Front and back |
+| `answer` | yes | Back |
+| `reverse` | no | See below |
 
 ```yaml
-hint: content
-media: [media-ref]
-references:
-  - title: string
-    url: url
-    locator: string
-```
-
-### Example: Simple QA
-
-```yaml
-- id: oxygen-symbol
+- id: oxygen
   type: prompt_response
   prompt: What is the chemical symbol for oxygen?
   answer: O
 ```
 
-### Example: Japanese Vocabulary
+The note produces one card with variant ID `""` (empty).
+
+`prompt` must show something before the reveal: at least one part with `html`,
+or media whose `side` is `front` or `both`.
+
+#### Reverse cards
+
+`reverse` adds a second card that asks in the opposite direction. Its value is
+content: exactly what the reverse card shows on its front.
 
 ```yaml
-- id: jp-warui
+- id: kaishi-0002-私
   type: prompt_response
-  prompt:
-    - role: main
-      html: <ruby>悪<rt>わる</rt></ruby>い
-      language: ja
-      media:
-        - kind: audio
-          src: assets/audio/warui.mp3
-          label: Word audio
-    - role: context
-      label: Sentence
-      html: あの人は悪い人です。
-      language: ja
-      media:
-        - kind: audio
-          src: assets/audio/warui-sentence.mp3
-          label: Sentence audio
-  answer:
-    - role: main
-      label: Meaning
-      html: bad
-    - role: support
-      label: Reading
-      html: warui
-    - role: support
-      label: Sentence meaning
-      html: That person is a bad person.
-    - role: support
-      label: Illustration
-      media:
-        - kind: image
-          src: assets/images/bad-person.webp
-          alt: Person being threatened
+  prompt: 私
+  answer: I (polite, general)
+  reverse: I (polite, general)
 ```
 
-### Example: Structured Fact As Separate Cards
+The reverse card has variant ID `reverse`:
+
+| Area | Forward card | Reverse card |
+|---|---|---|
+| Front | `prompt` | `reverse` |
+| Back | `prompt`, then `answer` | `reverse`, then `prompt`, then `answer` |
+
+On the reverse card, `prompt` appears only after the reveal, so media in it with
+`side: front` does not show there. `reverse` follows the same rule as `prompt`:
+it must show something before the reveal.
+
+Write `reverse` so it does not contain the answer. Removing `reverse` later
+removes the reverse card (see [section 10](#10-updating-a-deck)).
+
+### `cloze`
+
+Text with hidden pieces. Each cloze ID becomes one card.
+
+| Field | Required | Visible |
+|---|---|---|
+| `text` | yes | Front and back, with clozes hidden or shown |
+| `extra` | no | Back |
 
 ```yaml
-- id: france-capital
-  type: prompt_response
-  prompt: What is the capital of France?
-  answer: Paris
-
-- id: france-country
-  type: prompt_response
-  prompt: Paris is the capital of which country?
-  answer: France
-
-- id: france-flag
-  type: prompt_response
-  prompt: Which country uses this flag?
-  media:
-    - kind: image
-      src: assets/images/france.svg
-      alt: Flag of France
-  answer: France
-```
-
-Use separate notes when one source item should create multiple review prompts.
-This is intentionally boring: it avoids introducing a template or card-generator
-layer into the deck format.
-
-```yaml
-- id: artwork-ernst-artist
-  type: prompt_response
-  prompt:
-    - role: main
-      label: Artwork
-      media:
-        - kind: image
-          src: assets/images/europe-after-rain.jpg
-          alt: Europe After the Rain II
-  answer:
-    - role: main
-      label: Artist
-      html: Max Ernst
-
-- id: artwork-ernst-title
-  type: prompt_response
-  prompt:
-    - role: main
-      label: Artwork
-      media:
-        - kind: image
-          src: assets/images/europe-after-rain.jpg
-          alt: Europe After the Rain II
-  answer:
-    - role: main
-      label: Title
-      html: Europe After the Rain II
-```
-
-### Example: Code Diagnostic
-
-```yaml
-- id: rust-double-mut-borrow
-  type: prompt_response
-  prompt: |
-    <p>Why does this fail?</p>
-    <pre><code data-language="rust">fn main() {
-        let mut s = String::from(&quot;hello&quot;);
-        let r1 = &amp;mut s;
-        let r2 = &amp;mut s;
-        println!(&quot;{r1}, {r2}&quot;);
-    }</code></pre>
-  answer: |
-    <p>It creates two simultaneous mutable references to <code>s</code>.</p>
-    <p>Rust allows either one mutable reference or any number of immutable
-    references, but not overlapping mutable references.</p>
-    <p>Common mistakes:</p>
-    <ul>
-      <li>Thinking the error is caused by <code>println!</code> formatting.</li>
-      <li>Thinking the borrow ends immediately after <code>r1</code> is created.</li>
-    </ul>
-```
-
-### Example: Math Problem
-
-```yaml
-- id: derivative-x2
-  type: prompt_response
-  prompt: |
-    <p>Find the derivative.</p>
-    <math display="block"><mrow><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></math>
-  answer: |
-    <math display="block"><mrow><msup><mi>f</mi><mo>′</mo></msup><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>2</mn><mi>x</mi></mrow></math>
-    <ul>
-      <li>Apply the power rule.</li>
-      <li>Multiply by the exponent and subtract one from the exponent.</li>
-    </ul>
-```
-
-## Type 2: `cloze`
-
-Use `cloze` when the prompt is a source passage with inline hidden spans.
-
-### Required Fields
-
-```yaml
-type: cloze
-text: content-with-cloze-elements
-```
-
-### Additional Fields
-
-```yaml
-context: content
-extra: content
-media: [media-ref]
-```
-
-Cloze content uses a `span` with a non-empty `data-cloze` ID:
-
-```html
-<span data-cloze="c1">answer</span>
-<span data-cloze="c1" data-hint="hint">answer</span>
-```
-
-The element content is the answer. It may contain safe inline HTML. Repeated IDs
-belong to the same card.
-
-### Example
-
-```yaml
-- id: rust-ownership-cloze
+- id: ownership
   type: cloze
-  text: |
-    <p>In Rust, each value has
-    <span data-cloze="c1" data-hint="count + noun">one owner</span> at a time,
-    and when the owner goes out of scope, the value is
-    <span data-cloze="c2" data-hint="cleanup action">dropped</span>.</p>
-  extra: |
-    <p>This is the core ownership rule that lets Rust avoid a garbage collector.</p>
+  text: In Rust, each value has {{c1::one owner}} at a time.
 ```
 
-## Type 3: `occlusion`
+A cloze is written `{{id::answer}}` inside the `html` of `text`:
 
-Use `occlusion` when the card hides regions of an image or diagram.
+- Each distinct cloze ID produces one card whose variant ID is the cloze ID.
+  Cards are created in order of each ID's first appearance.
+- Repeating an ID puts all its occurrences on the same card.
+- On a card's front, every occurrence of its ID is shown as `[…]`. Clozes with
+  other IDs show their answers.
+- On the back, every answer is shown, followed by `extra`.
+- The answer must contain non-whitespace text and may contain inline HTML, such
+  as `{{c1::<ruby>私<rt>わたし</rt></ruby>}}`. A `::` inside the answer is
+  ordinary text, so `{{c1::std::vec}}` is valid.
+- Clozes cannot nest, cannot cross an HTML element boundary, and cannot span
+  two parts.
+- Cloze syntax is recognised only in the `html` of `text`, in text and not inside
+  tags or attribute values. To write a literal `{{` there, use `&#123;&#123;`.
+- `text` must contain at least one cloze. An unclosed or malformed cloze is
+  invalid.
 
-### Required Fields
+Media belongs to the note, not to one cloze: an image on the note appears on
+every card the note produces. Audio that speaks a hidden answer should use
+`side: back`.
 
 ```yaml
-type: occlusion
-image:
-  src: assets/images/diagram.png
-masks:
-  - id: label-1
-    shape:
-      kind: rect
-      x: 0
-      y: 0
-      w: 100
-      h: 50
-    answer: html-fragment
+- id: wa-topic
+  type: cloze
+  language: ja
+  text:
+    - html: 私{{c1::は}}アンです。
+      media:
+        - kind: audio
+          src: assets/audio/watashi-sentence.mp3
+          side: back
+  extra: は marks the topic of the sentence.
 ```
 
-### Additional Fields
+### `occlusion`
 
-```yaml
-image:
-  src: path
-  alt: string
-  width: number
-  height: number
+An image with regions to recall. Each mask becomes one card.
 
-masks:
-  - id: string
-    answer: html-fragment
-    hint: html-fragment
-    group: string
-    shape:
-      kind: rect | ellipse | polygon
-      x: number
-      y: number
-      w: number
-      h: number
-      points: [[number, number]]
-
-context: content
-extra: content
-```
-
-Coordinates should use the natural image coordinate system. The renderer can
-scale to screen size.
-
-### Example
+| Field | Required | Visible |
+|---|---|---|
+| `prompt` | no | Front and back |
+| `image` | yes | Front and back |
+| `masks` | yes | Active mask covered on the front, uncovered on the back |
+| mask `answer` | yes | Back, for the active mask only |
+| `extra` | no | Back |
 
 ```yaml
 - id: knee-ligaments
   type: occlusion
+  prompt: Name the covered ligament.
   image:
     src: assets/images/knee.png
     alt: Knee ligament diagram
-    width: 1200
-    height: 900
   masks:
     - id: acl
       answer: Anterior cruciate ligament
-      hint: ACL
-      shape:
-        kind: rect
-        x: 510
-        y: 320
-        w: 180
-        h: 70
-    - id: patella
-      answer: Patella
-      shape:
-        kind: ellipse
-        x: 440
-        y: 160
-        w: 150
-        h: 120
-  extra: |
-    <p>Review the relative position of each structure, not only the label name.</p>
+      shape: {kind: rect, x: 510, y: 320, w: 180, h: 70}
+    - id: pcl
+      answer: Posterior cruciate ligament
+      shape: {kind: rect, x: 480, y: 420, w: 180, h: 70}
 ```
 
-## References
+- `image` has exactly `src` and `alt`. The image must be a still image with
+  known pixel dimensions.
+- `masks` has at least one mask. Each mask has exactly `id`, `answer`, and
+  `shape`. Each mask produces one card whose variant ID is the mask ID.
+- `shape` has `kind: rect` and `x`, `y`, `w`, `h` in the image's natural pixel
+  coordinates, with `(0, 0)` at the top-left corner. `x` and `y` locate the
+  rectangle's top-left corner. `w` and `h` must be greater than zero. A
+  rectangle may extend past the image edge and is clipped, but it must overlap
+  the image.
+- On a card's front only its own mask is covered; the rest of the image stays
+  visible. On the back that region is uncovered and the mask's `answer` is shown.
+- A mask's `answer` is content, so it can carry linked media that appears only
+  on that mask's card, such as the pronunciation of one cell of a kana chart.
 
-References point to learner-facing source material. Use them when the app should
-be able to show "read more", citations, or a friendly source link.
+## 9. Cards
 
-```yaml
-references:
-  - title: The Rust Programming Language
-    url: https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html
-    locator: Chapter 4, References and Borrowing
-```
-
-Do not use `references` for raw generator bookkeeping. A local source file path
-such as `rust-book/src/ch04-02-references-and-borrowing.md` is usually not useful
-to a learner. Put that in `provenance` instead.
-
-## Provenance
-
-`provenance` is optional maintainer metadata. It can help generated decks,
-imports, audits, and regeneration, but native review behavior must not depend on
-it.
-
-```yaml
-provenance:
-  source_path: rust-book/src/ch04-02-references-and-borrowing.md
-  source_lines: 10-30
-  generator: rust-book-card-generator
-```
-
-Readers may ignore `provenance`.
-
-Importers should produce ordinary native notes. If they need to preserve source
-system details, they should put that data in `provenance`, not in review fields.
-Importers may preserve safe learner-facing HTML, but must discard source
-templates, CSS, JavaScript, renderer preferences, and widget configuration.
-Preserve useful content, media, links, and audit metadata instead.
-
-## Validation Rules
-
-A validator should check:
-
-- `deck.yaml` exists and its `format` is supported.
-- Every note has a stable ID, a supported type, and its required fields.
-- IDs are unique within the deck.
-- Asset references exist and stay inside the deck root.
-- Every HTML content value is a string or valid content block list.
-- Every HTML fragment uses only allowed elements, attributes, and URL protocols.
-- Content blocks have a supported role and contain `html` or media.
-- Media is valid on both notes and content blocks.
-- Prompt-response notes have a prompt and answer.
-- Cloze notes have at least one valid `data-cloze` element.
-- Occlusion masks have valid geometry.
-
-This repository includes a small validator:
-
-```bash
-bun tools/validate-open-deck.ts kaishi-open-deck
-```
-
-Warnings, not hard errors:
-
-- Missing optional alt text.
-- Very large media files.
-
-## Renderer Contract
-
-The renderer must provide good defaults for:
-
-- Front and back layout.
-- Mobile and desktop responsive sizing.
-- Dark mode.
-- Audio controls.
-- Image sizing.
-- Safe semantic HTML.
-- Code blocks and native MathML.
-- Accessibility labels.
-- Empty optional fields.
-
-The renderer must not require deck authors to manage layout.
-
-## Format Identifier
-
-The format string identifies the Open Deck format:
-
-```yaml
-format: open-deck
-```
-
-Compatibility rules:
-
-- Canonical validators should reject unknown schema fields so typos and stale
-  fields are caught early.
-- Readers may ignore unknown keys inside `provenance`.
-- Readers must reject unknown required `type` values.
-- Unknown note types are invalid.
-- Native deck behavior must not depend on `provenance`.
-
-## Minimum Reader Support
-
-A conforming reader should support:
-
-- Directory and zip loading.
-- `deck.yaml` and `notes/*.yaml`.
-- Local assets.
-- `prompt_response`, `cloze`, and `occlusion`.
-- Safe HTML fragments and content blocks.
-- Validation errors with file paths and note IDs.
-
-Do not build a template engine.
-
-## Safe HTML Rendering
-
-Card content is an HTML fragment or a list of generic labeled blocks whose
-`html` values are fragments. HTML is content syntax, not a layout or template
-system.
-
-Readers must parse fragments with an HTML parser. String matching is not enough
-to validate nested elements, encoded URLs, or malformed markup. Import validation
-must reject content outside the allowlist in [Safe HTML](#safe-html).
-
-Before rendering, readers must sanitize the fragment again and insert only the
-sanitized result. This second pass protects the page if stored data bypassed or
-predates import validation:
+A note produces cards. Each card has an identity made of three parts:
 
 ```text
-HTML fragment
-  -> parse and validate during import
-  -> store
-  -> sanitize before DOM insertion
+(deck id, note id, variant id)
 ```
 
-The app supplies all CSS. It may style semantic elements and content-block roles,
-but deck content cannot select classes, set styles, or run code. The app also
-owns external-link behavior, syntax highlighting, media controls, responsive
-layout, and accessibility defaults.
+| Note type | Variant IDs |
+|---|---|
+| `prompt_response` | `""`, plus `reverse` when `reverse` is present |
+| `cloze` | One per distinct cloze ID |
+| `occlusion` | One per mask ID |
 
-Math uses the allowed native MathML subset. TeX delimiters and
-renderer-specific formula extensions are not part of Open Deck.
+Cards from the same note are **siblings**. Readers keep siblings apart in time
+(see [sibling burying](#sibling-burying)).
+
+A reader stores scheduling and review history against a card's identity, never
+against its content or its position in a file.
+
+## 10. Updating a deck
+
+A deck grows and changes over time. Every package is a **complete snapshot** of
+the deck, never a patch. A note, cloze, mask, `reverse`, or asset missing from a
+new version has been removed.
+
+Readers keep a learner's review history by matching card identities between
+versions. Authors and generators must keep identities stable:
+
+- The deck `id` identifies the deck, independently of its title, directory
+  name, or ZIP file name. Change it only to create a separate deck.
+- Keep each note's `id` when editing the note's content, tags, media, or file.
+- Do not renumber cloze IDs or mask IDs when inserting, removing, or reordering
+  items. Adding a cloze between `c1` and `c2` makes it `c3`.
+- Never reuse an ID for an unrelated learning task. Give new tasks new IDs.
+- Editing content never changes identity. Fixing a typo, rewording an answer,
+  replacing an image, or moving a mask keeps the card and its history.
+- Changing an ID is a removal plus an addition. The format has no alias or
+  rename mechanism. History does not move to the new ID; it stays with the old
+  one and returns if the old ID returns.
+- Every asset a note references must be in the package, even if an earlier
+  version already contained it.
+
+Agents generating or regenerating a deck must read the existing notes first and
+keep their IDs. Deriving IDs from a stable key (such as `kaishi-0002-私`) is
+safer than numbering notes by position.
+
+## 11. Reader behaviour in Inza
+
+This section is not part of the file format. It defines what Inza guarantees
+when it reads Open Deck packages.
+
+### Validation
+
+Inza rejects a whole package, with the file path, note ID, and field path of the
+first problem, when:
+
+- A required file or field is missing, or a field is unknown at any depth.
+- A value has the wrong type, required text is empty, or YAML uses a construct
+  that [section 1](#yaml-rules) forbids.
+- A note ID, mask ID, tag within a note, or mapping key is duplicated.
+- A note type, media kind, or shape kind is unsupported.
+- An ID contains a forbidden character.
+- HTML contains an element, attribute, or URL scheme outside the allowlist.
+- A cloze is malformed, or `text` has no cloze.
+- A content field cannot show anything in the state where it must, or media has
+  a `side` it can never be visible with.
+- A mask has invalid geometry, or the occlusion image is not a usable still
+  image.
+- An asset is missing, unreadable, or outside `assets/`.
+
+Inza validates HTML when importing and sanitizes it again before inserting it
+into the page.
+
+### Import and update
+
+Importing a deck whose `id` is new adds it. Importing a deck whose `id` already
+exists updates that deck. Both follow the same steps:
+
+1. **Prepare.** Read the whole package, validate every note and asset, and hash
+   note content and asset bytes. Nothing is written yet.
+2. **Preview.** Compare against the stored deck and show what will change:
+   - Notes added, changed, and removed, including note type changes.
+   - Cards new, kept, and restored from the archive.
+   - Removed cards, split into reviewed (archived) and never reviewed (deleted).
+   - Assets added, replaced, and removed, with sizes.
+   - In-app edits that the update will overwrite.
+
+   Formatting-only changes (indentation, comments, key order, which file a
+   note is in) do not count as changes.
+3. **Apply.** After the learner confirms, write everything in one database
+   transaction. If anything fails or the app closes, the previous version stays
+   complete and usable. There is never a half-updated deck.
+
+Cards are matched by identity:
+
+| In the new package | Stored | Result |
+|---|---|---|
+| Present | No | New card |
+| Present | Active | Keeps scheduling and history; shows new content |
+| Present | Archived | Restored with its scheduling and history |
+| Absent | Answered at least once | Archived |
+| Absent | Never answered | Deleted |
+
+- **Content edits never reset scheduling.** Resetting a card's schedule is a
+  separate action, and a reset card still counts as answered.
+- **Archived cards** keep their identity, scheduling, and review events. They
+  are excluded from study and counts. Their old content is not kept; an archived
+  card can be listed with its history but not studied until its identity returns.
+- Permanently deleting reviewed history is a separate, explicit action, never
+  part of an import.
+- An update replaces assets whose bytes changed and removes assets no note
+  references.
+
+### In-app edits
+
+Inza allows editing notes in the app. The deck file stays the source of truth:
+when an update would overwrite a note edited in the app, the preview says so and
+offers to export the deck first. An export keeps every deck, note, cloze, and
+mask ID, so the edits can be merged into the source files. In-app edits follow
+the same identity rules as imports; removing a reviewed cloze in the app
+archives its card.
+
+### Review history
+
+Inza records every answer as a review event, together with the card's new
+schedule, in one transaction. Review events are kept for archived cards. They
+are what the FSRS optimizer learns from.
+
+### Sibling burying
+
+Inza shows at most one new or review card per note per day. When a card is
+answered, its new and review siblings wait until the next day. Cards in their
+learning or relearning steps are exempt, because delaying them a day would break
+their short intervals. Burying only delays a card; it never changes its
+schedule.
+
+### Rendering
+
+Inza provides the layout for front and back, responsive sizing, dark mode,
+audio and video controls, image sizing, code highlighting, MathML, and
+accessible labels. Hidden cloze answers are absent from the page, not merely
+invisible. Deck authors never manage layout.
+
+## 12. Not in this format
+
+These are deliberately left out. Each would add rules without a demonstrated
+need.
+
+| Left out | Instead |
+|---|---|
+| Templates, deck CSS, JavaScript | The app renders semantic content |
+| Markdown, TeX | Safe HTML and MathML |
+| Content roles and rendering weights | Part order and containment |
+| Per-word media anchors | Link to the part; mark the word with `<mark>` |
+| File-level defaults, per-note sub-decks | Explicit fields on each note; tags |
+| Hint fields and cloze hints | Write cues into the visible content |
+| Structured references | Ordinary links in content |
+| Provenance or generator metadata | Keep it in the authoring source |
+| Ellipse and polygon masks, mask groups | Rectangles |
+| "Hide all, guess one" occlusion | Hide one, guess one |
+| Media per cloze card | Note media; occlusion masks carry their own media |
+| Autoplay and player settings | Controls owned by the app |
+| Remote assets, URL loading | Self-contained packages |
+| ID aliases and rename tracking | Stable IDs; archived history |
+| Version or revision fields | Content comparison |
+| Scheduling state in deck files | Stored by the reader |
+
+## 13. Complete example
+
+```yaml
+# deck.yaml
+format: open-deck
+id: kaishi
+title: Kaishi 1.5k
+language: en
+```
+
+```yaml
+# notes/0001-0250.yaml
+notes:
+  # The short form: one line per note.
+  - {id: oxygen, type: prompt_response, prompt: "Symbol for oxygen?", answer: O}
+
+  # Parts with linked media and a reverse card.
+  - id: kaishi-0002-私
+    type: prompt_response
+    tags: [n5, pronoun]
+    prompt:
+      - html: 私
+        language: ja
+        media:
+          - kind: audio
+            src: assets/audio/watashi.mp3
+            label: Word audio
+            side: back
+    answer:
+      - label: Meaning
+        html: I (polite, general)
+      - label: Reading
+        html: <ruby>私<rt>わたし</rt></ruby>
+        language: ja
+      - label: Example
+        html: <mark>私</mark>はアンです。
+        language: ja
+        media:
+          - kind: audio
+            src: assets/audio/watashi-sentence.mp3
+            label: Sentence audio
+          - kind: image
+            src: assets/images/jikosyoukai_man.webp
+            alt: A man introducing himself to three people
+      - label: Translation
+        html: I am Ann.
+      - label: Notes
+        html: Can also be read わたくし (formal) and あたし (feminine).
+    reverse: I (polite, general)
+
+  # A cloze with audio held back until the reveal.
+  - id: wa-topic
+    type: cloze
+    language: ja
+    text:
+      - html: 私{{c1::は}}アンです。
+        media:
+          - kind: audio
+            src: assets/audio/watashi-sentence.mp3
+            side: back
+    extra: は marks the topic of the sentence.
+
+  # A code card using HTML.
+  - id: rust-borrow-scope
+    type: prompt_response
+    prompt: |
+      <p>Does this compile?</p>
+      <pre><code data-language="rust">let r1 = &amp;s;
+      let r2 = &amp;mut s;
+      println!("{r1}");</code></pre>
+    answer: No. <code>r1</code> is still used after the mutable borrow begins.
+```

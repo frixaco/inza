@@ -1,0 +1,939 @@
+/* ==========================================================================
+   Inza Receipt: overrides on the shared structural sheet (styles.css).
+   The vibe of a thermal receipt, not a costume: one monospace face on a
+   character grid, paper slips on a grey counter, dashed rules and dot leaders,
+   printer emphasis (weight, inverted ink, small tracked labels), no hue except
+   a red stamp for Again and for cards still being learned.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Paper Mono';
+  src:
+    url('/fonts/PaperMono.woff2') format('woff2-variations'),
+    url('/fonts/PaperMono.woff2') format('woff2');
+  font-weight: 100 800;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+  --ground: #e6e4de; /* the counter */
+  --surface: #faf9f5; /* thermal paper */
+  --raised: #efede7;
+  --active: #e4e1d9;
+  --line: #cfccc3;
+  --rule: #dedbd2;
+  --control: #8f8c84;
+  --ink: #1b1a17;
+  --ink-hover: #3a3833;
+  --on-ink: #faf9f5;
+  --muted: #5f5c55;
+  --faded: #a29f96; /* ink that has faded, used for new cards */
+  --accent: #1b1a17;
+  --accent-soft: #e4e1d9;
+  --accent-ink: #1b1a17;
+  --stamp: #cf2a2a;
+  --stamp-soft: #f8e1e0;
+  --negative: #cf2a2a;
+  --negative-soft: #f8e1e0;
+  --warning: #cf2a2a;
+  --warning-soft: #f8e1e0;
+  --positive: #1b1a17;
+  --grid: #dedbd2;
+  --scrim: rgb(27 26 23 / 0.32);
+
+  --font: 'Paper Mono', 'BIZ UDGothic', ui-monospace, monospace;
+  --mono: var(--font);
+  --jp: 'BIZ UDGothic', 'Paper Mono', 'Hiragino Sans', monospace;
+  --fs-kpi: 28px;
+}
+
+/* Dark is a carbon copy: light ink pressed onto near-black stock. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #0c0c0b;
+  --surface: #181816;
+  --raised: #22221f;
+  --active: #2b2b27;
+  --line: #3a3934;
+  --rule: #2a2a26;
+  --control: #6f6d66;
+  --ink: #e9e9e7;
+  --ink-hover: #cdcdcb;
+  --on-ink: #181816;
+  --muted: #a5a5a2;
+  --faded: #6c6a63;
+  --accent: #e9e9e7;
+  --accent-soft: #2b2b27;
+  --accent-ink: #e9e9e7;
+  --stamp: #ff6461;
+  --stamp-soft: #341b1b;
+  --negative: #ff6461;
+  --negative-soft: #341b1b;
+  --warning: #ff6461;
+  --warning-soft: #341b1b;
+  --positive: #e9e9e7;
+  --grid: #2a2a26;
+  --scrim: rgb(0 0 0 / 0.6);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --ground: #0c0c0b;
+    --surface: #181816;
+    --raised: #22221f;
+    --active: #2b2b27;
+    --line: #3a3934;
+    --rule: #2a2a26;
+    --control: #6f6d66;
+    --ink: #e9e9e7;
+    --ink-hover: #cdcdcb;
+    --on-ink: #181816;
+    --muted: #a5a5a2;
+    --faded: #6c6a63;
+    --accent: #e9e9e7;
+    --accent-soft: #2b2b27;
+    --accent-ink: #e9e9e7;
+    --stamp: #ff6461;
+    --stamp-soft: #341b1b;
+    --negative: #ff6461;
+    --negative-soft: #341b1b;
+    --warning: #ff6461;
+    --warning-soft: #341b1b;
+    --positive: #e9e9e7;
+    --grid: #2a2a26;
+    --scrim: rgb(0 0 0 / 0.6);
+  }
+}
+
+body {
+  font-size: 14px;
+  font-feature-settings: 'zero' 1;
+}
+.num {
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+::selection {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+:focus-visible {
+  outline-color: var(--ink);
+  outline-style: dashed;
+}
+
+/* The printer's small header: the one place letters are tracked. */
+.label,
+.section-title,
+.kpi dt,
+.nav-label,
+.ledger th,
+.sched dt,
+.set-label h2 {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.section-title a,
+.section-title button,
+.section-title .muted {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.section-title {
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px dashed var(--line);
+}
+
+/* Shell ------------------------------------------------------------------ */
+.nav {
+  border-right: 1px dashed var(--line);
+  background: var(--ground);
+}
+.nav-brand {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.nav-item {
+  font-size: 14px;
+}
+.nav-item[aria-current='page'] {
+  font-weight: 600;
+}
+.nav-foot {
+  border-top: 1px dashed var(--line);
+}
+@media (max-width: 699px) {
+  .nav {
+    border-top: 1px solid var(--ink);
+  }
+  .nav-item {
+    border-right: 1px dashed var(--line);
+    font-size: 12px;
+  }
+}
+
+/* Headings --------------------------------------------------------------- */
+.head {
+  border-bottom: 3px double var(--ink);
+}
+.head h1,
+.browse-tools h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.stamp-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+@media (max-width: 699px) {
+  .head h1 {
+    font-size: 24px;
+  }
+}
+
+/* Controls --------------------------------------------------------------- */
+.btn {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.btn-danger {
+  border-color: var(--stamp);
+  color: var(--stamp);
+}
+.kbd {
+  font-family: var(--font);
+  border-style: dashed;
+}
+.seg,
+.stepper {
+  border-color: var(--ink);
+}
+.seg button,
+.seg .seg-copy span {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.seg button + button {
+  border-left: 1px dashed var(--line);
+}
+.stepper output {
+  border-inline: 1px dashed var(--line);
+  font-weight: 600;
+}
+.input,
+.select,
+.textarea {
+  border-color: var(--control);
+  background: var(--surface);
+}
+.chip {
+  border-style: dashed;
+  border-color: var(--control);
+  font-size: 12px;
+}
+
+/* Tags read like printed codes, not pills */
+.tag {
+  height: 20px;
+  padding: 0 6px;
+  background: transparent;
+  border: 1px solid var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tag-new {
+  border-color: var(--faded);
+  color: var(--muted);
+  background: transparent;
+}
+.tag-learning {
+  border-color: var(--stamp);
+  color: var(--stamp);
+  background: transparent;
+}
+.tag-suspended {
+  border: 1px dashed var(--control);
+  outline: 0;
+}
+
+/* Paper slips ------------------------------------------------------------ */
+.panel,
+.kpis,
+.today-lead,
+.set-panel,
+.sched,
+.preview {
+  border: 0;
+  background: var(--surface);
+}
+.kpi + .kpi {
+  border-left: 1px dashed var(--line);
+}
+@media (max-width: 699px) {
+  .kpi:nth-child(n + 3) {
+    border-top: 1px dashed var(--line);
+  }
+}
+.kpi dd {
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.today-figure .num {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+}
+.today-figure p {
+  font-size: 15px;
+}
+.today-split b {
+  font-weight: 600;
+}
+
+.ledger th {
+  border-bottom: 1px dashed var(--ink);
+}
+.ledger td {
+  border-bottom: 1px dashed var(--rule);
+}
+.deck-name b {
+  font-weight: 600;
+}
+.deck-rows {
+  border-top: 1px dashed var(--ink);
+}
+.deck-row {
+  border-bottom: 1px dashed var(--rule);
+}
+.zero {
+  color: var(--faded);
+}
+
+/* Dot leaders: label ........ value */
+.leaders > div,
+.facts > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  min-height: 32px;
+  border-bottom: 0;
+}
+.leaders dt,
+.facts dt {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  min-width: 0;
+  white-space: nowrap;
+}
+.leaders dt::after,
+.facts dt::after {
+  content: '';
+  flex: 1;
+  min-width: 16px;
+  margin: 0 8px;
+  border-bottom: 2px dotted var(--control);
+  translate: 0 -4px;
+}
+.leaders dd,
+.facts dd {
+  white-space: nowrap;
+}
+.leaders .strong {
+  font-weight: 700;
+}
+
+.legend-table td,
+.option-row,
+.set-item,
+.kv dt,
+.kv dd,
+.log li,
+.files li {
+  border-bottom: 1px dashed var(--rule);
+}
+.danger {
+  border-top: 3px double var(--line);
+}
+
+/* The queue is a barcode: review in ink, new in faded ink, learning stamped. */
+.queue i {
+  background: var(--ink);
+}
+.queue i[data-k='new'] {
+  background: var(--faded);
+}
+.queue i[data-k='learning'] {
+  background: var(--stamp);
+}
+.queue i[data-done] {
+  background: var(--rule);
+}
+.dot {
+  vertical-align: 0;
+}
+
+/* Charts in ink. Today's partial day is hollow: still printing. */
+.chart text {
+  font-family: var(--font);
+}
+.chart rect.bar {
+  fill: var(--ink);
+}
+.chart rect.bar[data-hl] {
+  fill: var(--surface);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+.chart rect.bar[data-soft] {
+  fill: var(--faded);
+}
+.chart .gridline {
+  stroke-dasharray: 2 3;
+  stroke: var(--line);
+}
+.chart-tip {
+  font-family: var(--font);
+}
+
+.params {
+  gap: 0;
+  background: transparent;
+  border: 1px dashed var(--line);
+}
+.params span {
+  font-family: var(--font);
+  background: transparent;
+}
+.set-row {
+  border-bottom: 1px dashed var(--line);
+}
+.set-label h2 {
+  font-size: 13px;
+}
+.progress {
+  height: 10px;
+  background: transparent;
+  outline: 1px solid var(--ink);
+  outline-offset: -1px;
+}
+
+/* Browse ----------------------------------------------------------------- */
+.browse-list {
+  border-right: 1px dashed var(--line);
+}
+.browse-tools {
+  border-bottom: 3px double var(--ink);
+}
+.note-row {
+  border-bottom: 1px dashed var(--rule);
+}
+.note-row .t {
+  font-weight: 600;
+}
+.detail-head {
+  border-bottom: 3px double var(--ink);
+}
+.detail-head h2 {
+  font-family: var(--jp);
+}
+.preview {
+  border: 0;
+}
+.preview-bar {
+  border-bottom: 1px dashed var(--line);
+}
+.sched div {
+  border-color: var(--line);
+  border-style: dashed;
+}
+
+/* Card faces --------------------------------------------------------------- */
+.face-sentence strong {
+  box-shadow: inset 0 -0.18em 0 var(--ink);
+}
+/* The answer sits below a perforation. */
+.answer {
+  border-top: 2px dashed var(--ink);
+}
+.answer-reading {
+  font-weight: 700;
+}
+.answer-meaning {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.answer-img {
+  border: 1px dashed var(--line);
+  mix-blend-mode: multiply;
+}
+:root[data-theme='dark'] .answer-img {
+  mix-blend-mode: normal;
+}
+.audio-btn {
+  border-style: dashed;
+}
+.cloze-gap {
+  border-bottom: 3px solid var(--ink);
+  color: var(--ink);
+}
+.cloze-fill {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.kana,
+.kana span {
+  border-color: var(--ink);
+}
+.kana span {
+  border-style: dashed;
+  border-top: 0;
+  border-left: 0;
+}
+.kana span small {
+  font-family: var(--font);
+}
+.kana .mask {
+  font-family: var(--font);
+}
+.kana .revealed {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.kana .revealed small {
+  color: var(--on-ink);
+}
+
+/* Study ------------------------------------------------------------------- */
+.study {
+  background: var(--ground);
+}
+.study-card {
+  border: 0;
+  background: var(--surface);
+}
+.study-card.under {
+  background: var(--raised);
+}
+.study-card .meta {
+  border-bottom: 1px dashed var(--line);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.grades {
+  border-color: var(--ink);
+  background: var(--surface);
+}
+.grade + .grade {
+  border-left: 1px dashed var(--line);
+}
+.grade {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.grade-again {
+  color: var(--stamp);
+}
+.study-hint.left {
+  color: var(--stamp);
+}
+
+/* The session slip: the one literal receipt in the app. */
+.done {
+  max-width: 560px;
+  gap: 24px;
+}
+.done h2 {
+  font-size: 30px;
+  letter-spacing: -0.03em;
+}
+.slip {
+  position: relative;
+  padding: 22px 22px 18px;
+  background: var(--surface);
+}
+.slip-tear {
+  display: block;
+  width: 100%;
+  height: 10px;
+  color: var(--surface);
+  margin-top: -1px;
+}
+.slip-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.slip-head b {
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.slip hr {
+  margin: 14px 0;
+  border: 0;
+  border-top: 1px dashed var(--ink);
+}
+.slip hr.double {
+  border-top: 3px double var(--ink);
+}
+.slip .total dt,
+.slip .total dd {
+  font-weight: 700;
+  font-size: 16px;
+}
+.slip .queue {
+  height: 40px;
+  margin-top: 4px;
+}
+.slip-foot {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Sheets and dialogs -------------------------------------------------------- */
+.sheet {
+  background: var(--surface);
+  border-left: 1px solid var(--ink);
+}
+.sheet-head {
+  border-bottom: 3px double var(--ink);
+}
+.sheet-head h2,
+.dialog h2 {
+  font-size: 18px;
+  letter-spacing: 0;
+}
+.sheet-foot {
+  border-top: 1px dashed var(--line);
+}
+.dialog {
+  background: var(--surface);
+}
+.drop {
+  border: 1px dashed var(--control);
+  background: transparent;
+}
+.error-box {
+  border-left: 0;
+  border: 1px solid var(--stamp);
+  background: transparent;
+}
+.error-box b {
+  color: var(--stamp);
+  font-weight: 700;
+}
+.error-box code {
+  font-family: var(--font);
+  font-weight: 700;
+}
+
+/* Design system page --------------------------------------------------------- */
+.swatches,
+.swatch,
+.swatch i {
+  border-style: dashed;
+}
+.swatch code,
+.type-row code {
+  font-family: var(--font);
+}
+.sys-block,
+.type-row {
+  border-bottom-style: dashed;
+}
+
+[data-sonner-toast][data-styled='true'] {
+  font-family: var(--font) !important;
+}
+.slip .queue {
+  margin: 4px 0 0;
+}
+.done .slip .slip-foot {
+  font-size: 12px;
+}
+.sched div {
+  border-style: solid;
+  border-color: var(--rule);
+}
+.nav-foot {
+  font-size: 11px;
+}
+@media (max-width: 699px) {
+  .queue-legend span:nth-child(2) {
+    display: none;
+  }
+}
+.sched {
+  gap: 1px;
+  background: var(--rule);
+}
+.sched div {
+  border: 0;
+  background: var(--surface);
+}
+@media (max-width: 1099px) {
+  :root {
+    --nav-w: 96px;
+  }
+}
+@media (max-width: 1099px) and (min-width: 700px) {
+  .nav-item {
+    font-size: 11px;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Study: two lines only, the barcode (progress) and the perforation (reveal).
+   Everything else separates by tone and space. */
+.study-card .meta {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.study .face-sentence strong,
+.preview .face-sentence strong {
+  box-shadow: none;
+  font-weight: 700;
+}
+.study .answer-img,
+.preview .answer-img {
+  border: 0;
+}
+.study .audio-btn,
+.preview .audio-btn {
+  border: 0;
+  background: var(--raised);
+}
+.study .grades {
+  border: 0;
+  gap: 2px;
+  background: transparent;
+}
+.study .grade {
+  background: var(--surface);
+}
+.study .grade + .grade {
+  border-left: 0;
+}
+.study .grade-good {
+  background: var(--ink);
+}
+.study .kbd {
+  border: 0;
+  background: var(--raised);
+  opacity: 1;
+  color: var(--muted);
+}
+.study .grade-good .kbd {
+  background: var(--ink-hover);
+  color: var(--on-ink);
+}
+@media (hover: hover) and (pointer: fine) {
+  .study .grade:not(.grade-good):hover {
+    background: var(--raised);
+  }
+}
+.study .answer-img,
+.preview .answer-img {
+  background: transparent;
+}
+
+/* Grade bar (tablet and desktop): the interval is the headline, the word is
+   the label, and Again stands apart from the three passing grades. */
+.study .grades .grade {
+  height: 76px;
+  gap: 4px;
+}
+.study .grades .grade-again {
+  margin-right: 12px;
+}
+.study .grades .num {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.study .grades .g-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.study .grades .grade-again .num,
+.study .grades .grade-again .g-label {
+  color: var(--stamp);
+}
+.study .grades .grade-good .num,
+.study .grades .grade-good .g-label {
+  color: var(--on-ink);
+  opacity: 1;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Flick pad (phones). */
+.study-bar {
+  position: relative;
+  z-index: 3;
+}
+.flick {
+  display: grid;
+  justify-items: center;
+  padding-top: 2px;
+}
+.flick-stage {
+  position: relative;
+  width: 76px;
+  height: 76px;
+}
+.flick-pad {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-color: var(--raised);
+  background-image: radial-gradient(circle, var(--control) 1.2px, transparent 1.7px);
+  background-size: 9px 9px;
+  background-position: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: background-color var(--t-fast) ease;
+}
+.flick-pad.is-open {
+  background-color: var(--active);
+}
+.flick-puck {
+  width: 18px;
+  height: 18px;
+  background: var(--ink);
+  transition: background-color 90ms ease;
+}
+.flick-puck.to-left {
+  background: var(--stamp);
+}
+.flick-chev {
+  position: absolute;
+  color: var(--muted);
+}
+.chev-up {
+  top: 5px;
+  left: calc(50% - 5px);
+}
+.chev-down {
+  bottom: 5px;
+  left: calc(50% - 5px);
+}
+.chev-left {
+  left: 5px;
+  top: calc(50% - 5px);
+}
+.chev-right {
+  right: 5px;
+  top: calc(50% - 5px);
+}
+.flick-slot {
+  --w: min(132px, calc(50vw - 50px));
+  position: absolute;
+  width: var(--w);
+}
+.flick-arm {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 10px 28px -14px rgb(0 0 0 / 0.4);
+  transition:
+    background-color 90ms ease,
+    color 90ms ease;
+}
+.flick-arm b {
+  font-size: 15px;
+}
+.flick-arm span {
+  color: var(--muted);
+  transition: color 90ms ease;
+}
+.flick-arm.is-again {
+  color: var(--stamp);
+}
+.flick-arm.on {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.flick-arm.is-again.on {
+  background: var(--stamp);
+}
+.flick-arm.on span {
+  color: var(--on-ink);
+  opacity: 0.7;
+}
+.arm-left,
+.arm-right {
+  top: 10px;
+  height: 56px;
+}
+.arm-left {
+  right: calc(100% + 6px);
+}
+.arm-right {
+  left: calc(100% + 6px);
+}
+.arm-up,
+.arm-down {
+  left: calc(50% - var(--w) / 2);
+}
+.arm-up {
+  bottom: calc(100% + 6px);
+  height: 48px;
+}
+.arm-down {
+  top: calc(100% + 6px);
+  height: 40px;
+}
+.flick-hint {
+  display: grid;
+  place-items: center;
+  height: 46px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faded);
+}

@@ -6,7 +6,7 @@
     "es2026": true,
     "node": true
   },
-  "ignorePatterns": ["dist", "stuff/kaishi-open-deck/**"],
+  "ignorePatterns": ["**/dist/**", ".agents/**"],
   "settings": {
     "react": {
       "version": "19.2"
