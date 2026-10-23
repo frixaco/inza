@@ -9,11 +9,12 @@
     "demo": "aube run --filter @inza/demo dev",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
-    "lint": "oxlint apps packages"
+    "lint": "oxlint apps"
   },
   "devDependencies": {
     "oxfmt": "^0.74.0",
     "oxlint": "^1.89.0",
+    "railway": "^3.16.0",
     "typescript": "~7.0.2"
   }
 }
