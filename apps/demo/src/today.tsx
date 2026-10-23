@@ -13,7 +13,7 @@ import {
   totalDue,
   totals,
   type Deck,
-} from '@inza/sample'
+} from './sample'
 import { go } from './router'
 import { Queue, Rise } from './ui'
 

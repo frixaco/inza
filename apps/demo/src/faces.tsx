@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { Pause, SpeakerHigh } from '@phosphor-icons/react'
-import { assetUrl, kana, occlusionTarget, type ClozeNote, type KaishiNote } from '@inza/sample'
+import { assetUrl, kana, occlusionTarget, type ClozeNote, type KaishiNote } from './sample'
 import { ease, printEase } from './ui'
 
 /* The answer prints below the perforation, a few lines at a time. */

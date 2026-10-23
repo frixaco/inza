@@ -1,5 +1,5 @@
 {
-  "name": "@inza/receipt",
+  "name": "@inza/demo",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,6 @@
     "preview": "vite preview --port 5183"
   },
   "dependencies": {
-    "@inza/sample": "workspace:*",
     "@phosphor-icons/react": "^2.1.10",
     "motion": "^14.4.0",
     "react": "^19.2.6",

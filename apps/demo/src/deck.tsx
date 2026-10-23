@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeft, ArrowRight, MagnifyingGlass } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { deckCards, deckDue, decks, fmt, queueFor, settings } from '@inza/sample'
+import { deckCards, deckDue, decks, fmt, queueFor, settings } from './sample'
 import { go } from './router'
 import { Dialog, Queue, Rise, StatesBar, Stepper, Switch } from './ui'
 

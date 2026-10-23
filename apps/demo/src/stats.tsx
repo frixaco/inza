@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { cardStates, fmt, forecast, history } from '@inza/sample'
+import { cardStates, fmt, forecast, history } from './sample'
 import { stateColors } from './deck'
 import { Bars, Rise, Segmented, StatesBar } from './ui'
 

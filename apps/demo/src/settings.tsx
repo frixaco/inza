@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { decks, fmt, settings, storageUsed } from '@inza/sample'
+import { decks, fmt, settings, storageUsed } from './sample'
 import { Dialog, Rise, Segmented, Slider, Stepper, Switch } from './ui'
 
 export type Theme = 'system' | 'light' | 'dark'

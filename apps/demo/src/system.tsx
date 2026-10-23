@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'motion/react'
 import { ArrowRight } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { queueFor, decks } from '@inza/sample'
+import { queueFor, decks } from './sample'
 import { ease, printEase, Queue, Rise, Segmented, Slider, Stepper, Switch, Tag } from './ui'
 
 const colours = [

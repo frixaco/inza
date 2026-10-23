@@ -19,7 +19,7 @@ import {
   today,
   type Grade,
   type QueueItem,
-} from '@inza/sample'
+} from './sample'
 import { ClozeFace, KaishiFace, KanaFace } from './faces'
 import { allQueue } from './today'
 import { ease, printEase, Queue } from './ui'

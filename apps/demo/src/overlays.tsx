@@ -9,7 +9,7 @@ import {
   X,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { assetUrl, browse, fmt, importFiles, importTotal } from '@inza/sample'
+import { assetUrl, browse, fmt, importFiles, importTotal } from './sample'
 import { go } from './router'
 import { ease, Sheet } from './ui'
 

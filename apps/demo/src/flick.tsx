@@ -13,7 +13,7 @@ import {
   type MotionValue,
 } from 'motion/react'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from '@phosphor-icons/react'
-import type { Grade } from '@inza/sample'
+import type { Grade } from './sample'
 
 export type Dir = 'up' | 'down' | 'left' | 'right'
 
