@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "aube run --filter @inza/receipt dev",
-    "build": "aube run --filter @inza/receipt build",
+    "dev": "aube run --filter @inza/web dev",
+    "build": "aube run --filter @inza/web build",
+    "demo": "aube run --filter @inza/demo dev",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint apps packages"
